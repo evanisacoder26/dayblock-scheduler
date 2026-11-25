@@ -1,0 +1,381 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Log in · Dayblock</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+/* Layout: brand panel with a sample day on the left, form on the right; form only on phones. */
+:root {
+  --bg: #f8fafc; --surface: #ffffff; --sunken: #f1f5f9; --line: #e2e8f0; --line-strong: #cbd5e1;
+  --fg: #0f172a; --muted: #475569; --faint: #64748b;
+  --accent: #4f46e5; --accent-hover: #4338ca; --accent-soft: #eef2ff; --on-accent: #ffffff;
+  --bad: #b91c1c; --bad-soft: #fef2f2; --good: #047857; --warn: #b45309;
+  --panel: #1e1b4b; --panel-fg: #e0e7ff; --panel-muted: #a5b4fc;
+  --deep: #818cf8; --admin: #fb923c; --meet: #38bdf8; --personal: #34d399;
+  --font-display: "Space Grotesk", "Inter", system-ui, sans-serif;
+  --font-body: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0a0f1c; --surface: #111827; --sunken: #0d1424; --line: #1f2937; --line-strong: #334155;
+    --fg: #f1f5f9; --muted: #a3b1c6; --faint: #8090a6;
+    --accent: #818cf8; --accent-hover: #a5b4fc; --accent-soft: #1e1b4b; --on-accent: #0a0f1c;
+    --bad: #f87171; --bad-soft: #2c1010; --good: #34d399; --warn: #fbbf24;
+    --panel: #151238;
+    color-scheme: dark;
+  }
+}
+*, *::before, *::after { box-sizing: border-box; }
+html, body { height: 100%; }
+body { margin: 0; background: var(--bg); color: var(--fg); font-family: var(--font-body); font-size: 15px; line-height: 1.5; }
+h1, h2 { margin: 0; font-family: var(--font-display); letter-spacing: -0.01em; text-wrap: balance; }
+p { margin: 0; }
+a { color: var(--accent); font-weight: 600; text-decoration: none; }
+a:hover { text-decoration: underline; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.shell { min-height: 100%; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+@media (max-width: 860px) { .shell { grid-template-columns: 1fr; } .brand-panel { display: none !important; } }
+
+.brand-panel {
+  background: var(--panel); color: var(--panel-fg); display: flex; flex-direction: column; justify-content: space-between; gap: 40px;
+  padding: max(40px, env(safe-area-inset-top)) 48px 40px max(48px, env(safe-area-inset-left));
+}
+.logo { display: flex; align-items: center; gap: 10px; font-family: var(--font-display); font-weight: 700; font-size: 20px; }
+.logo-mark { width: 32px; height: 32px; border-radius: 9px; background: var(--deep); display: grid; place-items: center; }
+.logo-mark span { width: 13px; height: 4px; background: var(--panel); border-radius: 2px; box-shadow: 0 -6px 0 var(--panel), 0 6px 0 var(--panel); }
+.pitch h2 { font-size: clamp(28px, 3vw, 38px); font-weight: 700; line-height: 1.15; max-width: 16ch; }
+.pitch p { color: var(--panel-muted); margin-top: 14px; max-width: 42ch; }
+.mini-day { display: grid; grid-template-columns: 52px 1fr; gap: 0; max-width: 380px; font-family: var(--font-mono); font-size: 11px; }
+.mini-day .t { color: var(--panel-muted); height: 34px; opacity: .8; }
+.mini-day .slot { position: relative; height: 34px; border-top: 1px solid rgba(165,180,252,.18); }
+.mini-day .blk { position: absolute; left: 6px; right: 0; top: 3px; border-radius: 6px; padding: 4px 10px; font-family: var(--font-body); font-size: 12px; font-weight: 600; color: #0f172a; }
+.foot-note { font-size: 12px; color: var(--panel-muted); }
+
+.form-side {
+  display: grid; place-items: center;
+  padding-block: max(32px, env(safe-area-inset-top)) max(32px, env(safe-area-inset-bottom));
+  padding-left: max(20px, env(safe-area-inset-left)); padding-right: max(20px, env(safe-area-inset-right));
+}
+.card { width: 100%; max-width: 400px; display: grid; gap: 22px; }
+.mobile-logo { display: none; }
+@media (max-width: 860px) { .mobile-logo { display: flex; color: var(--fg); } .mobile-logo .logo-mark { background: var(--accent); } .mobile-logo .logo-mark span { background: var(--on-accent); box-shadow: 0 -6px 0 var(--on-accent), 0 6px 0 var(--on-accent); } }
+.card h1 { font-size: 28px; font-weight: 700; }
+.card .sub { color: var(--muted); margin-top: 6px; }
+form { display: grid; gap: 16px; }
+.field { display: grid; gap: 6px; }
+.field label { font-size: 13px; font-weight: 600; }
+.input-wrap { position: relative; }
+input[type="text"], input[type="email"], input[type="password"] {
+  width: 100%; height: 44px; padding: 0 12px; font: inherit; color: var(--fg); background: var(--surface);
+  border: 1px solid var(--line-strong); border-radius: 9px; transition: border-color .15s, box-shadow .15s;
+}
+.input-wrap input { padding-right: 64px; }
+input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+input[aria-invalid="true"] { border-color: var(--bad); }
+.reveal { position: absolute; right: 6px; top: 50%; transform: translateY(-50%); border: 0; background: none; color: var(--muted); font: inherit; font-size: 12.5px; font-weight: 600; padding: 6px 8px; border-radius: 6px; cursor: pointer; }
+.reveal:hover { color: var(--accent); background: var(--accent-soft); }
+.hint { font-size: 12.5px; color: var(--faint); }
+.field-error { font-size: 12.5px; color: var(--bad); }
+.strength { display: grid; grid-template-columns: repeat(4, 1fr); gap: 4px; margin-top: 2px; }
+.strength i { height: 4px; border-radius: 2px; background: var(--line); transition: background .2s; }
+.strength[data-score="1"] i:nth-child(-n+1) { background: var(--bad); }
+.strength[data-score="2"] i:nth-child(-n+2) { background: var(--warn); }
+.strength[data-score="3"] i:nth-child(-n+3) { background: var(--good); }
+.strength[data-score="4"] i { background: var(--good); }
+.row { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; font-size: 13.5px; }
+.check { display: inline-flex; align-items: center; gap: 8px; cursor: pointer; }
+.check input { width: 16px; height: 16px; accent-color: var(--accent); }
+.btn { height: 46px; border: 0; border-radius: 10px; background: var(--accent); color: var(--on-accent); font: inherit; font-weight: 600; font-size: 15px; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 10px; transition: background .15s; }
+.btn:hover:not(:disabled) { background: var(--accent-hover); }
+.btn:disabled { opacity: .65; cursor: progress; }
+.spin { width: 16px; height: 16px; border: 2px solid currentColor; border-right-color: transparent; border-radius: 50%; animation: spin .7s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.alert { padding: 11px 14px; border-radius: 9px; background: var(--bad-soft); color: var(--bad); font-size: 13.5px; font-weight: 500; }
+.switch { text-align: center; color: var(--muted); font-size: 14px; }
+.code-input { height: 60px !important; text-align: center; font-family: var(--font-mono); font-size: 30px !important; letter-spacing: .5em; padding-left: .5em !important; font-variant-numeric: tabular-nums; }
+.code-input::placeholder { color: var(--line-strong); letter-spacing: .5em; }
+.notice { padding: 11px 14px; border-radius: 9px; background: var(--accent-soft); color: var(--fg); font-size: 13px; }
+.notice b { font-weight: 600; }
+.linkbtn { border: 0; background: none; padding: 0; font: inherit; font-weight: 600; color: var(--accent); cursor: pointer; }
+.linkbtn:hover:not(:disabled) { text-decoration: underline; }
+.linkbtn:disabled { color: var(--faint); cursor: default; }
+.code-foot { display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; font-size: 13.5px; color: var(--muted); }
+.ok-msg { font-size: 13px; color: var(--good); }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation-duration: 2s !important; } }
+</style>
+</head>
+<body>
+<div class="shell">
+  <aside class="brand-panel">
+    <a class="logo" href="/" style="color:inherit;text-decoration:none"><div class="logo-mark"><span></span></div>Dayblock</a>
+    <div class="pitch">
+      <h2>Your whole day, planned in one brain dump.</h2>
+      <p>Type what's on your mind. AI turns it into timed blocks on your calendar, and you drag things around from there.</p>
+    </div>
+    <div class="mini-day" id="miniDay"></div>
+    <p class="foot-note">Your account keeps your plan in sync on every device you sign in from.</p>
+  </aside>
+
+  <main class="form-side">
+    <div class="card">
+      <a class="logo mobile-logo" href="/" style="color:inherit;text-decoration:none"><div class="logo-mark"><span></span></div>Dayblock</a>
+      <div>
+        <h1 id="heading">Welcome back</h1>
+        <p class="sub" id="subheading">Log in to see your day.</p>
+      </div>
+
+      <div class="alert" id="formError" role="alert" hidden></div>
+
+      <form id="authForm" novalidate>
+        <div class="field" id="nameField" hidden>
+          <label for="name">Name</label>
+          <input type="text" id="name" name="name" autocomplete="name" maxlength="60">
+          <p class="field-error" id="nameErr" hidden></p>
+        </div>
+        <div class="field">
+          <label for="email">Email</label>
+          <input type="email" id="email" name="email" autocomplete="email" inputmode="email" maxlength="254" required>
+          <p class="field-error" id="emailErr" hidden></p>
+        </div>
+        <div class="field">
+          <label for="password">Password</label>
+          <div class="input-wrap">
+            <input type="password" id="password" name="password" autocomplete="current-password" maxlength="200" required>
+            <button type="button" class="reveal" data-for="password" aria-label="Show password">Show</button>
+          </div>
+          <div class="strength" id="strength" data-score="0" hidden aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+          <p class="hint" id="pwHint" hidden>At least 8 characters, with letters and a number or symbol.</p>
+          <p class="field-error" id="passwordErr" hidden></p>
+        </div>
+        <div class="field" id="confirmField" hidden>
+          <label for="confirm">Confirm password</label>
+          <div class="input-wrap">
+            <input type="password" id="confirm" name="confirm" autocomplete="new-password" maxlength="200">
+            <button type="button" class="reveal" data-for="confirm" aria-label="Show password">Show</button>
+          </div>
+          <p class="field-error" id="confirmErr" hidden></p>
+        </div>
+        <div class="row" id="rememberRow">
+          <label class="check"><input type="checkbox" id="remember" checked> Keep me logged in for 30 days</label>
+        </div>
+        <button class="btn" type="submit" id="submitBtn">Log in</button>
+      </form>
+
+      <form id="codeForm" novalidate hidden>
+        <div class="notice" id="devNotice" hidden><b>Development mode:</b> email sending isn't set up on this server yet, so the code was printed in the server's console window instead of emailed.</div>
+        <div class="field">
+          <label for="code">6-digit code</label>
+          <input type="text" id="code" class="code-input" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]*" maxlength="7" placeholder="000000" aria-describedby="codeErr">
+          <p class="field-error" id="codeErr" hidden></p>
+          <p class="ok-msg" id="codeOk" role="status" hidden></p>
+        </div>
+        <label class="check"><input type="checkbox" id="trustDevice"> Don't ask for a code on this device for 30 days</label>
+        <button class="btn" type="submit" id="verifyBtn">Verify</button>
+        <div class="code-foot">
+          <button type="button" class="linkbtn" id="resendBtn" disabled>Resend code</button>
+          <button type="button" class="linkbtn" id="backBtn">Use a different account</button>
+        </div>
+      </form>
+
+      <p class="switch" id="switchLine">New to Dayblock? <a href="/signup" id="switchLink">Create an account</a></p>
+    </div>
+  </main>
+</div>
+
+<script>
+(() => {
+  "use strict";
+  const $ = (id) => document.getElementById(id);
+  const isSignup = location.pathname === "/signup";
+  const params = new URLSearchParams(location.search);
+  const next = ["/dashboard", "/planner"].includes(params.get("next")) ? params.get("next") : "/dashboard";
+  const keepNext = params.get("next") ? `?next=${encodeURIComponent(next)}` : "";
+
+  // Decorative sample day on the brand panel
+  const day = [["8 AM", null], ["9 AM", ["Team standup", "var(--meet)"]], ["10 AM", ["Finish Q3 report", "var(--deep)"]], ["11 AM", null], ["12 PM", ["Lunch walk", "var(--personal)"]], ["1 PM", ["Reply to emails", "var(--admin)"]], ["2 PM", ["1:1 with Priya", "var(--meet)"]]];
+  const mini = $("miniDay");
+  day.forEach(([t, b]) => {
+    const tt = document.createElement("div"); tt.className = "t"; tt.textContent = t; mini.append(tt);
+    const s = document.createElement("div"); s.className = "slot";
+    if (b) { const k = document.createElement("div"); k.className = "blk"; k.textContent = b[0]; k.style.background = b[1]; if (b[0] === "Finish Q3 report") k.style.height = "62px"; s.append(k); }
+    mini.append(s);
+  });
+
+  // Mode setup
+  if (isSignup) {
+    document.title = "Create account · Dayblock";
+    $("heading").textContent = "Create your account";
+    $("subheading").textContent = "Start planning your days with AI. It takes a few seconds.";
+    $("nameField").hidden = false; $("confirmField").hidden = false;
+    $("strength").hidden = false; $("pwHint").hidden = false;
+    $("rememberRow").hidden = true;
+    $("password").autocomplete = "new-password";
+    $("submitBtn").textContent = "Create account";
+    $("switchLine").firstChild.textContent = "Already have an account? ";
+    $("switchLink").textContent = "Log in";
+    $("switchLink").href = "/login" + keepNext;
+  } else {
+    $("switchLink").href = "/signup" + keepNext;
+  }
+  (isSignup ? $("name") : $("email")).focus();
+
+  // Show / hide password
+  document.querySelectorAll(".reveal").forEach((b) => b.addEventListener("click", () => {
+    const input = $(b.dataset.for);
+    const show = input.type === "password";
+    input.type = show ? "text" : "password";
+    b.textContent = show ? "Hide" : "Show";
+    b.setAttribute("aria-label", show ? "Hide password" : "Show password");
+  }));
+
+  // Strength meter (signup)
+  function score(pw) {
+    let s = 0;
+    if (pw.length >= 8) s++;
+    if (pw.length >= 12) s++;
+    if (/[a-z]/.test(pw) && /[A-Z]/.test(pw)) s++;
+    if (/[0-9]/.test(pw) && /[^a-zA-Z0-9]/.test(pw)) s++;
+    return pw ? Math.max(1, s) : 0;
+  }
+  $("password").addEventListener("input", (e) => { if (isSignup) $("strength").dataset.score = String(score(e.target.value)); });
+
+  // Validation
+  function setErr(id, msg) {
+    const input = $(id), err = $(id + "Err");
+    input.setAttribute("aria-invalid", msg ? "true" : "false");
+    if (msg) input.setAttribute("aria-describedby", id + "Err"); else input.removeAttribute("aria-describedby");
+    err.textContent = msg || ""; err.hidden = !msg;
+  }
+  function validate() {
+    const v = { name: $("name").value.trim(), email: $("email").value.trim(), password: $("password").value, confirm: $("confirm").value };
+    const errs = {};
+    if (isSignup && !v.name) errs.name = "Enter your name.";
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(v.email)) errs.email = "Enter a valid email address.";
+    if (isSignup) {
+      if (v.password.length < 8) errs.password = "Use at least 8 characters.";
+      else if (!/[a-zA-Z]/.test(v.password) || !/[0-9\W_]/.test(v.password)) errs.password = "Add a number or symbol to your password.";
+      if (!errs.password && v.confirm !== v.password) errs.confirm = "Passwords don't match.";
+    } else if (!v.password) errs.password = "Enter your password.";
+    ["name", "email", "password", "confirm"].forEach((k) => setErr(k, errs[k]));
+    const first = ["name", "email", "password", "confirm"].find((k) => errs[k]);
+    if (first) $(first).focus();
+    return first ? null : v;
+  }
+  ["name", "email", "password", "confirm"].forEach((k) => $(k).addEventListener("input", () => setErr(k, "")));
+
+  // Submit
+  $("authForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const box = $("formError"); box.hidden = true;
+    const v = validate();
+    if (!v) return;
+    const btn = $("submitBtn"), label = btn.textContent;
+    btn.disabled = true; btn.textContent = "";
+    const sp = document.createElement("span"); sp.className = "spin"; sp.setAttribute("aria-hidden", "true");
+    btn.append(sp, isSignup ? "Creating account…" : "Logging in…");
+    try {
+      const body = isSignup ? { name: v.name, email: v.email, password: v.password } : { email: v.email, password: v.password, remember: $("remember").checked };
+      const res = await fetch(isSignup ? "/api/auth/signup" : "/api/auth/login", {
+        method: "POST", headers: { "Content-Type": "application/json" }, credentials: "same-origin", body: JSON.stringify(body)
+      });
+      const j = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(j.error || "Something went wrong. Try again.");
+      if (j.verify) { btn.disabled = false; btn.textContent = label; showCodeStep(j); return; }
+      location.replace(next);
+    } catch (err) {
+      box.textContent = err.message === "Failed to fetch" ? "Couldn't reach the server. Check that it's running." : err.message;
+      box.hidden = false;
+      if (!isSignup) { $("password").value = ""; $("password").focus(); }
+      btn.disabled = false; btn.textContent = label;
+    }
+  });
+  /* ---------- Step 2: email code ---------- */
+  let challenge = null, cooldownTimer = null;
+  function showCodeStep(j) {
+    challenge = j.challenge;
+    $("authForm").hidden = true; $("switchLine").hidden = true; $("formError").hidden = true;
+    $("codeForm").hidden = false;
+    $("heading").textContent = "Check your email";
+    $("subheading").textContent = `We sent a 6-digit code to ${j.email}. It expires in 10 minutes.`;
+    $("devNotice").hidden = !j.devMode;
+    $("trustDevice").checked = false;
+    $("code").value = ""; $("code").focus();
+    startCooldown(60);
+  }
+  function startCooldown(sec) {
+    const b = $("resendBtn");
+    clearInterval(cooldownTimer);
+    let left = sec;
+    const tick = () => {
+      if (left <= 0) { clearInterval(cooldownTimer); b.disabled = false; b.textContent = "Resend code"; return; }
+      b.disabled = true; b.textContent = `Resend code in ${left}s`; left--;
+    };
+    tick(); cooldownTimer = setInterval(tick, 1000);
+  }
+  function codeError(msg) {
+    $("codeErr").textContent = msg || ""; $("codeErr").hidden = !msg;
+    $("code").setAttribute("aria-invalid", msg ? "true" : "false");
+  }
+  $("code").addEventListener("input", (e) => {
+    const digits = e.target.value.replace(/\D/g, "").slice(0, 6);
+    e.target.value = digits;
+    codeError(""); $("codeOk").hidden = true;
+    if (digits.length === 6) $("codeForm").requestSubmit();
+  });
+  $("codeForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const code = $("code").value.replace(/\D/g, "");
+    if (code.length !== 6) { codeError("Enter all 6 digits."); $("code").focus(); return; }
+    const btn = $("verifyBtn");
+    btn.disabled = true; btn.textContent = "";
+    const sp = document.createElement("span"); sp.className = "spin"; sp.setAttribute("aria-hidden", "true");
+    btn.append(sp, "Verifying…");
+    try {
+      const res = await fetch("/api/auth/verify", {
+        method: "POST", headers: { "Content-Type": "application/json" }, credentials: "same-origin",
+        body: JSON.stringify({ challenge, code, trustDevice: $("trustDevice").checked })
+      });
+      const j = await res.json().catch(() => ({}));
+      if (res.status === 410 || (res.status === 429 && /Start again/.test(j.error || ""))) { backToStart(j.error); return; }
+      if (!res.ok) throw new Error(j.error || "Couldn't verify the code. Try again.");
+      location.replace(next);
+    } catch (err) {
+      codeError(err.message === "Failed to fetch" ? "Couldn't reach the server." : err.message);
+      $("code").select();
+      btn.disabled = false; btn.textContent = "Verify";
+    }
+  });
+  $("resendBtn").addEventListener("click", async () => {
+    const b = $("resendBtn");
+    b.disabled = true; codeError(""); $("codeOk").hidden = true;
+    try {
+      const res = await fetch("/api/auth/resend", { method: "POST", headers: { "Content-Type": "application/json" }, credentials: "same-origin", body: JSON.stringify({ challenge }) });
+      const j = await res.json().catch(() => ({}));
+      if (res.status === 410) { backToStart(j.error); return; }
+      if (!res.ok) throw new Error(j.error || "Couldn't send a new code.");
+      $("codeOk").textContent = j.devMode ? "New code printed in the server console." : "New code sent. Check your inbox (and spam folder).";
+      $("codeOk").hidden = false;
+      $("code").value = ""; $("code").focus();
+      startCooldown(60);
+    } catch (err) { codeError(err.message); b.disabled = false; }
+  });
+  function backToStart(msg) {
+    clearInterval(cooldownTimer);
+    challenge = null;
+    $("codeForm").hidden = true; $("authForm").hidden = false; $("switchLine").hidden = false;
+    $("heading").textContent = isSignup ? "Create your account" : "Welcome back";
+    $("subheading").textContent = isSignup ? "Start planning your days with AI. It takes a few seconds." : "Log in to see your day.";
+    $("password").value = ""; $("confirm").value = "";
+    if (msg) { $("formError").textContent = msg; $("formError").hidden = false; }
+    $("password").focus();
+  }
+  $("backBtn").addEventListener("click", () => backToStart());
+})();
+</script>
+</body>
+</html>

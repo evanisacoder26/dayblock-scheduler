@@ -1,0 +1,419 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Dashboard · Dayblock</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+/* Layout: sticky app bar; greeting + stat row; then a 2:1 grid (up next + week chart | backlog + category mix + account). */
+:root {
+  --bg: #f8fafc; --surface: #ffffff; --sunken: #f1f5f9; --line: #e2e8f0; --line-strong: #cbd5e1;
+  --fg: #0f172a; --muted: #475569; --faint: #64748b;
+  --accent: #4f46e5; --accent-hover: #4338ca; --accent-soft: #eef2ff; --on-accent: #ffffff;
+  --now: #e11d48; --good: #047857; --good-soft: #ecfdf5; --warn: #b45309; --warn-soft: #fffbeb; --bad: #b91c1c; --bad-soft: #fef2f2;
+  --deep: #4f46e5; --admin: #ea580c; --meet: #0284c7; --personal: #059669;
+  --planned: #c7d2fe;
+  --shadow: 0 1px 2px rgba(15,23,42,.05);
+  --font-display: "Space Grotesk", "Inter", system-ui, sans-serif;
+  --font-body: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0a0f1c; --surface: #111827; --sunken: #0d1424; --line: #1f2937; --line-strong: #334155;
+    --fg: #f1f5f9; --muted: #a3b1c6; --faint: #8090a6;
+    --accent: #818cf8; --accent-hover: #a5b4fc; --accent-soft: #1e1b4b; --on-accent: #0a0f1c;
+    --now: #fb7185; --good: #34d399; --good-soft: #052e22; --warn: #fbbf24; --warn-soft: #2d2008; --bad: #f87171; --bad-soft: #2c1010;
+    --deep: #818cf8; --admin: #fb923c; --meet: #38bdf8; --personal: #34d399;
+    --planned: #312e81;
+    color-scheme: dark;
+  }
+}
+*, *::before, *::after { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--fg); font-family: var(--font-body); font-size: 14px; line-height: 1.5; }
+h1, h2, h3 { margin: 0; font-family: var(--font-display); letter-spacing: -0.01em; text-wrap: balance; }
+p { margin: 0; }
+a { color: var(--accent); }
+button, input { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* App bar */
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 30; background: var(--surface); }
+.appbar { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20; background: var(--surface); border-bottom: 1px solid var(--line); }
+.appbar-inner { max-width: 1200px; margin: 0 auto; padding-block: 10px; padding-left: max(16px, env(safe-area-inset-left)); padding-right: max(16px, env(safe-area-inset-right)); display: flex; align-items: center; gap: 20px; }
+.logo { display: flex; align-items: center; gap: 10px; font-family: var(--font-display); font-weight: 700; font-size: 18px; color: var(--fg); text-decoration: none; }
+.logo-mark { width: 30px; height: 30px; border-radius: 8px; background: var(--accent); display: grid; place-items: center; }
+.logo-mark span { width: 12px; height: 4px; background: var(--on-accent); border-radius: 2px; box-shadow: 0 -6px 0 var(--on-accent), 0 6px 0 var(--on-accent); }
+nav { display: flex; gap: 4px; }
+nav a { padding: 7px 12px; border-radius: 8px; font-weight: 600; color: var(--muted); text-decoration: none; font-size: 14px; }
+nav a:hover { background: var(--sunken); color: var(--fg); }
+nav a[aria-current="page"] { background: var(--accent-soft); color: var(--accent); }
+.spacer { flex: 1; }
+.user { position: relative; }
+.user-btn { display: flex; align-items: center; gap: 10px; border: 1px solid var(--line); background: var(--surface); border-radius: 999px; padding: 4px 12px 4px 4px; cursor: pointer; }
+.user-btn:hover { border-color: var(--line-strong); }
+.avatar { width: 30px; height: 30px; border-radius: 50%; background: var(--accent); color: var(--on-accent); display: grid; place-items: center; font-weight: 700; font-size: 13px; }
+.user-name { font-weight: 600; font-size: 13.5px; max-width: 160px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.menu { position: absolute; right: 0; top: calc(100% + 8px); width: 240px; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; box-shadow: 0 12px 32px rgba(15,23,42,.14); padding: 8px; display: grid; gap: 2px; }
+.menu .who { padding: 8px 10px 10px; border-bottom: 1px solid var(--line); margin-bottom: 4px; }
+.menu .who b { display: block; }
+.menu .who span { font-size: 12.5px; color: var(--faint); overflow-wrap: anywhere; }
+.menu button, .menu a { text-align: left; border: 0; background: none; padding: 8px 10px; border-radius: 8px; cursor: pointer; font-weight: 500; color: var(--fg); text-decoration: none; font-size: 14px; }
+.menu button:hover, .menu a:hover { background: var(--sunken); }
+.menu .danger { color: var(--bad); }
+@media (max-width: 560px) { .user-name { display: none; } .user-btn { padding-right: 4px; } nav a { padding: 7px 9px; } .logo span.word { display: none; } }
+
+/* Page */
+.page { max-width: 1200px; margin: 0 auto; padding-block: 28px 56px; padding-left: max(16px, env(safe-area-inset-left)); padding-right: max(16px, env(safe-area-inset-right)); display: grid; gap: 24px; }
+.hello { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 16px; }
+.hello h1 { font-size: clamp(24px, 3vw, 30px); font-weight: 700; }
+.hello p { color: var(--muted); margin-top: 4px; }
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 9px 16px; border-radius: 9px; border: 1px solid var(--line-strong); background: var(--surface); font-weight: 600; font-size: 14px; cursor: pointer; text-decoration: none; color: var(--fg); transition: background .15s, border-color .15s, color .15s; white-space: nowrap; }
+.btn:hover { border-color: var(--accent); color: var(--accent); }
+.btn-primary { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+.btn-primary:hover { background: var(--accent-hover); border-color: var(--accent-hover); color: var(--on-accent); }
+.btn-sm { padding: 6px 11px; font-size: 13px; }
+.btn:disabled { opacity: .6; cursor: progress; }
+
+.stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; }
+@media (max-width: 900px) { .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.stat { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 16px 18px; display: grid; gap: 6px; min-width: 0; }
+.stat .lbl { font-size: 12px; font-weight: 600; color: var(--faint); text-transform: uppercase; letter-spacing: .06em; }
+.stat .val { font-family: var(--font-display); font-size: 28px; font-weight: 700; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.stat .val small { font-size: 15px; color: var(--faint); font-weight: 600; }
+.stat .sub { font-size: 12.5px; color: var(--muted); }
+.meter { height: 6px; border-radius: 999px; background: var(--sunken); overflow: hidden; }
+.meter span { display: block; height: 100%; background: var(--good); border-radius: 999px; }
+
+.grid { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); gap: 20px; align-items: start; }
+@media (max-width: 900px) { .grid { grid-template-columns: 1fr; } }
+.col { display: grid; gap: 20px; min-width: 0; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 18px 20px; display: grid; gap: 14px; min-width: 0; }
+.card-head { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; }
+.card-head h2 { font-size: 16px; font-weight: 700; }
+.card-head .meta { font-size: 12.5px; color: var(--faint); }
+.card-head a { font-size: 13px; font-weight: 600; text-decoration: none; }
+.card-head a:hover { text-decoration: underline; }
+
+/* Up next */
+.agenda { list-style: none; margin: 0; padding: 0; display: grid; }
+.agenda li { display: grid; grid-template-columns: 92px 4px minmax(0, 1fr) auto; gap: 12px; align-items: center; padding: 10px 0; border-top: 1px solid var(--line); }
+.agenda li:first-child { border-top: 0; }
+.agenda .time { font-family: var(--font-mono); font-size: 12.5px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.agenda .bar { align-self: stretch; border-radius: 2px; }
+.agenda .title { font-weight: 600; overflow-wrap: anywhere; }
+.agenda .title small { display: block; font-weight: 400; color: var(--faint); font-size: 12.5px; }
+.agenda li.done .title { text-decoration: line-through; color: var(--faint); }
+.pill { font-size: 11.5px; font-weight: 700; padding: 2px 8px; border-radius: 999px; white-space: nowrap; }
+.pill.now { background: var(--bad-soft); color: var(--now); }
+.pill.done { background: var(--good-soft); color: var(--good); }
+.pill.High { background: var(--bad-soft); color: var(--bad); }
+.pill.Medium { background: var(--warn-soft); color: var(--warn); }
+.pill.Low { background: var(--sunken); color: var(--faint); }
+@media (max-width: 520px) { .agenda li { grid-template-columns: 4px minmax(0, 1fr) auto; } .agenda .time { grid-column: 2; grid-row: 2; } .agenda .bar { grid-row: 1 / span 2; } }
+.empty { padding: 22px; border: 1px dashed var(--line-strong); border-radius: 10px; text-align: center; color: var(--muted); display: grid; gap: 10px; justify-items: center; }
+.empty b { color: var(--fg); font-family: var(--font-display); font-size: 15px; }
+
+/* Week chart */
+.chart-wrap { overflow-x: auto; }
+.chart { display: grid; grid-template-columns: 36px repeat(7, minmax(36px, 1fr)); gap: 0 10px; min-width: 340px; }
+.y-axis { position: relative; height: 180px; }
+.y-axis span { position: absolute; right: 0; transform: translateY(50%); font-family: var(--font-mono); font-size: 10.5px; color: var(--faint); }
+.day-col { display: grid; grid-template-rows: 180px auto; gap: 8px; }
+.bars { position: relative; display: flex; align-items: flex-end; justify-content: center; gap: 4px; border-bottom: 1px solid var(--line-strong); background-image: linear-gradient(var(--line) 1px, transparent 1px); background-size: 100% 25%; background-position: 0 0; }
+.bars i { display: block; width: 40%; max-width: 18px; border-radius: 4px 4px 0 0; min-height: 2px; position: relative; }
+.bars i.planned { background: var(--planned); }
+.bars i.donebar { background: var(--accent); }
+.bars i[data-v]:hover::after { content: attr(data-v); position: absolute; bottom: calc(100% + 4px); left: 50%; transform: translateX(-50%); background: var(--fg); color: var(--bg); font-size: 11px; padding: 2px 6px; border-radius: 4px; white-space: nowrap; font-family: var(--font-mono); }
+.day-lbl { text-align: center; font-size: 12px; color: var(--muted); font-weight: 600; }
+.day-lbl small { display: block; font-weight: 400; color: var(--faint); font-family: var(--font-mono); font-size: 11px; }
+.day-col.today .day-lbl { color: var(--accent); }
+.legend { display: flex; gap: 16px; flex-wrap: wrap; font-size: 12.5px; color: var(--muted); }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.legend i { width: 10px; height: 10px; border-radius: 3px; display: inline-block; }
+
+/* Category mix */
+.stack { display: flex; height: 12px; border-radius: 999px; overflow: hidden; background: var(--sunken); }
+.stack span { display: block; height: 100%; }
+.mix { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.mix li { display: grid; grid-template-columns: 10px minmax(0, 1fr) auto auto; gap: 10px; align-items: center; font-size: 13.5px; }
+.mix i { width: 10px; height: 10px; border-radius: 3px; }
+.mix .h { font-family: var(--font-mono); font-size: 12.5px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.mix .pc { font-family: var(--font-mono); font-size: 12px; color: var(--faint); min-width: 3.5ch; text-align: right; }
+
+/* Backlog */
+.bl { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.bl li { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 2px 10px; align-items: center; padding: 9px 12px; border: 1px solid var(--line); border-radius: 9px; }
+.bl .t { font-weight: 600; font-size: 13.5px; overflow-wrap: anywhere; }
+.bl .m { font-size: 12px; color: var(--faint); }
+
+/* Account */
+.acct { display: grid; gap: 4px; }
+.acct .row { display: flex; justify-content: space-between; gap: 10px; font-size: 13.5px; padding: 6px 0; border-top: 1px solid var(--line); }
+.acct .row:first-child { border-top: 0; }
+.acct .row span:first-child { color: var(--faint); }
+.acct .row span:last-child { font-weight: 500; overflow-wrap: anywhere; text-align: right; }
+details.pw summary { cursor: pointer; font-weight: 600; font-size: 13.5px; color: var(--accent); list-style: none; }
+details.pw summary::-webkit-details-marker { display: none; }
+details.pw form { display: grid; gap: 10px; margin-top: 12px; }
+details.pw label { font-size: 12.5px; font-weight: 600; color: var(--muted); display: grid; gap: 4px; }
+details.pw input { height: 38px; padding: 0 10px; border: 1px solid var(--line-strong); border-radius: 8px; background: var(--surface); width: 100%; }
+details.pw input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+.msg { font-size: 12.5px; }
+.msg.err { color: var(--bad); }
+.msg.ok { color: var(--good); }
+.ai-pill { display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; font-weight: 600; padding: 4px 10px; border-radius: 999px; background: var(--good-soft); color: var(--good); }
+.ai-pill.off { background: var(--sunken); color: var(--faint); }
+.ai-pill::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+.loading { color: var(--faint); padding: 40px 0; text-align: center; }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+</head>
+<body>
+<header class="appbar">
+  <div class="appbar-inner">
+    <a class="logo" href="/dashboard"><span class="logo-mark" aria-hidden="true"><span></span></span><span class="word">Dayblock</span></a>
+    <nav aria-label="Main">
+      <a href="/dashboard" aria-current="page">Dashboard</a>
+      <a href="/planner">Planner</a>
+      <a href="/settings">Settings</a>
+    </nav>
+    <span class="spacer"></span>
+    <div class="user">
+      <button class="user-btn" id="userBtn" type="button" aria-haspopup="true" aria-expanded="false" aria-controls="userMenu">
+        <span class="avatar" id="avatar" aria-hidden="true">·</span>
+        <span class="user-name" id="userName">Account</span>
+      </button>
+      <div class="menu" id="userMenu" hidden>
+        <div class="who"><b id="menuName"></b><span id="menuEmail"></span></div>
+        <a href="/settings">Account settings</a>
+        <button class="danger" type="button" id="logoutBtn">Log out</button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main class="page" id="page">
+  <p class="loading" id="loading">Loading your day…</p>
+</main>
+
+<script>
+(() => {
+  "use strict";
+  const $ = (id) => document.getElementById(id);
+  const CAT_VAR = { "Deep Work": "var(--deep)", "Admin": "var(--admin)", "Meetings": "var(--meet)", "Personal": "var(--personal)" };
+  const PRI_RANK = { High: 0, Medium: 1, Low: 2 };
+
+  const pad = (n) => String(n).padStart(2, "0");
+  const dateStr = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+  const nowMin = () => { const d = new Date(); return d.getHours() * 60 + d.getMinutes(); };
+  const fmt = (min) => { const h = Math.floor(min / 60), m = min % 60; return `${h % 12 || 12}:${pad(m)} ${h >= 12 ? "PM" : "AM"}`; };
+  const dur = (m) => (m >= 60 ? `${Math.floor(m / 60)}h${m % 60 ? ` ${m % 60}m` : ""}` : `${m}m`);
+  const hrs = (m) => String(Math.round(m / 6) / 10);
+
+  function el(tag, attrs, ...kids) {
+    const n = document.createElement(tag);
+    if (attrs) for (const [k, v] of Object.entries(attrs)) {
+      if (v == null || v === false) continue;
+      if (k === "class") n.className = v; else if (k === "text") n.textContent = v;
+      else if (k === "style") n.style.cssText = v; else if (k.startsWith("on")) n.addEventListener(k.slice(2), v);
+      else n.setAttribute(k, v);
+    }
+    for (const c of kids.flat()) if (c != null) n.append(c instanceof Node ? c : document.createTextNode(String(c)));
+    return n;
+  }
+
+  async function api(path, opts = {}) {
+    const res = await fetch(path, { credentials: "same-origin", ...opts, headers: { "Content-Type": "application/json", ...(opts.headers || {}) } });
+    if (res.status === 401) { location.replace("/login?next=/dashboard"); throw new Error("Logged out"); }
+    const j = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(j.error || `Request failed (${res.status}).`);
+    return j;
+  }
+
+  /* ---------- User menu ---------- */
+  const btn = $("userBtn"), menu = $("userMenu");
+  btn.addEventListener("click", () => { const open = menu.hidden; menu.hidden = !open; btn.setAttribute("aria-expanded", String(open)); });
+  document.addEventListener("click", (e) => { if (!e.target.closest(".user")) { menu.hidden = true; btn.setAttribute("aria-expanded", "false"); } });
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !menu.hidden) { menu.hidden = true; btn.setAttribute("aria-expanded", "false"); btn.focus(); } });
+  $("logoutBtn").addEventListener("click", async () => {
+    try { await fetch("/api/auth/logout", { method: "POST", credentials: "same-origin" }); } finally { location.replace("/login"); }
+  });
+
+  /* ---------- Render ---------- */
+  function render(me, data) {
+    const user = me.user;
+    const first = user.name.split(/\s+/)[0];
+    $("avatar").textContent = user.name.trim().charAt(0).toUpperCase() || "?";
+    $("userName").textContent = user.name;
+    $("menuName").textContent = user.name;
+    $("menuEmail").textContent = user.email;
+
+    const tasks = Array.isArray(data.tasks) ? data.tasks : [];
+    const today = dateStr(new Date());
+    const nm = nowMin();
+    const todays = tasks.filter((t) => t.date === today && t.start != null).sort((a, b) => a.start - b.start);
+    const planned = todays.reduce((s, t) => s + t.minutes, 0);
+    const done = todays.filter((t) => t.done).reduce((s, t) => s + t.minutes, 0);
+    const remaining = todays.filter((t) => !t.done && t.start + t.minutes > nm);
+    const backlog = tasks.filter((t) => t.start == null).sort((a, b) => PRI_RANK[a.priority] - PRI_RANK[b.priority]);
+
+    // Week (Mon-Sun)
+    const now = new Date();
+    const monday = new Date(now.getFullYear(), now.getMonth(), now.getDate() - ((now.getDay() + 6) % 7));
+    const week = [...Array(7)].map((_, i) => {
+      const d = new Date(monday.getFullYear(), monday.getMonth(), monday.getDate() + i);
+      const ds = dateStr(d);
+      const items = tasks.filter((t) => t.date === ds && t.start != null);
+      return {
+        ds, label: d.toLocaleDateString([], { weekday: "short" }), num: d.getDate(),
+        planned: items.reduce((s, t) => s + t.minutes, 0),
+        done: items.filter((t) => t.done).reduce((s, t) => s + t.minutes, 0),
+        items
+      };
+    });
+    const weekDone = week.reduce((s, d) => s + d.done, 0);
+    const weekPlanned = week.reduce((s, d) => s + d.planned, 0);
+
+    const page = $("page");
+    page.textContent = "";
+
+    // Greeting
+    const h = now.getHours();
+    const greet = h < 12 ? "Good morning" : h < 18 ? "Good afternoon" : "Good evening";
+    const left = remaining.length;
+    page.append(el("section", { class: "hello" },
+      el("div", null,
+        el("h1", { text: `${greet}, ${first}` }),
+        el("p", { text: `${now.toLocaleDateString([], { weekday: "long", month: "long", day: "numeric" })} · ${todays.length ? `${left} event${left === 1 ? "" : "s"} left today` : "Nothing planned yet today"}` })),
+      el("div", { style: "display:flex;gap:8px;flex-wrap:wrap;align-items:center" },
+        el("span", { class: "ai-pill" + (me.ai ? "" : " off"), text: me.ai ? `AI: ${me.ai}` : "AI off" }),
+        el("a", { class: "btn btn-primary", href: "/planner" }, "Open planner"))
+    ));
+
+    // Stats
+    const pct = planned ? Math.round((done / planned) * 100) : 0;
+    const high = backlog.filter((t) => t.priority === "High").length;
+    page.append(el("section", { class: "stats", "aria-label": "Today at a glance" },
+      stat("Planned today", [hrs(planned), el("small", { text: " h" })], `${todays.length} event${todays.length === 1 ? "" : "s"} today`),
+      stat("Done today", [`${pct}`, el("small", { text: "%" })], `${hrs(done)} of ${hrs(planned)} h`, pct),
+      stat("Backlog", [String(backlog.length)], high ? `${high} high priority` : "Nothing urgent waiting"),
+      stat("This week", [hrs(weekDone), el("small", { text: ` / ${hrs(weekPlanned)} h` })], "Completed vs planned")
+    ));
+
+    const grid = el("section", { class: "grid" });
+    const left1 = el("div", { class: "col" }), right1 = el("div", { class: "col" });
+    grid.append(left1, right1);
+    page.append(grid);
+
+    // Up next
+    const agenda = el("div", { class: "card" },
+      el("div", { class: "card-head" }, el("h2", { text: "Today's schedule" }), el("a", { href: "/planner" }, "Edit in planner →")));
+    if (!todays.length) {
+      agenda.append(el("div", { class: "empty" },
+        el("b", { text: "Your day is wide open" }),
+        el("span", { text: "Brain-dump your tasks in the planner and AI will lay them out on a timeline." }),
+        el("a", { class: "btn btn-primary btn-sm", href: "/planner" }, "Plan today")));
+    } else {
+      const ul = el("ul", { class: "agenda" });
+      todays.forEach((t) => {
+        const isNow = !t.done && t.start <= nm && nm < t.start + t.minutes;
+        const past = !t.done && t.start + t.minutes <= nm;
+        ul.append(el("li", { class: t.done ? "done" : null },
+          el("span", { class: "time", text: `${fmt(t.start)}` }),
+          el("span", { class: "bar", style: `background:${CAT_VAR[t.category]}`, "aria-hidden": "true" }),
+          el("span", { class: "title" }, t.title, el("small", { text: `${dur(t.minutes)} · ${t.category}${past ? " · not marked done" : ""}` })),
+          t.done ? el("span", { class: "pill done", text: "Done" }) : isNow ? el("span", { class: "pill now", text: "Now" }) : el("span", { class: `pill ${t.priority}`, text: t.priority })
+        ));
+      });
+      agenda.append(ul);
+    }
+    left1.append(agenda);
+
+    // Week chart
+    const maxH = Math.max(4, Math.ceil(Math.max(...week.map((d) => d.planned)) / 60 / 2) * 2);
+    const chart = el("div", { class: "chart", role: "img", "aria-label": `Hours planned and done this week: ${week.map((d) => `${d.label} ${hrs(d.done)} of ${hrs(d.planned)} hours`).join(", ")}` });
+    const yAxis = el("div", { class: "y-axis", "aria-hidden": "true" });
+    for (let i = 0; i <= 4; i++) yAxis.append(el("span", { style: `bottom:${i * 25}%`, text: `${(maxH * i) / 4}h` }));
+    chart.append(yAxis);
+    week.forEach((d) => {
+      const ph = (d.planned / 60 / maxH) * 100, dh = (d.done / 60 / maxH) * 100;
+      chart.append(el("div", { class: "day-col" + (d.ds === today ? " today" : "") },
+        el("div", { class: "bars" },
+          el("i", { class: "planned", style: `height:${ph}%`, "data-v": `${hrs(d.planned)}h planned` }),
+          el("i", { class: "donebar", style: `height:${dh}%`, "data-v": `${hrs(d.done)}h done` })),
+        el("div", { class: "day-lbl" }, d.label, el("small", { text: String(d.num) }))));
+    });
+    left1.append(el("div", { class: "card" },
+      el("div", { class: "card-head" }, el("h2", { text: "This week" }), el("span", { class: "meta", text: weekPlanned ? `${Math.round((weekDone / weekPlanned) * 100)}% of planned hours done` : "No hours planned yet" })),
+      el("div", { class: "chart-wrap" }, chart),
+      el("div", { class: "legend" }, el("span", null, el("i", { style: "background:var(--planned)" }), "Planned"), el("span", null, el("i", { style: "background:var(--accent)" }), "Done"))
+    ));
+
+    // Category mix (week)
+    const byCat = {};
+    week.forEach((d) => d.items.forEach((t) => { byCat[t.category] = (byCat[t.category] || 0) + t.minutes; }));
+    const mixCard = el("div", { class: "card" }, el("div", { class: "card-head" }, el("h2", { text: "Where your time goes" }), el("span", { class: "meta", text: "This week" })));
+    if (!weekPlanned) mixCard.append(el("p", { style: "color:var(--faint);font-size:13.5px", text: "Plan a few events and you'll see the split between deep work, admin, meetings and personal time here." }));
+    else {
+      const cats = Object.keys(CAT_VAR).filter((c) => byCat[c]);
+      mixCard.append(
+        el("div", { class: "stack", role: "img", "aria-label": cats.map((c) => `${c} ${Math.round((byCat[c] / weekPlanned) * 100)}%`).join(", ") },
+          cats.map((c) => el("span", { style: `width:${(byCat[c] / weekPlanned) * 100}%;background:${CAT_VAR[c]}` }))),
+        el("ul", { class: "mix" }, cats.map((c) => el("li", null,
+          el("i", { style: `background:${CAT_VAR[c]}`, "aria-hidden": "true" }), el("span", { text: c }),
+          el("span", { class: "h", text: `${hrs(byCat[c])} h` }), el("span", { class: "pc", text: `${Math.round((byCat[c] / weekPlanned) * 100)}%` })))));
+    }
+    right1.append(mixCard);
+
+    // Backlog
+    const blCard = el("div", { class: "card" }, el("div", { class: "card-head" }, el("h2", { text: `Backlog` }), el("a", { href: "/planner" }, "Schedule →")));
+    if (!backlog.length) blCard.append(el("p", { style: "color:var(--faint);font-size:13.5px", text: "Nothing waiting. Tasks that don't fit your day land here." }));
+    else {
+      blCard.append(el("ul", { class: "bl" }, backlog.slice(0, 5).map((t) => el("li", null,
+        el("span", { class: "t", text: t.title }), el("span", { class: `pill ${t.priority}`, text: t.priority }),
+        el("span", { class: "m", text: `${dur(t.minutes)} · ${t.category}` })))));
+      if (backlog.length > 5) blCard.append(el("p", { style: "color:var(--faint);font-size:12.5px", text: `+ ${backlog.length - 5} more in the planner` }));
+    }
+    right1.append(blCard);
+
+    // Account
+    const since = new Date(user.createdAt).toLocaleDateString([], { month: "long", day: "numeric", year: "numeric" });
+    right1.append(el("div", { class: "card", id: "account" },
+      el("div", { class: "card-head" }, el("h2", { text: "Account" })),
+      el("div", { class: "acct" },
+        el("div", { class: "row" }, el("span", { text: "Name" }), el("span", { text: user.name })),
+        el("div", { class: "row" }, el("span", { text: "Email" }), el("span", { text: user.email })),
+        el("div", { class: "row" }, el("span", { text: "Member since" }), el("span", { text: since }))),
+      el("a", { class: "btn btn-sm", href: "/settings" }, "Manage account")
+    ));
+  }
+
+  function stat(label, value, sub, meterPct) {
+    return el("div", { class: "stat" },
+      el("span", { class: "lbl", text: label }),
+      el("span", { class: "val" }, value),
+      meterPct != null ? el("div", { class: "meter", "aria-hidden": "true" }, el("span", { style: `width:${meterPct}%` })) : null,
+      el("span", { class: "sub", text: sub }));
+  }
+
+  /* ---------- Boot ---------- */
+  (async () => {
+    try {
+      const [me, data] = await Promise.all([api("/api/me"), api("/api/data")]);
+      render(me, data);
+      // Keep "Now" and remaining counts fresh.
+      setInterval(async () => {
+        if (document.activeElement?.closest(".menu")) return; // don't close the menu under the user
+        try { render(me, await api("/api/data")); } catch {}
+      }, 60000);
+    } catch (err) {
+      if (err.message !== "Logged out") $("loading").textContent = `Couldn't load your dashboard: ${err.message}`;
+    }
+  })();
+})();
+</script>
+</body>
+</html>

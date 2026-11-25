@@ -1,0 +1,1974 @@
+<title>Dayblock</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+/* Layout: top bar spanning the width; below it a 340px sidebar (brain dump, assistant, backlog) beside a tall day timeline. Stacks on phones. */
+:root {
+  --bg: #f8fafc;
+  --surface: #ffffff;
+  --sunken: #f1f5f9;
+  --line: #e2e8f0;
+  --line-strong: #cbd5e1;
+  --fg: #0f172a;
+  --muted: #475569;
+  --faint: #64748b;
+  --accent: #4f46e5;
+  --accent-hover: #4338ca;
+  --accent-soft: #eef2ff;
+  --on-accent: #ffffff;
+  --now: #e11d48;
+  --good: #047857; --good-soft: #ecfdf5;
+  --warn: #b45309; --warn-soft: #fffbeb;
+  --bad: #b91c1c;  --bad-soft: #fef2f2;
+  --deep-bg: #eef2ff; --deep-bar: #4f46e5; --deep-fg: #312e81;
+  --admin-bg: #fff7ed; --admin-bar: #ea580c; --admin-fg: #7c2d12;
+  --meet-bg: #e0f2fe; --meet-bar: #0284c7; --meet-fg: #0c4a6e;
+  --personal-bg: #ecfdf5; --personal-bar: #059669; --personal-fg: #064e3b;
+  --shadow: 0 1px 2px rgba(15,23,42,.06), 0 6px 20px rgba(15,23,42,.06);
+  --font-display: "Space Grotesk", "Inter", system-ui, sans-serif;
+  --font-body: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0a0f1c; --surface: #111827; --sunken: #0d1424; --line: #1f2937; --line-strong: #334155;
+    --fg: #f1f5f9; --muted: #a3b1c6; --faint: #8090a6;
+    --accent: #818cf8; --accent-hover: #a5b4fc; --accent-soft: #1e1b4b; --on-accent: #0a0f1c; --now: #fb7185;
+    --good: #34d399; --good-soft: #052e22; --warn: #fbbf24; --warn-soft: #2d2008; --bad: #f87171; --bad-soft: #2c1010;
+    --deep-bg: #1e1b4b; --deep-bar: #818cf8; --deep-fg: #e0e7ff;
+    --admin-bg: #2a1708; --admin-bar: #fb923c; --admin-fg: #ffedd5;
+    --meet-bg: #082f49; --meet-bar: #38bdf8; --meet-fg: #e0f2fe;
+    --personal-bg: #052e22; --personal-bar: #34d399; --personal-fg: #d1fae5;
+    --shadow: 0 1px 2px rgba(0,0,0,.5);
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0a0f1c; --surface: #111827; --sunken: #0d1424; --line: #1f2937; --line-strong: #334155;
+  --fg: #f1f5f9; --muted: #a3b1c6; --faint: #8090a6;
+  --accent: #818cf8; --accent-hover: #a5b4fc; --accent-soft: #1e1b4b; --on-accent: #0a0f1c; --now: #fb7185;
+  --good: #34d399; --good-soft: #052e22; --warn: #fbbf24; --warn-soft: #2d2008; --bad: #f87171; --bad-soft: #2c1010;
+  --deep-bg: #1e1b4b; --deep-bar: #818cf8; --deep-fg: #e0e7ff;
+  --admin-bg: #2a1708; --admin-bar: #fb923c; --admin-fg: #ffedd5;
+  --meet-bg: #082f49; --meet-bar: #38bdf8; --meet-fg: #e0f2fe;
+  --personal-bg: #052e22; --personal-bar: #34d399; --personal-fg: #d1fae5;
+  --shadow: 0 1px 2px rgba(0,0,0,.5);
+  color-scheme: dark;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--fg); font-family: var(--font-body); font-size: 14px; line-height: 1.5; }
+h1, h2, h3 { margin: 0; font-family: var(--font-display); text-wrap: balance; letter-spacing: -0.01em; }
+p { margin: 0; }
+button, input, textarea { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* ---------- Top bar ---------- */
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 30; background: var(--surface); }
+.topbar {
+  position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20;
+  background: var(--surface); border-bottom: 1px solid var(--line);
+}
+.topbar-inner {
+  max-width: 1280px; margin: 0 auto; padding-block: 12px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: flex; flex-wrap: wrap; align-items: center; gap: 12px 20px;
+}
+.brand { display: flex; align-items: center; gap: 10px; margin-right: auto; }
+.logo { width: 30px; height: 30px; border-radius: 8px; background: var(--accent); display: grid; place-items: center; }
+.logo span { display: block; width: 12px; height: 4px; background: var(--on-accent); border-radius: 2px; box-shadow: 0 -6px 0 var(--on-accent), 0 6px 0 var(--on-accent); opacity: .95; }
+.brand h1 { font-size: 19px; font-weight: 700; }
+
+.datepick { display: flex; align-items: center; gap: 4px; }
+.iconbtn { width: 32px; height: 32px; border-radius: 8px; border: 1px solid var(--line); background: var(--surface); cursor: pointer; display: grid; place-items: center; color: var(--muted); transition: border-color .15s, color .15s; }
+.iconbtn:hover { border-color: var(--accent); color: var(--accent); }
+.datepick input[type="date"] { height: 32px; padding: 0 8px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); font-weight: 600; min-width: 0; }
+.datelabel { font-weight: 600; min-width: 0; padding: 0 6px; font-size: 13px; color: var(--muted); }
+
+.toggle { display: inline-flex; align-items: center; gap: 8px; cursor: pointer; font-weight: 600; font-size: 13px; user-select: none; }
+.toggle input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.switch { width: 36px; height: 20px; border-radius: 999px; background: var(--line-strong); position: relative; transition: background .2s; flex: none; }
+.switch::after { content: ""; position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; border-radius: 50%; background: var(--surface); transition: transform .2s; box-shadow: 0 1px 2px rgba(0,0,0,.25); }
+.toggle input:checked + .switch { background: var(--accent); }
+.toggle input:checked + .switch::after { transform: translateX(16px); }
+.toggle input:focus-visible + .switch { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+.progress { display: grid; gap: 4px; min-width: 180px; flex: 0 1 240px; }
+.progress-top { display: flex; justify-content: space-between; font-size: 12px; color: var(--faint); font-weight: 500; }
+.progress-top b { color: var(--fg); font-family: var(--font-mono); font-weight: 500; font-variant-numeric: tabular-nums; }
+.bar { height: 8px; border-radius: 999px; background: var(--sunken); border: 1px solid var(--line); overflow: hidden; }
+.bar > span { display: block; height: 100%; background: var(--good); border-radius: 999px; transition: width .4s ease; }
+
+.acct-nav { display: flex; gap: 2px; margin-left: 10px; }
+.acct-nav a { padding: 6px 10px; border-radius: 8px; font-weight: 600; font-size: 13.5px; color: var(--muted); text-decoration: none; }
+.acct-nav a:hover { background: var(--sunken); color: var(--fg); }
+.acct-nav a[aria-current="page"] { background: var(--accent-soft); color: var(--accent); }
+.acct-user { display: flex; align-items: center; gap: 10px; }
+.acct-user .avatar { text-decoration: none; width: 30px; height: 30px; border-radius: 50%; background: var(--accent); color: var(--on-accent); display: grid; place-items: center; font-weight: 700; font-size: 13px; }
+.sync { font-size: 12px; color: var(--faint); white-space: nowrap; }
+.sync.err { color: var(--bad); }
+@media (max-width: 560px) { .sync { display: none; } .acct-nav { margin-left: 4px; } .acct-nav a { padding: 6px 7px; } }
+
+/* ---------- Buttons ---------- */
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 8px 14px; border-radius: 8px; border: 1px solid var(--line-strong); background: var(--surface); font-weight: 600; font-size: 13px; cursor: pointer; transition: background .15s, border-color .15s, color .15s; white-space: nowrap; }
+.btn:hover { border-color: var(--accent); color: var(--accent); }
+.btn:disabled { opacity: .55; cursor: not-allowed; }
+.btn-primary { background: var(--accent); color: var(--on-accent); border-color: var(--accent); }
+.btn-primary:hover:not(:disabled) { background: var(--accent-hover); border-color: var(--accent-hover); color: var(--on-accent); }
+.btn-sm { padding: 5px 10px; font-size: 12px; }
+.btn-link { border: 0; background: none; padding: 0; color: var(--accent); font-weight: 600; cursor: pointer; font-size: 12.5px; }
+.btn-link:hover { text-decoration: underline; }
+
+/* ---------- Main layout ---------- */
+.layout {
+  max-width: 1280px; margin: 0 auto; padding-block: 20px 48px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: grid; grid-template-columns: 340px minmax(0, 1fr); gap: 20px; align-items: start;
+}
+@media (max-width: 900px) { .layout { grid-template-columns: 1fr; } }
+.side { display: grid; gap: 16px; min-width: 0; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 16px; display: grid; gap: 12px; min-width: 0; }
+.card-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.card-head h2 { font-size: 15px; font-weight: 700; }
+.eyebrow { font-size: 11px; font-weight: 600; letter-spacing: .07em; text-transform: uppercase; color: var(--faint); }
+
+#dump { width: 100%; min-height: 120px; resize: vertical; padding: 10px 12px; border: 1px solid var(--line); border-radius: 8px; background: var(--sunken); line-height: 1.5; }
+#dump:focus { outline: none; border-color: var(--accent); background: var(--surface); box-shadow: 0 0 0 3px var(--accent-soft); }
+.dump-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.dump-actions .btn-primary { flex: 1 1 auto; }
+.status { font-size: 12.5px; color: var(--muted); min-height: 1.2em; }
+.status.error { color: var(--bad); }
+.status.ok { color: var(--good); }
+
+/* Assistant */
+.assistant { border-color: var(--accent-soft); background: linear-gradient(var(--surface), var(--surface)) padding-box; }
+.assistant .card-head h2 { display: flex; align-items: center; gap: 8px; }
+.spark { width: 18px; height: 18px; border-radius: 6px; background: var(--accent-soft); color: var(--accent); display: grid; place-items: center; font-size: 11px; font-weight: 700; font-family: var(--font-mono); }
+.tips { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.tip { display: grid; grid-template-columns: 8px minmax(0, 1fr); gap: 10px; font-size: 13px; color: var(--muted); }
+.tip::before { content: ""; width: 8px; height: 8px; border-radius: 50%; margin-top: 6px; background: var(--good); }
+.tip.warn::before { background: var(--warn); }
+.tip.bad::before { background: var(--bad); }
+.tip b { color: var(--fg); font-weight: 600; }
+.tip .btn { margin-top: 6px; justify-self: start; }
+.advice { font-size: 13px; color: var(--fg); background: var(--accent-soft); border-radius: 8px; padding: 10px 12px; }
+
+/* Backlog */
+#backlog { transition: background .15s, border-color .15s; }
+#backlog.drop-target { border-color: var(--accent); background: var(--accent-soft); }
+.count { font-family: var(--font-mono); font-size: 12px; color: var(--faint); font-weight: 500; }
+.tasks { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.task {
+  display: grid; grid-template-columns: 4px minmax(0, 1fr) auto; gap: 4px 10px; align-items: center;
+  padding: 10px 10px 10px 0; border: 1px solid var(--line); border-radius: 8px; background: var(--surface);
+  cursor: grab; touch-action: pan-y; -webkit-touch-callout: none; user-select: none; transition: border-color .15s, box-shadow .15s, transform .15s;
+}
+.task:hover { border-color: var(--line-strong); box-shadow: var(--shadow); }
+.task:active { cursor: grabbing; }
+.task .stripe { align-self: stretch; border-radius: 0 3px 3px 0; }
+.task-title { font-weight: 600; font-size: 13.5px; overflow-wrap: anywhere; }
+.task-meta { grid-column: 2; display: flex; gap: 6px; align-items: center; flex-wrap: wrap; font-size: 12px; color: var(--faint); }
+.task .place { grid-row: 1 / span 2; grid-column: 3; }
+.pri { font-size: 11px; font-weight: 700; padding: 1px 7px; border-radius: 999px; letter-spacing: .02em; }
+.pri.High { background: var(--bad-soft); color: var(--bad); }
+.pri.Medium { background: var(--warn-soft); color: var(--warn); }
+.pri.Low { background: var(--sunken); color: var(--faint); border: 1px solid var(--line); }
+.dur { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+.empty-note { font-size: 13px; color: var(--faint); padding: 14px; border: 1px dashed var(--line-strong); border-radius: 8px; text-align: center; }
+
+.stripe.deep, .legend .deep { background: var(--deep-bar); }
+.stripe.admin, .legend .admin { background: var(--admin-bar); }
+.stripe.meet, .legend .meet { background: var(--meet-bar); }
+.stripe.personal, .legend .personal { background: var(--personal-bar); }
+
+/* ---------- Timeline ---------- */
+.main { min-width: 0; display: grid; gap: 12px; }
+.main-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; }
+.main-head h2 { font-size: 20px; font-weight: 700; }
+.main-head .sub { color: var(--faint); font-size: 13px; }
+.legend { display: flex; flex-wrap: wrap; gap: 12px; font-size: 12px; color: var(--muted); }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.legend i { width: 10px; height: 10px; border-radius: 3px; display: inline-block; }
+.head-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+
+.focusbar { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-radius: 10px; background: var(--accent-soft); color: var(--fg); font-size: 13.5px; }
+.focusbar b { font-weight: 700; }
+.focusbar .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--now); flex: none; }
+
+.timeline-card { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 12px 12px 12px 0; max-height: max(480px, calc(100dvh - 230px)); overflow-y: auto; overscroll-behavior: contain; scrollbar-gutter: stable; }
+.tl .offhours { position: absolute; left: 0; right: 0; background: repeating-linear-gradient(135deg, var(--sunken) 0 6px, transparent 6px 12px); opacity: .9; pointer-events: none; }
+.phone-only { display: none; }
+.tl-wrap { display: grid; grid-template-columns: 64px minmax(0, 1fr); }
+.hours { position: relative; }
+.hours span { position: absolute; right: 10px; transform: translateY(-50%); font-family: var(--font-mono); font-size: 11px; color: var(--faint); white-space: nowrap; font-variant-numeric: tabular-nums; }
+.hours span.half { opacity: .55; font-size: 10px; }
+.tl { position: relative; border-left: 1px solid var(--line); }
+.tl .row { position: absolute; left: 0; right: 0; border-top: 1px solid var(--line); }
+.tl .row.half { border-top-style: dashed; opacity: .7; }
+.tl.drop-active { background: color-mix(in srgb, var(--accent-soft) 40%, transparent); }
+
+.block {
+  position: absolute; left: 8px; right: 8px; border-radius: 8px; padding: 4px 30px 4px 12px; overflow: hidden;
+  display: flex; flex-direction: column; justify-content: flex-start; gap: 0;
+  cursor: grab; touch-action: pan-y; -webkit-touch-callout: none; user-select: none;
+  border: 1px solid transparent; transition: box-shadow .15s, opacity .2s, filter .2s, transform .15s;
+}
+.block::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; }
+.block:hover { box-shadow: var(--shadow); transform: translateY(-1px); }
+.block.deep { background: var(--deep-bg); color: var(--deep-fg); } .block.deep::before { background: var(--deep-bar); }
+.block.admin { background: var(--admin-bg); color: var(--admin-fg); } .block.admin::before { background: var(--admin-bar); }
+.block.meet { background: var(--meet-bg); color: var(--meet-fg); } .block.meet::before { background: var(--meet-bar); }
+.block.personal { background: var(--personal-bg); color: var(--personal-fg); } .block.personal::before { background: var(--personal-bar); }
+.b-title { font-weight: 600; font-size: 13px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: flex; align-items: center; gap: 6px; }
+.b-meta { font-size: 11.5px; opacity: .8; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; font-variant-numeric: tabular-nums; }
+.block.compact { flex-direction: row; align-items: center; gap: 8px; padding-top: 0; padding-bottom: 0; }
+.block.compact .b-meta { flex: none; }
+.check { width: 14px; height: 14px; border-radius: 4px; border: 1.5px solid currentColor; flex: none; display: grid; place-items: center; opacity: .7; }
+.block.done { opacity: .6; }
+.block.done .b-title span.t { text-decoration: line-through; }
+.block.done .check { background: currentColor; opacity: 1; }
+.block.done .check::after { content: ""; width: 6px; height: 3px; border-left: 2px solid var(--surface); border-bottom: 2px solid var(--surface); transform: rotate(-45deg) translate(1px, -1px); }
+.block.dim { opacity: .18; filter: grayscale(1); }
+.block.active { box-shadow: 0 0 0 2px var(--accent), var(--shadow); }
+.block.dragging-src { opacity: .25; }
+.b-x { position: absolute; top: 3px; right: 4px; width: 22px; height: 22px; border-radius: 6px; border: 0; background: transparent; color: inherit; opacity: 0; cursor: pointer; display: grid; place-items: center; font-size: 15px; line-height: 1; transition: opacity .15s, background .15s; }
+.block:hover .b-x, .block:focus-within .b-x { opacity: .75; }
+.b-x:hover { background: color-mix(in srgb, currentColor 14%, transparent); opacity: 1 !important; }
+@media (hover: none) { .b-x { opacity: .6; } }
+.block.lifted, .task.lifted { transform: scale(1.03); box-shadow: 0 10px 28px rgba(15,23,42,.25); z-index: 5; }
+.b-resize { position: absolute; left: 0; right: 0; bottom: 0; height: 8px; cursor: ns-resize; touch-action: none; }
+.b-resize::after { content: ""; position: absolute; left: 50%; bottom: 2px; width: 24px; height: 3px; margin-left: -12px; border-radius: 2px; background: currentColor; opacity: 0; transition: opacity .15s; }
+.block:hover .b-resize::after { opacity: .35; }
+
+.placeholder { position: absolute; left: 8px; right: 8px; border: 2px dashed var(--accent); border-radius: 8px; background: color-mix(in srgb, var(--accent) 10%, transparent); pointer-events: none; display: flex; align-items: flex-start; padding: 3px 10px; font-size: 11.5px; font-weight: 600; color: var(--accent); font-family: var(--font-mono); }
+.placeholder.bad { border-color: var(--bad); color: var(--bad); background: color-mix(in srgb, var(--bad) 8%, transparent); }
+.nowline { position: absolute; left: -5px; right: 0; height: 0; border-top: 2px solid var(--now); pointer-events: none; z-index: 3; }
+.nowline::before { content: ""; position: absolute; left: -1px; top: -6px; width: 10px; height: 10px; border-radius: 50%; background: var(--now); }
+
+.ghost { position: fixed; z-index: 100; pointer-events: none; padding: 8px 12px; border-radius: 8px; background: var(--surface); border: 1px solid var(--accent); box-shadow: 0 10px 30px rgba(15,23,42,.2); font-weight: 600; font-size: 13px; max-width: 240px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; transform: rotate(-1.5deg); }
+
+.b-edit { position: absolute; top: 3px; right: 28px; width: 22px; height: 22px; border-radius: 6px; border: 0; background: transparent; color: inherit; opacity: 0; cursor: pointer; display: grid; place-items: center; transition: opacity .15s, background .15s; }
+.b-edit svg { width: 13px; height: 13px; }
+.block:hover .b-edit, .block:focus-within .b-edit { opacity: .75; }
+.b-edit:hover { background: color-mix(in srgb, currentColor 14%, transparent); opacity: 1 !important; }
+@media (hover: none) { .b-edit { opacity: .6; } }
+.block:has(.b-edit) { padding-right: 54px; }
+.block.compact .b-edit, .block.compact .b-x { top: 50%; transform: translateY(-50%); }
+.tl { cursor: copy; }
+.tl .block { cursor: grab; }
+
+/* ---------- Event dialog ---------- */
+dialog.ev {
+  width: min(560px, calc(100vw - 32px)); max-height: calc(100dvh - 32px); padding: 0; border: 1px solid var(--line);
+  border-radius: 14px; background: var(--surface); color: var(--fg); box-shadow: 0 24px 60px rgba(15,23,42,.28); overflow: auto;
+}
+.mobile-tabs { display: none; }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* ---------- Chat assistant ---------- */
+.chat-launcher {
+  position: fixed; right: max(20px, env(safe-area-inset-right, 0px)); bottom: calc(20px + env(safe-area-inset-bottom, 0px)); z-index: 35;
+  display: inline-flex; align-items: center; gap: 8px; height: 48px; padding: 0 20px; border: 0; border-radius: 999px;
+  background: var(--accent); color: var(--on-accent); font-weight: 600; font-size: 14.5px; cursor: pointer;
+  box-shadow: 0 10px 28px rgba(79, 70, 229, .35); transition: transform .15s, background .15s;
+}
+.chat-launcher:hover { background: var(--accent-hover); transform: translateY(-1px); }
+.chat-launcher .spark { font-size: 16px; }
+body.chat-open .chat-launcher { display: none; }
+@media (min-width: 1240px) { body.chat-open { padding-right: 420px; } }
+.chat {
+  position: fixed; top: 0; right: 0; bottom: 0; z-index: 45; width: min(420px, 100vw);
+  display: flex; flex-direction: column; background: var(--surface); border-left: 1px solid var(--line);
+  box-shadow: -18px 0 48px rgba(15, 23, 42, .14);
+  padding-top: env(safe-area-inset-top, 0px); padding-right: env(safe-area-inset-right, 0px); padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+.chat[hidden] { display: none !important; }
+@media (prefers-reduced-motion: no-preference) { .chat { animation: chatIn .22s ease-out; } }
+@keyframes chatIn { from { transform: translateX(24px); opacity: 0; } to { transform: none; opacity: 1; } }
+.chat-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; padding: 16px 16px 12px 18px; border-bottom: 1px solid var(--line); }
+.chat-head h2 { font-size: 17px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+.chat-head h2::before { content: "✦"; color: var(--accent); }
+.chat-head p { font-size: 12.5px; color: var(--faint); margin-top: 2px; }
+.chat-head-actions { display: flex; gap: 6px; align-items: center; }
+.chat-log { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 10px; overscroll-behavior: contain; }
+.bubble { max-width: 88%; padding: 10px 13px; border-radius: 14px; font-size: 14px; line-height: 1.5; overflow-wrap: anywhere; }
+.bubble p + p { margin-top: 6px; }
+.bubble ul { margin: 6px 0 0; padding-left: 18px; }
+.bubble li + li { margin-top: 3px; }
+.bubble.user { align-self: flex-end; background: var(--accent); color: var(--on-accent); border-bottom-right-radius: 4px; white-space: pre-wrap; }
+.bubble.bot { align-self: flex-start; background: var(--sunken); border: 1px solid var(--line); border-bottom-left-radius: 4px; }
+.bubble.bot.error { background: var(--bad-soft); border-color: transparent; color: var(--bad); }
+.changes { margin-top: 10px; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 9px 11px; display: grid; gap: 6px; }
+.changes-head { display: flex; justify-content: space-between; align-items: center; gap: 8px; font-size: 12px; font-weight: 700; color: var(--good); text-transform: uppercase; letter-spacing: .05em; }
+.changes.undone .changes-head { color: var(--faint); }
+.changes.undone ul { text-decoration: line-through; opacity: .6; }
+.changes ul { list-style: none; margin: 0; padding: 0; display: grid; gap: 4px; }
+.changes li { font-size: 13px; padding-left: 18px; position: relative; }
+.changes li::before { content: "✓"; position: absolute; left: 0; color: var(--good); font-weight: 700; }
+.chat-notes { margin-top: 8px; font-size: 12.5px; color: var(--warn); display: grid; gap: 3px; }
+.typing { display: inline-flex; gap: 4px; padding: 13px 14px; }
+.typing i { width: 7px; height: 7px; border-radius: 50%; background: var(--faint); opacity: .5; }
+@media (prefers-reduced-motion: no-preference) { .typing i { animation: blink 1s infinite; } .typing i:nth-child(2) { animation-delay: .15s; } .typing i:nth-child(3) { animation-delay: .3s; } }
+@keyframes blink { 0%, 100% { opacity: .25; transform: translateY(0); } 50% { opacity: .9; transform: translateY(-2px); } }
+.chat-empty { display: grid; gap: 10px; padding: 6px 2px; }
+.chat-hello { font-family: var(--font-display); font-size: 18px; font-weight: 600; line-height: 1.3; }
+.chat-empty p { color: var(--muted); font-size: 13.5px; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { border: 1px solid var(--line-strong); background: var(--surface); color: var(--fg); border-radius: 999px; padding: 7px 12px; font-size: 13px; font-weight: 500; cursor: pointer; text-align: left; transition: border-color .15s, color .15s, background .15s; }
+.chip:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
+.chat-form { display: flex; gap: 8px; align-items: flex-end; padding: 12px 14px 14px; border-top: 1px solid var(--line); }
+.chat-form textarea { flex: 1; resize: none; min-height: 42px; max-height: 140px; padding: 10px 12px; border: 1px solid var(--line-strong); border-radius: 12px; background: var(--surface); line-height: 1.45; font-size: 14px; }
+.chat-form textarea:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+.chat-form .btn { height: 42px; border-radius: 12px; }
+
+/* ---------- Phone & tablet ---------- */
+@media (max-width: 900px) {
+  .layout { padding-bottom: calc(84px + env(safe-area-inset-bottom, 0px)); }
+  .layout[data-view="timeline"] > .side { display: none; }
+  .layout[data-view="plan"] > .main { display: none; }
+  .timeline-card { max-height: none; overflow: visible; }   /* the page scrolls instead */
+  .head-actions #newEvent { display: none; }                /* the tab bar has "New event" */
+  .desktop-only { display: none; }
+  .phone-only { display: block; }
+  .mobile-tabs {
+    display: grid; grid-template-columns: repeat(4, 1fr); position: fixed; left: 0; right: 0; bottom: 0; z-index: 25;
+    background: var(--surface); border-top: 1px solid var(--line); box-shadow: 0 -4px 16px rgba(15,23,42,.06);
+    padding: 6px max(8px, env(safe-area-inset-left, 0px)) calc(6px + env(safe-area-inset-bottom, 0px)) max(8px, env(safe-area-inset-right, 0px));
+  }
+  .mobile-tabs button { border: 0; background: none; display: grid; justify-items: center; gap: 2px; padding: 6px 4px; border-radius: 10px; font-size: 12px; font-weight: 600; color: var(--faint); cursor: pointer; position: relative; min-height: 52px; }
+  .mobile-tabs button .ico { font-size: 18px; line-height: 1; }
+  .chat-launcher { display: none; }
+  .chat { width: 100vw; border-left: 0; bottom: calc(70px + env(safe-area-inset-bottom, 0px)); padding-bottom: 0; box-shadow: none; z-index: 24; }
+  body.chat-open .mobile-tabs #tabChat { color: var(--accent); background: var(--accent-soft); }
+  .mobile-tabs button[aria-pressed="true"] { color: var(--accent); background: var(--accent-soft); }
+  .mobile-tabs .tab-new { color: var(--on-accent); background: var(--accent); }
+  .mobile-tabs .tab-count { position: absolute; top: 4px; right: calc(50% - 26px); min-width: 18px; height: 18px; padding: 0 5px; border-radius: 9px; background: var(--bad); color: #fff; font-size: 11px; line-height: 18px; }
+}
+@media (max-width: 900px) and (pointer: coarse) {
+  .b-resize { height: 16px; }
+  .b-resize::after { opacity: .35; width: 32px; margin-left: -16px; }
+  .task { padding-top: 12px; padding-bottom: 12px; }
+}
+@media (max-width: 600px) {
+  .topbar { position: static; }
+  body::before { display: none; }
+  .topbar-inner { gap: 10px; padding-block: 10px; }
+  .brand { order: 1; }
+  .acct-user { order: 2; }
+  .datepick { order: 3; flex: 1 1 100%; }
+  .datepick input[type="date"] { flex: 1; }
+  .toggle { order: 4; }
+  .progress { order: 5; flex: 1 1 140px; min-width: 0; }
+  .brand:has(.acct-nav:not([hidden])) h1 { display: none; }   /* logged in: keep the nav, drop the wordmark */
+  .acct-nav { margin-left: 2px; }
+  .acct-user #logoutBtn { padding: 4px 9px; }
+  .main-head h2 { font-size: 18px; }
+  .legend { gap: 8px 12px; font-size: 11.5px; }
+  dialog.ev { width: 100vw; max-width: 100vw; margin: auto 0 0; border-radius: 16px 16px 0 0; max-height: 92dvh; border-bottom: 0; }
+  .ev form { padding-bottom: calc(20px + env(safe-area-inset-bottom, 0px)); }
+}
+dialog.ev::backdrop { background: rgba(15, 23, 42, .45); }
+.ev form { display: grid; gap: 16px; padding: 20px; }
+.ev-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.ev-head h2 { font-size: 18px; font-weight: 700; }
+.ev-field { display: grid; gap: 6px; min-width: 0; }
+.ev-field > label, .ev-field > .lbl { font-size: 12.5px; font-weight: 600; color: var(--muted); }
+.ev input[type="text"], .ev input[type="date"], .ev select, .ev textarea {
+  width: 100%; padding: 9px 11px; border: 1px solid var(--line); border-radius: 8px; background: var(--sunken); font-size: 14px; min-width: 0;
+}
+.ev textarea { min-height: 64px; resize: vertical; line-height: 1.5; }
+.ev input:focus, .ev select:focus, .ev textarea:focus { outline: none; border-color: var(--accent); background: var(--surface); box-shadow: 0 0 0 3px var(--accent-soft); }
+.ev-title-row { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 8px; }
+#evTitle { font-size: 16px; font-weight: 600; }
+.btn-ai { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
+.btn-ai:hover:not(:disabled) { background: var(--accent); color: var(--on-accent); }
+.ev-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+@media (max-width: 520px) { .ev-grid { grid-template-columns: 1fr 1fr; } .ev-grid .ev-field:first-child { grid-column: 1 / -1; } .ev-title-row { grid-template-columns: 1fr; } }
+.seg { display: flex; flex-wrap: wrap; gap: 6px; }
+.seg label { position: relative; cursor: pointer; }
+.seg input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.seg span { display: inline-flex; align-items: center; gap: 6px; padding: 6px 11px; border-radius: 999px; border: 1px solid var(--line); font-size: 12.5px; font-weight: 600; color: var(--muted); background: var(--surface); transition: border-color .15s, background .15s, color .15s; }
+.seg span i { width: 9px; height: 9px; border-radius: 3px; display: inline-block; }
+.seg label:hover span { border-color: var(--line-strong); }
+.seg input:checked + span { border-color: var(--accent); color: var(--fg); background: var(--accent-soft); }
+.seg input:focus-visible + span { outline: 2px solid var(--accent); outline-offset: 2px; }
+.seg i.deep { background: var(--deep-bar); } .seg i.admin { background: var(--admin-bar); } .seg i.meet { background: var(--meet-bar); } .seg i.personal { background: var(--personal-bar); }
+.conflict { font-size: 12.5px; color: var(--bad); display: flex; flex-wrap: wrap; gap: 6px 10px; align-items: center; }
+.ai-card { border: 1px solid var(--accent); background: var(--accent-soft); border-radius: 10px; padding: 12px 14px; display: grid; gap: 8px; }
+.ai-card .ai-top { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; }
+.ai-card .ai-label { font-size: 11px; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: var(--accent); }
+.ai-card .ai-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.ai-card .ai-chips span { font-size: 12.5px; font-weight: 600; padding: 3px 9px; border-radius: 999px; background: var(--surface); border: 1px solid var(--line); font-variant-numeric: tabular-nums; }
+.ai-card p { font-size: 13px; color: var(--muted); }
+.ai-card.loading p { display: flex; align-items: center; gap: 8px; }
+.ev-foot { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; padding-top: 4px; border-top: 1px solid var(--line); padding-block: 14px 0; }
+.ev-foot .spacer { flex: 1; }
+.btn-danger { color: var(--bad); border-color: transparent; background: transparent; }
+.btn-danger:hover { color: var(--bad); border-color: var(--bad); }
+.spin { width: 14px; height: 14px; border: 2px solid currentColor; border-right-color: transparent; border-radius: 50%; animation: spin .7s linear infinite; display: inline-block; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.task-actions { grid-row: 1 / span 2; grid-column: 3; display: flex; gap: 4px; align-items: center; }
+.task-actions .iconbtn { width: 28px; height: 28px; }
+.task-actions .iconbtn svg { width: 13px; height: 13px; }
+
+.foot { font-size: 12px; color: var(--faint); }
+.toast { position: fixed; left: 50%; bottom: calc(20px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); background: var(--fg); color: var(--bg); padding: 10px 16px; border-radius: 10px; font-size: 13px; font-weight: 500; z-index: 200; box-shadow: var(--shadow); max-width: calc(100vw - 32px); }
+
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition: none !important; animation: none !important; } }
+@media (max-width: 560px) {
+  .progress { flex: 1 1 100%; }
+  .tl-wrap { grid-template-columns: 52px minmax(0, 1fr); }
+  .hours span { right: 6px; }
+  .hours span.half { display: none; }
+}
+</style>
+
+<header class="topbar">
+  <div class="topbar-inner">
+    <div class="brand">
+      <div class="logo" aria-hidden="true"><span></span></div>
+      <h1>Dayblock</h1>
+      <nav class="acct-nav" id="acctNav" aria-label="Main" hidden>
+        <a href="/dashboard">Dashboard</a>
+        <a href="/planner" aria-current="page">Planner</a>
+        <a href="/settings">Settings</a>
+      </nav>
+    </div>
+    <div class="datepick">
+      <button class="iconbtn" id="prevDay" type="button" aria-label="Previous day">‹</button>
+      <input type="date" id="datePicker" aria-label="Schedule date">
+      <button class="iconbtn" id="nextDay" type="button" aria-label="Next day">›</button>
+      <button class="btn btn-sm" id="todayBtn" type="button">Today</button>
+    </div>
+    <label class="toggle" for="focusToggle">
+      <input type="checkbox" id="focusToggle">
+      <span class="switch" aria-hidden="true"></span>
+      Focus Mode
+    </label>
+    <div class="progress" aria-label="Daily progress">
+      <div class="progress-top"><span>Progress</span><b id="progressText">0 / 0 h</b></div>
+      <div class="bar"><span id="progressBar" style="width:0%"></span></div>
+    </div>
+    <div class="acct-user" id="acctUser" hidden>
+      <span class="sync" id="syncState" role="status" aria-live="polite"></span>
+      <a class="avatar" id="acctAvatar" href="/settings" aria-label="Account settings"></a>
+      <button class="btn btn-sm" id="logoutBtn" type="button">Log out</button>
+    </div>
+  </div>
+</header>
+
+<div class="layout" id="layout" data-view="timeline">
+  <aside class="side">
+    <section class="card">
+      <div class="card-head">
+        <h2>Brain dump</h2>
+        <button class="btn-link" id="loadSample" type="button">Load Sample Day</button>
+      </div>
+      <textarea id="dump" spellcheck="false" placeholder="Type anything: finish Q3 report takes 2 hrs, call dentist 15m, reply to emails, standup at 10am…"></textarea>
+      <div class="dump-actions">
+        <button class="btn btn-primary" id="autoSchedule" type="button">Auto-Schedule with AI</button>
+      </div>
+      <p class="status" id="dumpStatus" role="status" aria-live="polite"></p>
+    </section>
+
+    <section class="card assistant" aria-labelledby="assistantTitle">
+      <div class="card-head">
+        <h2 id="assistantTitle"><span class="spark" aria-hidden="true">AI</span>Assistant</h2>
+        <button class="btn-link" id="askAdvice" type="button">Ask for advice</button>
+      </div>
+      <ul class="tips" id="tips"></ul>
+      <p class="advice" id="advice" hidden></p>
+    </section>
+
+    <section class="card" id="backlog" aria-labelledby="backlogTitle">
+      <div class="card-head">
+        <h2 id="backlogTitle">Backlog <span class="count" id="backlogCount"></span></h2>
+        <span class="eyebrow">Drag to timeline</span>
+      </div>
+      <ul class="tasks" id="backlogList"></ul>
+    </section>
+  </aside>
+
+  <main class="main">
+    <div class="main-head">
+      <div>
+        <h2 id="dayTitle">Today</h2>
+        <p class="sub" id="daySub">Full day</p>
+      </div>
+      <div class="head-actions">
+        <button class="btn" id="reschedule" type="button">Reschedule Remaining</button>
+        <button class="btn btn-primary" id="newEvent" type="button">+ New event</button>
+      </div>
+    </div>
+    <div class="legend" aria-label="Categories">
+      <span><i class="deep"></i>Deep Work</span>
+      <span><i class="admin"></i>Admin</span>
+      <span><i class="meet"></i>Meetings</span>
+      <span><i class="personal"></i>Personal</span>
+    </div>
+    <div class="focusbar" id="focusbar" hidden></div>
+    <div class="timeline-card" id="tlScroll">
+      <div class="tl-wrap">
+        <div class="hours" id="hours" aria-hidden="true"></div>
+        <div class="tl" id="tl" aria-label="Timeline"></div>
+      </div>
+    </div>
+    <p class="foot desktop-only">Click an empty spot on the timeline (or press N) to create an event. Click a block to mark it done, the pencil to edit it. Drag to move, drag the bottom edge to resize, × sends it back to the backlog. Shaded hours are outside your 8 AM – 8 PM working day; auto-schedule keeps to working hours.</p>
+    <p class="foot phone-only">Tap an empty spot to add an event. Tap a block to mark it done; press and hold to move it, or hold without moving to edit. Drag the bottom edge to resize.</p>
+  </main>
+</div>
+
+<nav class="mobile-tabs" id="mobileTabs" aria-label="Views">
+  <button type="button" data-view="timeline" aria-pressed="true"><span class="ico" aria-hidden="true">▤</span>Timeline</button>
+  <button type="button" data-view="plan" aria-pressed="false"><span class="ico" aria-hidden="true">✎</span>Plan<span class="tab-count" id="tabCount" hidden></span></button>
+  <button type="button" id="tabChat"><span class="ico" aria-hidden="true">✦</span>Assistant</button>
+  <button type="button" id="tabNew" class="tab-new"><span class="ico" aria-hidden="true">＋</span>New event</button>
+</nav>
+
+<button class="chat-launcher" id="chatLauncher" type="button" aria-controls="chat" aria-expanded="false">
+  <span class="spark" aria-hidden="true">✦</span> Ask the assistant
+</button>
+
+<aside class="chat" id="chat" aria-labelledby="chatTitle" hidden>
+  <div class="chat-head">
+    <div>
+      <h2 id="chatTitle">Assistant</h2>
+      <p>Review your schedule or change it by chatting</p>
+    </div>
+    <div class="chat-head-actions">
+      <button class="btn btn-sm" id="chatClear" type="button">New chat</button>
+      <button class="iconbtn" id="chatClose" type="button" aria-label="Close assistant">×</button>
+    </div>
+  </div>
+  <div class="chat-log" id="chatLog" role="log" aria-live="polite"></div>
+  <form class="chat-form" id="chatForm">
+    <label for="chatInput" class="sr-only">Message the assistant</label>
+    <textarea id="chatInput" rows="1" maxlength="2000" placeholder="e.g. Move gym to 7pm and add 30 min to my report"></textarea>
+    <button class="btn btn-primary" id="chatSend" type="submit" aria-label="Send">Send</button>
+  </form>
+</aside>
+
+<dialog class="ev" id="evDialog" aria-labelledby="evHeading">
+  <form id="evForm" method="dialog" novalidate>
+    <div class="ev-head">
+      <h2 id="evHeading">New event</h2>
+      <button class="iconbtn" type="button" id="evClose" aria-label="Close">×</button>
+    </div>
+
+    <div class="ev-field">
+      <label for="evTitle">Title</label>
+      <div class="ev-title-row">
+        <input type="text" id="evTitle" maxlength="120" placeholder="e.g. Write launch email, 1:1 with Sam, dentist" autocomplete="off" required>
+        <button class="btn btn-ai" type="button" id="evSuggest">Suggest with AI</button>
+      </div>
+    </div>
+
+    <div class="ai-card" id="evAiCard" hidden></div>
+
+    <div class="ev-grid">
+      <div class="ev-field">
+        <label for="evDate">Date</label>
+        <input type="date" id="evDate" required>
+      </div>
+      <div class="ev-field">
+        <label for="evStart">Start</label>
+        <select id="evStart"></select>
+      </div>
+      <div class="ev-field">
+        <label for="evDuration">Duration</label>
+        <select id="evDuration"></select>
+      </div>
+    </div>
+    <div class="conflict" id="evConflict" role="alert" hidden></div>
+
+    <div class="ev-field">
+      <span class="lbl" id="evCatLabel">Category</span>
+      <div class="seg" role="radiogroup" aria-labelledby="evCatLabel">
+        <label><input type="radio" name="evCat" value="Deep Work"><span><i class="deep"></i>Deep Work</span></label>
+        <label><input type="radio" name="evCat" value="Admin"><span><i class="admin"></i>Admin</span></label>
+        <label><input type="radio" name="evCat" value="Meetings"><span><i class="meet"></i>Meetings</span></label>
+        <label><input type="radio" name="evCat" value="Personal"><span><i class="personal"></i>Personal</span></label>
+      </div>
+    </div>
+
+    <div class="ev-field">
+      <span class="lbl" id="evPriLabel">Priority</span>
+      <div class="seg" role="radiogroup" aria-labelledby="evPriLabel">
+        <label><input type="radio" name="evPri" value="High"><span>High</span></label>
+        <label><input type="radio" name="evPri" value="Medium"><span>Medium</span></label>
+        <label><input type="radio" name="evPri" value="Low"><span>Low</span></label>
+      </div>
+    </div>
+
+    <div class="ev-field">
+      <label for="evNotes">Notes <span style="font-weight:400;color:var(--faint)">· optional, helps the AI</span></label>
+      <textarea id="evNotes" maxlength="1000" placeholder="Who's involved, deadlines, where it happens…"></textarea>
+    </div>
+
+    <div class="ev-foot">
+      <button class="btn btn-danger" type="button" id="evDelete" hidden>Delete</button>
+      <span class="spacer"></span>
+      <button class="btn" type="button" id="evCancel">Cancel</button>
+      <button class="btn btn-primary" type="submit" id="evSave">Create event</button>
+    </div>
+  </form>
+</dialog>
+
+<script>
+(() => {
+  "use strict";
+  const $ = (id) => document.getElementById(id);
+
+  /* ---------- Constants ---------- */
+  const DAY_START = 0, DAY_END = 24 * 60, WORK_START = 8 * 60, WORK_END = 20 * 60, SNAP = 15, PX = 1.5; // px per minute; 30 min = 45px
+  const STORE_KEY = "dayblock.v1";
+  const CATS = { "Deep Work": "deep", "Admin": "admin", "Meetings": "meet", "Personal": "personal" };
+  const PRIS = ["High", "Medium", "Low"];
+  const PRI_RANK = { High: 0, Medium: 1, Low: 2 };
+
+  /* ---------- Date/time helpers ---------- */
+  const pad = (n) => String(n).padStart(2, "0");
+  const dateStr = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+  const todayStr = () => dateStr(new Date());
+  const addDays = (s, n) => { const [y, m, d] = s.split("-").map(Number); const dt = new Date(y, m - 1, d + n); return dateStr(dt); };
+  const nowMin = () => { const d = new Date(); return d.getHours() * 60 + d.getMinutes() + d.getSeconds() / 60; };
+  const fmt = (min) => { const h = Math.floor(min / 60) % 24, m = Math.round(min % 60); const ap = h >= 12 ? "PM" : "AM"; const hh = h % 12 || 12; return `${hh}:${pad(m)} ${ap}`; };
+  const fmtShort = (min) => { const h = Math.floor(min / 60) % 24, m = Math.round(min % 60); const hh = h % 12 || 12; return m ? `${hh}:${pad(m)}` : `${hh}`; };
+  const dur = (m) => (m >= 60 ? `${Math.floor(m / 60)}h${m % 60 ? ` ${m % 60}m` : ""}` : `${m}m`);
+  const hrs = (m) => (Math.round(m / 6) / 10).toString();
+  const snap = (m) => Math.round(m / SNAP) * SNAP;
+  const ceilSnap = (m) => Math.ceil(m / SNAP) * SNAP;
+  const clamp = (n, a, b) => Math.max(a, Math.min(b, n));
+  const uid = () => Math.random().toString(36).slice(2, 10);
+  const hhmm = (min) => `${pad(Math.floor(min / 60))}:${pad(Math.round(min % 60))}`;
+  const toMin = (s) => { const [h, m] = String(s).split(":").map(Number); return h * 60 + (m || 0); };
+  const prettyDate = (s) => { const [y, m, d] = s.split("-").map(Number); return new Date(y, m - 1, d).toLocaleDateString([], { weekday: "long", month: "long", day: "numeric" }); };
+
+  /* ---------- State ---------- */
+  let state = { tasks: [], date: todayStr(), focus: false, dump: "" };
+  // Account mode (served by the Dayblock server with a logged-in user): data lives on the server.
+  // Otherwise (claude.ai, opened as a file): data lives in this browser's localStorage.
+  let accountMode = false;
+  let syncTimer = null, syncDirty = false, syncing = false;
+  function save() {
+    if (accountMode) { syncDirty = true; setSync("Saving…"); clearTimeout(syncTimer); syncTimer = setTimeout(syncNow, 600); return; }
+    try { localStorage.setItem(STORE_KEY, JSON.stringify({ tasks: state.tasks, focus: state.focus, dump: state.dump })); } catch {}
+  }
+  const payload = () => JSON.stringify({ tasks: state.tasks, focus: state.focus, dump: state.dump });
+  async function syncNow() {
+    if (syncing) { syncTimer = setTimeout(syncNow, 400); return; }
+    if (!syncDirty) return;
+    syncing = true; syncDirty = false;
+    try {
+      const res = await fetch("/api/data", { method: "PUT", credentials: "same-origin", headers: { "Content-Type": "application/json" }, body: payload() });
+      if (res.status === 401) { location.replace("/login?next=/planner"); return; }
+      if (!res.ok) throw new Error();
+      setSync(syncDirty ? "Saving…" : "All changes saved");
+    } catch {
+      syncDirty = true;
+      setSync("Couldn't save. Retrying…", true);
+      clearTimeout(syncTimer); syncTimer = setTimeout(syncNow, 5000);
+    } finally { syncing = false; }
+  }
+  function setSync(text, err) { const s = $("syncState"); if (!s) return; s.textContent = text; s.classList.toggle("err", !!err); }
+  window.addEventListener("beforeunload", (e) => {
+    if (!accountMode || !syncDirty) return;
+    try { fetch("/api/data", { method: "PUT", keepalive: true, credentials: "same-origin", headers: { "Content-Type": "application/json" }, body: payload() }); } catch {}
+    e.preventDefault();
+  });
+  function load() {
+    try {
+      const raw = JSON.parse(localStorage.getItem(STORE_KEY) || "null");
+      if (raw && Array.isArray(raw.tasks)) return raw;
+    } catch {}
+    return null;
+  }
+  const scheduledOn = (date) => state.tasks.filter((t) => t.start != null && t.date === date).sort((a, b) => a.start - b.start);
+  const backlog = () => state.tasks.filter((t) => t.start == null);
+
+  /* ---------- Slotting ---------- */
+  function busyOn(date, excludeIds = []) {
+    return scheduledOn(date).filter((t) => !excludeIds.includes(t.id)).map((t) => [t.start, t.start + t.minutes]);
+  }
+  const fits = (start, minutes, busy) => start >= DAY_START && start + minutes <= DAY_END && busy.every(([a, b]) => start + minutes <= a || start >= b);
+  function firstFit(minutes, from, busy, until = DAY_END) {
+    for (let s = ceilSnap(Math.max(from, DAY_START)); s + minutes <= until; s += SNAP) if (fits(s, minutes, busy)) return s;
+    return null;
+  }
+  function nearestFit(want, minutes, busy) {
+    want = clamp(snap(want), DAY_START, DAY_END - minutes);
+    if (fits(want, minutes, busy)) return want;
+    for (let d = SNAP; d <= DAY_END - DAY_START; d += SNAP) {
+      if (fits(want + d, minutes, busy)) return want + d;
+      if (fits(want - d, minutes, busy)) return want - d;
+    }
+    return null;
+  }
+  // Places tasks on `date` without overlap; returns the ones that didn't fit.
+  function autoPlace(tasks, date, from) {
+    const busy = busyOn(date, tasks.map((t) => t.id));
+    const unplaced = [];
+    const withTime = tasks.filter((t) => t.preferredStart != null);
+    const rest = tasks.filter((t) => t.preferredStart == null).sort((a, b) => PRI_RANK[a.priority] - PRI_RANK[b.priority]);
+    for (const t of [...withTime, ...rest]) {
+      let s = null;
+      if (t.preferredStart != null && fits(t.preferredStart, t.minutes, busy)) s = t.preferredStart;
+      if (s == null) s = firstFit(t.minutes, from, busy, autoEnd(from));
+      if (s == null) { t.start = null; unplaced.push(t); continue; }
+      t.start = s; t.date = date; busy.push([s, s + t.minutes]);
+    }
+    tasks.forEach((t) => delete t.preferredStart);
+    return unplaced;
+  }
+  const isToday = () => state.date === todayStr();
+  // Auto-scheduling stays inside working hours; late in the day it fills the evening instead.
+  const planFrom = () => (isToday() ? clamp(ceilSnap(nowMin()), WORK_START, DAY_END) : WORK_START);
+  const autoEnd = (from) => (from >= WORK_END - 30 ? DAY_END : WORK_END);
+
+  /* ---------- Sample day ---------- */
+  function sampleTasks(date) {
+    const T = (title, minutes, priority, category, start, done = false) => ({ id: uid(), title, minutes, priority, category, date: start == null ? null : date, start, done });
+    const h = (x) => Math.round(x * 60);
+    return [
+      T("Team standup", 15, "High", "Meetings", h(9), true),
+      T("Finish Q3 report", 120, "High", "Deep Work", h(9.5), true),
+      T("Reply to emails", 30, "Medium", "Admin", h(11.5)),
+      T("Lunch walk", 45, "Medium", "Personal", h(12.5)),
+      T("1:1 with Priya", 30, "High", "Meetings", h(14)),
+      T("Prep design review slides", 90, "Medium", "Deep Work", h(14.5)),
+      T("Submit expense report", 30, "Low", "Admin", h(16.25)),
+      T("Gym", 60, "Low", "Personal", h(18)),
+      T("Review PR #482", 30, "High", "Deep Work", null),
+      T("Call dentist", 15, "Medium", "Personal", null),
+      T("Update team wiki", 45, "Low", "Admin", null),
+      T("Draft blog post on onboarding", 90, "Low", "Deep Work", null)
+    ];
+  }
+  const SAMPLE_DUMP = "Book flights for the offsite, 20 min\nsketch Q4 roadmap 1.5 hrs — important\npick up dry cleaning\nvendor call at 3:30pm 30m\nclean up Jira board";
+
+  function loadSample() {
+    const keepOtherDays = state.tasks.filter((t) => t.start != null && t.date !== state.date);
+    state.tasks = [...keepOtherDays, ...sampleTasks(state.date)];
+    state.dump = SAMPLE_DUMP;
+    $("dump").value = SAMPLE_DUMP;
+    $("advice").hidden = true;
+    save(); render();
+    toast("Sample day loaded. Try Auto-Schedule with the notes in the brain dump.");
+  }
+
+  /* ---------- AI providers ---------- */
+  let samplePromise = null;
+  const getSample = () => samplePromise || (samplePromise = (window.claude && typeof window.claude.use === "function")
+    ? window.claude.use("sample").catch(() => null) : Promise.resolve(null));
+  const canUseServer = () => /^https?:$/.test(location.protocol) && !/claude\.ai|claudeusercontent/.test(location.hostname);
+
+  class UserFacingError extends Error {}
+
+  async function callServer(route, body) {
+    let res;
+    try {
+      res = await fetch(route, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+    } catch { return null; } // no server: fall back
+    if (res.status === 401 && accountMode) { location.replace("/login?next=/planner"); throw new UserFacingError("Your session has ended. Log in again."); }
+    if (res.status === 404 || res.status === 405 || res.status === 503) return null; // no server AI: fall back
+    const json = await res.json().catch(() => ({}));
+    if (!res.ok) throw new UserFacingError(json.error || `Server error (${res.status}).`);
+    return json;
+  }
+
+  function parsePrompt(text) {
+    return `Turn this brain-dump into a task list for a one-day planner. Planner date: ${state.date}.
+For each distinct task give:
+- title: short, imperative, capitalized; drop duration and time words.
+- minutes: the stated duration, otherwise a realistic estimate; multiple of 15, between 15 and 480.
+- priority: "High" if urgent, due today, blocking or marked important; "Low" if optional; otherwise "Medium".
+- category: "Deep Work", "Admin", "Meetings" (calls, syncs, anything with other people at a set time) or "Personal".
+- preferredStart: "HH:MM" 24-hour time only if a time was named, otherwise null.
+Never invent tasks. Ignore lines that aren't tasks.
+
+Reply with only JSON like {"tasks":[{"title":"Finish Q3 report","minutes":120,"priority":"High","category":"Deep Work","preferredStart":null}]}
+
+Notes:
+"""
+${text}
+"""`;
+  }
+
+  async function aiParse(text) {
+    const sample = await getSample();
+    if (sample) {
+      try {
+        const r = await sample.json(parsePrompt(text), { modelTier: "quick" });
+        return { tasks: Array.isArray(r) ? r : r && r.tasks, via: "ai" };
+      } catch (e) {
+        if (e && e.code === "rate_limited") throw new UserFacingError("The AI is busy right now. Wait a minute and try again.");
+        if (e && e.code === "invalid_json") throw new UserFacingError("The AI reply came back incomplete. Try again, or shorten the notes.");
+        if (!(e && e.code === "not_granted")) throw new UserFacingError("The AI couldn't process these notes. Try again.");
+      }
+    }
+    if (canUseServer()) {
+      const j = await callServer("api/parse", { text, date: state.date });
+      if (j) return { tasks: j.tasks, via: "server" };
+    }
+    return { tasks: offlineParse(text), via: "offline" };
+  }
+
+  async function aiAdvice(summary) {
+    const sample = await getSample();
+    if (sample) {
+      const r = await sample(`You are a calm, practical scheduling assistant. In at most 3 short sentences of plain text (no markdown), give advice on this day plan. Name specific tasks. If it's overloaded, say which low-priority tasks to move to tomorrow. Suggest a break if there's a long run of back-to-back work.\n\n${summary}`, { modelTier: "quick" });
+      return r.text.trim();
+    }
+    if (canUseServer()) {
+      const j = await callServer("api/advice", { summary });
+      if (j) return j.advice;
+    }
+    return null;
+  }
+
+  // Suggests duration, category, priority and a free time for one event.
+  async function aiSuggestEvent({ title, notes, date, excludeId }) {
+    const schedule = scheduledOn(date).filter((t) => t.id !== excludeId)
+      .map((t) => `${hhmm(t.start)}-${hhmm(t.start + t.minutes)} ${t.title} [${t.category}, ${t.priority}]`).join("\n");
+    const earliest = hhmm(date === todayStr() ? clamp(ceilSnap(nowMin()), DAY_START, DAY_END) : DAY_START);
+    const sample = await getSample();
+    if (sample) {
+      try {
+        const r = await sample.json(`You help someone fill in a new event for their day planner. The day runs 00:00-24:00; usual working hours are 08:00-20:00, so keep work inside them unless the event naturally belongs outside (dinner, evening plans, an early workout).
+Suggest: title (their title tidied up, short, capitalized; keep their meaning), minutes (realistic, multiple of 15, 15-480; use any stated duration), category ("Deep Work", "Admin", "Meetings" or "Personal"), priority ("High", "Medium" or "Low"), start ("HH:MM" 24-hour in a FREE slot not overlapping anything below and not before ${earliest}; prefer mornings for deep work, keep meetings near other meetings, avoid 3+ hours back-to-back, personal things at natural times; null only if nothing fits), and reason (one short sentence explaining the time and duration).
+
+Date: ${date}
+New event: ${title}${notes ? `\nNotes: ${notes}` : ""}
+Already scheduled:
+${schedule || "(nothing)"}
+
+Reply with only JSON like {"title":"Write launch email","minutes":60,"category":"Deep Work","priority":"High","start":"09:30","reason":"Your morning is open and focused writing works best before meetings start at 11."}`, { modelTier: "quick" });
+        return { ...r, via: "ai" };
+      } catch (e) {
+        if (e && e.code === "rate_limited") throw new UserFacingError("The AI is busy right now. Try again in a minute.");
+        if (!(e && e.code === "not_granted")) throw new UserFacingError("The AI couldn't suggest anything this time. Try again.");
+      }
+    }
+    if (canUseServer()) {
+      const j = await callServer("api/suggest-event", { title, notes, date, schedule, earliest });
+      if (j) return { ...j, via: "server" };
+    }
+    // Offline: keyword guesses plus the first sensible free slot.
+    const guess = offlineParse(`${title}${notes ? " " + notes : ""}`)[0] || {};
+    const cat = guess.category || "Deep Work";
+    const prefer = /lunch/i.test(title) ? 12 * 60 : cat === "Deep Work" ? 9 * 60 : null;
+    return {
+      title: (title.charAt(0).toUpperCase() + title.slice(1)).trim(),
+      minutes: guess.minutes || 30, category: cat, priority: guess.priority || "Medium",
+      start: guess.preferredStart || (prefer != null ? hhmm(Math.max(prefer, toMin(earliest))) : earliest),
+      reason: "Estimated from keywords because AI isn't connected; placed in the first free slot that fits.",
+      via: "offline"
+    };
+  }
+
+  /* ---------- Offline brain-dump parser (used when no AI is reachable) ---------- */
+  function offlineParse(text) {
+    const parts = text.split(/\n|;|•|,(?![^()]*\))/).map((s) => s.replace(/^\s*(?:[-*]|\d+[.)])\s*/, "").trim()).filter((s) => s.length > 1);
+    return parts.map((p) => {
+      let minutes = null, preferredStart = null;
+      const dm = p.match(/(\d+(?:\.\d+)?)\s*(hours?|hrs?|h|minutes?|mins?|m)\b/i);
+      if (dm) minutes = /^h/i.test(dm[2]) ? parseFloat(dm[1]) * 60 : parseFloat(dm[1]);
+      else if (/half an? hour/i.test(p)) minutes = 30;
+      else if (/an hour/i.test(p)) minutes = 60;
+      const tm = p.match(/\bat\s+(\d{1,2})(?::(\d{2}))?\s*(am|pm)?\b/i);
+      if (tm) {
+        let h = Number(tm[1]); const m = Number(tm[2] || 0); const ap = (tm[3] || "").toLowerCase();
+        if (ap === "pm" && h < 12) h += 12; if (ap === "am" && h === 12) h = 0;
+        if (!ap && h < 8) h += 12;
+        preferredStart = `${pad(h)}:${pad(m)}`;
+      }
+      const lower = p.toLowerCase();
+      let category = "Deep Work";
+      if (/dentist|doctor|gym|workout|run\b|walk|lunch|dinner|groceries|pick up|dry clean|laundry|kids|family|haircut|pharmacy|break/.test(lower)) category = "Personal";
+      else if (/\bcall\b|meeting|sync|standup|stand-up|1:1|one-on-one|interview|review with|catch up|demo/.test(lower)) category = "Meetings";
+      else if (/email|inbox|invoice|expense|book|schedule|form|reply|slack|jira|admin|pay|renew|file\b|update/.test(lower)) category = "Admin";
+      let priority = "Medium";
+      if (/urgent|asap|important|today|deadline|due|critical|!/.test(lower)) priority = "High";
+      else if (/maybe|someday|if time|optional|low priority|nice to have/.test(lower)) priority = "Low";
+      if (minutes == null) minutes = { "Deep Work": 60, "Admin": 30, "Meetings": 30, "Personal": 30 }[category];
+      let title = p
+        .replace(/[(\[]?\s*(?:takes?|for|about|~|approx\.?)?\s*\d+(?:\.\d+)?\s*(?:hours?|hrs?|h|minutes?|mins?|m)\b\s*[)\]]?/ig, "")
+        .replace(/\bat\s+\d{1,2}(?::\d{2})?\s*(?:am|pm)?\b/ig, "")
+        .replace(/[-–—]\s*(important|urgent|asap|optional)\b/ig, "")
+        .replace(/\b(half an? hour|an hour)\b/ig, "")
+        .replace(/\s{2,}/g, " ").replace(/[\s,.;:–—-]+$/, "").trim();
+      if (!title) title = p.trim();
+      title = title.charAt(0).toUpperCase() + title.slice(1);
+      return { title, minutes, priority, category, preferredStart };
+    });
+  }
+
+  function normalizeParsed(list) {
+    if (!Array.isArray(list)) return [];
+    return list.slice(0, 40).map((t) => {
+      const ps = typeof t.preferredStart === "string" && /^(\d{1,2}):(\d{2})$/.test(t.preferredStart)
+        ? (() => { const [h, m] = t.preferredStart.split(":").map(Number); return h * 60 + m; })() : null;
+      return {
+        id: uid(),
+        title: String(t.title || "Untitled task").slice(0, 120),
+        minutes: clamp(snap(Number(t.minutes) || 30) || SNAP, SNAP, 480),
+        priority: PRIS.includes(t.priority) ? t.priority : "Medium",
+        category: CATS[t.category] ? t.category : "Deep Work",
+        date: null, start: null, done: false,
+        preferredStart: ps != null && ps >= DAY_START && ps < DAY_END ? snap(ps) : null
+      };
+    });
+  }
+
+  /* ---------- Actions ---------- */
+  async function autoSchedule() {
+    const text = $("dump").value.trim();
+    const status = $("dumpStatus");
+    if (!text) { setStatus("Type a few tasks first.", "error"); $("dump").focus(); return; }
+    const btn = $("autoSchedule");
+    btn.disabled = true; btn.textContent = "Scheduling…";
+    setStatus("Reading your notes…");
+    try {
+      const { tasks, via } = await aiParse(text);
+      const fresh = normalizeParsed(tasks);
+      if (!fresh.length) { setStatus("No tasks found in those notes.", "error"); return; }
+      const unplaced = autoPlace(fresh, state.date, planFrom());
+      state.tasks.push(...fresh);
+      state.dump = ""; $("dump").value = "";
+      save(); render();
+      const placed = fresh.length - unplaced.length;
+      const how = via === "offline" ? " (offline parser, AI not connected)" : "";
+      if (isPhoneLayout() && placed) setView("timeline");
+      setStatus(`Scheduled ${placed} of ${fresh.length} task${fresh.length === 1 ? "" : "s"}${unplaced.length ? `; ${unplaced.length} went to the backlog` : ""}${how}.`, "ok");
+    } catch (e) {
+      setStatus(e instanceof UserFacingError ? e.message : "Couldn't schedule those notes. Try again.", "error");
+    } finally {
+      btn.disabled = false; btn.textContent = "Auto-Schedule with AI";
+    }
+  }
+  function setStatus(msg, kind) {
+    const s = $("dumpStatus"); s.textContent = msg || ""; s.className = "status" + (kind ? " " + kind : "");
+  }
+
+  function rescheduleRemaining() {
+    const from = planFrom();
+    const day = scheduledOn(state.date);
+    // Meetings stay put (other people are involved); done tasks stay as a record.
+    const movable = day.filter((t) => !t.done && t.category !== "Meetings");
+    if (!movable.length) { toast("Nothing to reschedule."); return; }
+    movable.forEach((t) => { t.start = null; });
+    const unplaced = autoPlace(movable, state.date, from);
+    save(); render();
+    toast(unplaced.length
+      ? `Rescheduled ${movable.length - unplaced.length} tasks from ${fmt(from)}. ${unplaced.length} didn't fit and went to the backlog.`
+      : `Rescheduled ${movable.length} task${movable.length === 1 ? "" : "s"} from ${fmt(from)}. Meetings stayed put.`);
+  }
+
+  function moveLowToTomorrow(ids) {
+    const tomorrow = addDays(state.date, 1);
+    const tasks = state.tasks.filter((t) => ids.includes(t.id));
+    tasks.forEach((t) => { t.start = null; });
+    const unplaced = autoPlace(tasks, tomorrow, WORK_START);
+    save(); render();
+    toast(`Moved ${tasks.length - unplaced.length} task${tasks.length - unplaced.length === 1 ? "" : "s"} to ${prettyDate(tomorrow)}${unplaced.length ? `; ${unplaced.length} went to the backlog` : ""}.`);
+  }
+
+  function placeFromBacklog(id) {
+    const t = state.tasks.find((x) => x.id === id);
+    if (!t) return;
+    const busy = busyOn(state.date, [t.id]);
+    const s = firstFit(t.minutes, planFrom(), busy, autoEnd(planFrom())) ?? firstFit(t.minutes, isToday() ? ceilSnap(nowMin()) : DAY_START, busy);
+    if (s == null) { toast(`No free ${dur(t.minutes)} slot left on this day.`); return; }
+    t.start = s; t.date = state.date;
+    save(); render();
+    toast(`Placed “${t.title}” at ${fmt(s)}.`);
+  }
+
+  function toggleDone(id) {
+    const t = state.tasks.find((x) => x.id === id);
+    if (!t) return;
+    t.done = !t.done;
+    save(); render();
+  }
+  function unschedule(id) {
+    const t = state.tasks.find((x) => x.id === id);
+    if (!t) return;
+    t.start = null; t.date = null; t.done = false;
+    save(); render();
+  }
+
+  let toastTimer = null;
+  function toast(msg) {
+    let el = document.querySelector(".toast");
+    if (!el) { el = document.createElement("div"); el.className = "toast"; el.setAttribute("role", "status"); document.body.append(el); }
+    el.textContent = msg; el.hidden = false;
+    clearTimeout(toastTimer); toastTimer = setTimeout(() => { el.hidden = true; }, 3200);
+  }
+
+  /* ---------- Suggestions ---------- */
+  function computeTips() {
+    const day = scheduledOn(state.date);
+    const total = day.reduce((s, t) => s + t.minutes, 0);
+    const from = planFrom();
+    const remainingWindow = Math.max(0, autoEnd(from) - from);
+    const remainingWork = day.filter((t) => !t.done && t.start + t.minutes > from).reduce((s, t) => s + Math.min(t.minutes, t.start + t.minutes - Math.max(t.start, from)), 0);
+    const tips = [];
+
+    const overloaded = total > 9 * 60 || (isToday() && remainingWindow > 0 && remainingWork > remainingWindow * 0.85);
+    if (overloaded) {
+      tips.push({ kind: "bad", html: [["b", "Overloaded day. "], `${hrs(total)} h booked against a ${hrs(WORK_END - WORK_START)} h working day${isToday() ? `, with ${hrs(remainingWork)} h of work left in ${hrs(remainingWindow)} h` : ""}. There's little room for breaks or surprises.`] });
+    }
+
+    const lows = day.filter((t) => !t.done && t.priority === "Low" && t.start + t.minutes > from && t.category !== "Meetings");
+    if ((overloaded || total > 7.5 * 60) && lows.length) {
+      const mins = lows.reduce((s, t) => s + t.minutes, 0);
+      tips.push({ kind: "warn", html: [["b", `Move ${lows.length} low-priority task${lows.length === 1 ? "" : "s"} to tomorrow? `], `${lows.map((t) => t.title).join(", ")} would free ${dur(mins)}.`], action: { label: "Move to tomorrow", run: () => moveLowToTomorrow(lows.map((t) => t.id)) } });
+    }
+
+    // Long runs of back-to-back work
+    let runStart = null, runEnd = null, longest = null;
+    day.forEach((t) => {
+      if (t.category === "Personal") { runStart = null; return; }
+      if (runStart != null && t.start - runEnd < 15) runEnd = Math.max(runEnd, t.start + t.minutes);
+      else { runStart = t.start; runEnd = t.start + t.minutes; }
+      if (!longest || runEnd - runStart > longest[1] - longest[0]) longest = [runStart, runEnd];
+    });
+    if (longest && longest[1] - longest[0] >= 180) {
+      tips.push({ kind: "warn", html: [["b", "No break for a while. "], `${dur(longest[1] - longest[0])} of back-to-back work from ${fmt(longest[0])}. Add a 15 minute break around ${fmt(longest[0] + 90)}.`] });
+    }
+
+    const highBacklog = backlog().filter((t) => t.priority === "High");
+    if (highBacklog.length) {
+      const busy = busyOn(state.date);
+      const fitting = highBacklog.filter((t) => firstFit(t.minutes, from, busy, autoEnd(from)) != null);
+      tips.push({ kind: fitting.length ? "warn" : "bad", html: [["b", `${highBacklog.length} high-priority task${highBacklog.length === 1 ? "" : "s"} in the backlog. `], fitting.length ? `“${fitting[0].title}” fits in an open slot.` : "None of them fit in what's left of this day."], action: fitting.length ? { label: `Place “${fitting[0].title}”`, run: () => placeFromBacklog(fitting[0].id) } : null });
+    }
+
+    if (!tips.length) {
+      const free = remainingWindow - remainingWork;
+      tips.push({ kind: "good", html: [["b", day.length ? "Balanced day. " : "Open day. "], day.length ? `${hrs(Math.max(0, free))} h still free${isToday() ? " from now" : ""}. Room for a backlog task or a proper break.` : "Nothing scheduled yet. Brain-dump your tasks or drag some in from the backlog."] });
+    }
+    return tips;
+  }
+
+  function scheduleSummary() {
+    const day = scheduledOn(state.date);
+    const lines = day.map((t) => `- ${fmt(t.start)}–${fmt(t.start + t.minutes)} ${t.title} [${t.category}, ${t.priority}${t.done ? ", done" : ""}]`);
+    const bl = backlog().map((t) => `- ${t.title} (${dur(t.minutes)}, ${t.priority})`);
+    return `Date: ${prettyDate(state.date)}${isToday() ? ` (today, current time ${fmt(nowMin())})` : ""}. The planner covers the full day; usual working hours are 8:00 AM–8:00 PM.\nScheduled:\n${lines.join("\n") || "(nothing)"}\nBacklog:\n${bl.join("\n") || "(empty)"}`;
+  }
+
+  async function askAdvice() {
+    const btn = $("askAdvice"), out = $("advice");
+    btn.disabled = true; btn.textContent = "Thinking…";
+    try {
+      const text = await aiAdvice(scheduleSummary());
+      out.hidden = false;
+      out.textContent = text || "AI advice needs the Dayblock server or claude.ai. The tips above are worked out in your browser.";
+    } catch (e) {
+      out.hidden = false;
+      out.textContent = e instanceof UserFacingError ? e.message : (e && e.code === "rate_limited" ? "The AI is busy. Try again in a minute." : "Couldn't get advice right now.");
+    } finally {
+      btn.disabled = false; btn.textContent = "Ask for advice";
+    }
+  }
+
+  /* ---------- Rendering ---------- */
+  function el(tag, attrs, ...kids) {
+    const n = document.createElement(tag);
+    if (attrs) for (const [k, v] of Object.entries(attrs)) {
+      if (v == null || v === false) continue;
+      if (k === "class") n.className = v;
+      else if (k === "text") n.textContent = v;
+      else if (k === "style") n.style.cssText = v;
+      else if (k.startsWith("on")) n.addEventListener(k.slice(2), v);
+      else n.setAttribute(k, v === true ? "" : v);
+    }
+    for (const c of kids.flat()) if (c != null) n.append(c instanceof Node ? c : document.createTextNode(String(c)));
+    return n;
+  }
+
+  function buildGrid() {
+    const tl = $("tl"), hours = $("hours");
+    const h = (DAY_END - DAY_START) * PX;
+    tl.style.height = hours.style.height = `${h}px`;
+    // Shade the hours outside the working day.
+    tl.append(el("div", { class: "offhours", style: `top:0;height:${(WORK_START - DAY_START) * PX}px` }),
+      el("div", { class: "offhours", style: `top:${(WORK_END - DAY_START) * PX}px;height:${(DAY_END - WORK_END) * PX}px` }));
+    for (let m = DAY_START; m <= DAY_END; m += 30) {
+      const y = (m - DAY_START) * PX;
+      const half = m % 60 !== 0;
+      tl.append(el("div", { class: "row" + (half ? " half" : ""), style: `top:${y}px` }));
+      hours.append(el("span", { class: half ? "half" : null, style: `top:${y}px`, text: half ? fmtShort(m) : fmt(m).replace(":00", "") }));
+    }
+    tl.append(el("div", { class: "nowline", id: "nowline", hidden: true }));
+  }
+
+  function activeTask() {
+    if (!isToday()) return null;
+    const n = nowMin();
+    const day = scheduledOn(state.date).filter((t) => !t.done);
+    return day.find((t) => t.start <= n && n < t.start + t.minutes) || null;
+  }
+  function nextTask() {
+    const n = isToday() ? nowMin() : -1;
+    return scheduledOn(state.date).find((t) => !t.done && t.start > n) || null;
+  }
+
+  function render() {
+    const day = scheduledOn(state.date);
+    const today = isToday();
+
+    // Top bar
+    $("datePicker").value = state.date;
+    $("focusToggle").checked = state.focus;
+    const total = day.reduce((s, t) => s + t.minutes, 0);
+    const done = day.filter((t) => t.done).reduce((s, t) => s + t.minutes, 0);
+    $("progressText").textContent = `${hrs(done)} / ${hrs(total)} h`;
+    $("progressBar").style.width = total ? `${(done / total) * 100}%` : "0%";
+
+    // Heading
+    const tomorrow = addDays(todayStr(), 1), yesterday = addDays(todayStr(), -1);
+    $("dayTitle").textContent = today ? "Today" : state.date === tomorrow ? "Tomorrow" : state.date === yesterday ? "Yesterday" : prettyDate(state.date).split(",")[0];
+    $("daySub").textContent = `${prettyDate(state.date)} · ${day.length} block${day.length === 1 ? "" : "s"} · ${hrs(total)} h planned`;
+
+    // Focus
+    const act = activeTask();
+    const fb = $("focusbar");
+    fb.textContent = "";
+    if (state.focus) {
+      fb.hidden = false;
+      if (!today) fb.append("Focus Mode follows the clock, so it works on today's schedule.");
+      else if (act) fb.append(el("span", { class: "dot" }), "Now: ", el("b", { text: act.title }), ` · ${Math.max(1, Math.round(act.start + act.minutes - nowMin()))} min left`);
+      else { const nx = nextTask(); fb.append(nx ? ["Nothing scheduled right now. Next: ", el("b", { text: nx.title }), ` at ${fmt(nx.start)}`] : "Nothing left on today's schedule."); }
+    } else fb.hidden = true;
+
+    // Timeline blocks
+    const tl = $("tl");
+    tl.querySelectorAll(".block").forEach((n) => n.remove());
+    day.forEach((t) => {
+      const h = t.minutes * PX;
+      const compact = h < 40;
+      const isActive = act && act.id === t.id;
+      const dim = state.focus && today && !isActive;
+      const b = el("div", {
+        class: `block ${CATS[t.category]}${t.done ? " done" : ""}${compact ? " compact" : ""}${dim ? " dim" : ""}${isActive && state.focus ? " active" : ""}`,
+        style: `top:${(t.start - DAY_START) * PX + 1}px;height:${h - 2}px`,
+        title: t.notes || null,
+        "data-id": t.id, tabindex: "0", role: "button", "aria-pressed": String(!!t.done),
+        "aria-label": `${t.title}, ${fmt(t.start)} to ${fmt(t.start + t.minutes)}, ${t.category}, ${t.priority} priority${t.done ? ", done" : ""}. Press Enter to toggle done.`
+      },
+        el("div", { class: "b-title" }, el("span", { class: "check", "aria-hidden": "true" }), el("span", { class: "t", text: t.title })),
+        el("div", { class: "b-meta", text: compact ? `${fmtShort(t.start)}–${fmtShort(t.start + t.minutes)}` : `${fmt(t.start)} – ${fmt(t.start + t.minutes)} · ${dur(t.minutes)} · ${t.priority}` }),
+        el("button", { class: "b-edit", type: "button", "aria-label": `Edit ${t.title}`, title: "Edit" }, pencil()),
+        el("button", { class: "b-x", type: "button", "aria-label": `Move ${t.title} to backlog`, title: "Move to backlog", text: "×" }),
+        el("div", { class: "b-resize", "aria-hidden": "true", title: "Drag to resize" })
+      );
+      tl.append(b);
+    });
+    updateNowLine();
+
+    // Backlog
+    const list = $("backlogList");
+    list.textContent = "";
+    const bl = backlog().sort((a, b) => PRI_RANK[a.priority] - PRI_RANK[b.priority]);
+    $("backlogCount").textContent = bl.length ? String(bl.length) : "";
+    $("tabCount").textContent = String(bl.length); $("tabCount").hidden = !bl.length;
+    if (!bl.length) list.append(el("li", { class: "empty-note", text: "Backlog is empty. Drop a block here to unschedule it." }));
+    bl.forEach((t) => list.append(el("li", { class: "task", "data-id": t.id },
+      el("span", { class: `stripe ${CATS[t.category]}`, "aria-hidden": "true" }),
+      el("span", { class: "task-title", text: t.title }),
+      el("span", { class: "task-actions" },
+        el("button", { class: "iconbtn", type: "button", "data-edit": t.id, "aria-label": `Edit ${t.title}`, title: "Edit" }, pencil()),
+        el("button", { class: "btn btn-sm", type: "button", "data-place": t.id, "aria-label": `Place ${t.title} in the next free slot` }, "Place")),
+      el("span", { class: "task-meta" }, el("span", { class: `pri ${t.priority}`, text: t.priority }), el("span", { class: "dur", text: dur(t.minutes) }), el("span", { text: t.category }))
+    )));
+
+    // Tips
+    const tipsEl = $("tips");
+    tipsEl.textContent = "";
+    computeTips().forEach((tip) => {
+      const body = el("div", null, tip.html.map((part) => (Array.isArray(part) ? el(part[0], { text: part[1] }) : part)));
+      if (tip.action) body.append(el("div", null, el("button", { class: "btn btn-sm", type: "button", onclick: tip.action.run }, tip.action.label)));
+      tipsEl.append(el("li", { class: `tip ${tip.kind}` }, body));
+    });
+  }
+
+  // Bring the useful part of the day into view: now (today) or the start of working hours.
+  function scrollTimelineTo() {
+    const target = isToday() ? Math.max(DAY_START, nowMin() - 90) : WORK_START - 30;
+    const box = $("tlScroll");
+    const y = (target - DAY_START) * PX;
+    if (box.scrollHeight > box.clientHeight + 4) box.scrollTop = y;          // desktop: timeline scrolls inside its card
+    else window.scrollTo({ top: Math.max(0, $("tl").getBoundingClientRect().top + scrollY + y - 140) }); // phone: page scrolls
+  }
+
+  function updateNowLine() {
+    const line = $("nowline");
+    if (!line) return;
+    const n = nowMin();
+    if (isToday() && n >= DAY_START && n <= DAY_END) { line.hidden = false; line.style.top = `${(n - DAY_START) * PX}px`; }
+    else line.hidden = true;
+  }
+
+  /* ---------- Drag, drop, resize (pointer events: mouse, pen and touch) ---------- */
+  let drag = null;
+
+  function startPointer(e, kind, id, srcEl) {
+    if (e.button !== undefined && e.button !== 0) return;
+    const t = state.tasks.find((x) => x.id === id);
+    if (!t) return;
+    const rect = srcEl.getBoundingClientRect();
+    drag = { kind, id, task: t, srcEl, x0: e.clientX, y0: e.clientY, moved: false, grabY: kind === "block" ? e.clientY - rect.top : 10, origMinutes: t.minutes, pointerId: e.pointerId };
+    if (e.pointerType === "touch" && kind !== "resize") {
+      // On touch, a swipe scrolls; holding still for a moment picks the item up.
+      drag.pending = true;
+      const d = drag;
+      d.lpTimer = setTimeout(() => {
+        if (drag !== d || !d.pending) return;
+        d.pending = false; d.armed = true;
+        srcEl.classList.add("lifted");
+        try { navigator.vibrate?.(12); } catch {}
+        try { srcEl.setPointerCapture(d.pointerId); } catch {}
+      }, 320);
+      return;
+    }
+    try { srcEl.setPointerCapture(e.pointerId); } catch {}
+  }
+
+  function onMove(e) {
+    if (!drag || e.pointerId !== drag.pointerId) return;
+    const dx = e.clientX - drag.x0, dy = e.clientY - drag.y0;
+    if (drag.pending) {
+      if (Math.hypot(dx, dy) > 8) { clearTimeout(drag.lpTimer); drag = null; } // it's a scroll, not a drag
+      return;
+    }
+    if (!drag.moved && Math.hypot(dx, dy) < 5) return;
+    if (!drag.moved) {
+      drag.moved = true;
+      if (drag.kind !== "resize") {
+        drag.ghost = el("div", { class: "ghost", text: drag.task.title });
+        document.body.append(drag.ghost);
+        if (drag.kind === "block") drag.srcEl.classList.add("dragging-src");
+      }
+    }
+    e.preventDefault();
+
+    if (drag.kind === "resize") {
+      const t = drag.task;
+      const busy = busyOn(t.date, [t.id]);
+      const nextStart = busy.map(([a]) => a).filter((a) => a >= t.start + SNAP).sort((a, b) => a - b)[0] ?? DAY_END;
+      const want = snap(drag.origMinutes + dy / PX);
+      const minutes = clamp(want, SNAP, nextStart - t.start);
+      if (minutes !== t.minutes) {
+        t.minutes = minutes;
+        drag.srcEl.style.height = `${minutes * PX - 2}px`;
+        const meta = drag.srcEl.querySelector(".b-meta");
+        if (meta) meta.textContent = `${fmt(t.start)} – ${fmt(t.start + minutes)} · ${dur(minutes)} · ${t.priority}`;
+      }
+      return;
+    }
+
+    drag.ghost.style.left = `${e.clientX + 12}px`;
+    drag.ghost.style.top = `${e.clientY + 8}px`;
+    // Edge auto-scroll
+    const box = $("tlScroll");
+    if (box.scrollHeight > box.clientHeight + 4) {
+      const br = box.getBoundingClientRect();
+      if (e.clientX > br.left && e.clientX < br.right) {
+        if (e.clientY < br.top + 50) box.scrollTop -= 16; else if (e.clientY > br.bottom - 50) box.scrollTop += 16;
+      }
+    } else if (e.clientY < 70) window.scrollBy(0, -14); else if (e.clientY > innerHeight - 90) window.scrollBy(0, 14);
+
+    const target = document.elementFromPoint(e.clientX, e.clientY);
+    const tl = $("tl"), bl = $("backlog");
+    const overTl = target && target.closest("#tl");
+    const overBl = target && target.closest("#backlog");
+    tl.classList.toggle("drop-active", !!overTl);
+    bl.classList.toggle("drop-target", !!overBl && drag.kind === "block");
+    let ph = tl.querySelector(".placeholder");
+    if (overTl) {
+      const r = tl.getBoundingClientRect();
+      const want = DAY_START + (e.clientY - r.top - drag.grabY) / PX;
+      const start = nearestFit(want, drag.task.minutes, busyOn(state.date, [drag.task.id]));
+      drag.dropStart = start;
+      if (!ph) { ph = el("div", { class: "placeholder" }); tl.append(ph); }
+      const shown = start ?? clamp(snap(want), DAY_START, DAY_END - drag.task.minutes);
+      ph.style.top = `${(shown - DAY_START) * PX + 1}px`;
+      ph.style.height = `${drag.task.minutes * PX - 2}px`;
+      ph.classList.toggle("bad", start == null);
+      ph.textContent = start == null ? "No room" : `${fmt(start)} – ${fmt(start + drag.task.minutes)}`;
+    } else {
+      drag.dropStart = undefined;
+      if (ph) ph.remove();
+    }
+    drag.over = overTl ? "tl" : overBl ? "backlog" : null;
+  }
+
+  function endPointer(e) {
+    if (!drag || e.pointerId !== drag.pointerId) return;
+    const d = drag; drag = null;
+    clearTimeout(d.lpTimer);
+    d.srcEl.classList.remove("lifted");
+    const tl = $("tl");
+    tl.classList.remove("drop-active"); $("backlog").classList.remove("drop-target");
+    tl.querySelector(".placeholder")?.remove();
+    d.ghost?.remove();
+    d.srcEl.classList.remove("dragging-src");
+
+    if (!d.moved) {
+      if (e.type !== "pointerup") return;
+      if (d.armed) { openEventDialog({ id: d.id }); return; } // long-press without moving: edit
+      if (d.kind === "block") toggleDone(d.id);
+      return;
+    }
+    if (e.type === "pointercancel") { if (d.kind === "resize") d.task.minutes = d.origMinutes; render(); return; }
+    if (d.kind === "resize") { save(); render(); return; }
+
+    if (d.over === "tl" && d.dropStart != null) {
+      d.task.start = d.dropStart; d.task.date = state.date;
+      save(); render();
+      return;
+    }
+    if (d.over === "tl" && d.dropStart == null) toast("No free slot that size there.");
+    if (d.over === "backlog" && d.kind === "block") { unschedule(d.id); return; }
+    render();
+  }
+
+  // Delegated listeners
+  $("tl").addEventListener("pointerdown", (e) => {
+    if (e.target.closest(".b-x, .b-edit")) return;
+    const block = e.target.closest(".block");
+    if (!block) return;
+    const id = block.dataset.id;
+    startPointer(e, e.target.closest(".b-resize") ? "resize" : "block", id, block);
+  });
+  $("tl").addEventListener("click", (e) => {
+    const x = e.target.closest(".b-x");
+    if (x) { e.stopPropagation(); unschedule(x.closest(".block").dataset.id); return; }
+    const ed = e.target.closest(".b-edit");
+    if (ed) { e.stopPropagation(); openEventDialog({ id: ed.closest(".block").dataset.id }); return; }
+    if (e.target.closest(".block")) return;
+    // Empty spot: start a new event at that time (snapped to the half hour).
+    const r = $("tl").getBoundingClientRect();
+    const at = clamp(Math.floor((DAY_START + (e.clientY - r.top) / PX) / 30) * 30, DAY_START, DAY_END - 30);
+    openEventDialog({ start: at });
+  });
+  $("tl").addEventListener("keydown", (e) => {
+    const block = e.target.closest(".block");
+    if (!block || e.target !== block) return;
+    if (e.key === "Enter" || e.key === " ") { e.preventDefault(); toggleDone(block.dataset.id); requestAnimationFrame(() => document.querySelector(`.block[data-id="${block.dataset.id}"]`)?.focus()); }
+    if (e.key === "Delete" || e.key === "Backspace") { e.preventDefault(); unschedule(block.dataset.id); }
+  });
+  $("backlogList").addEventListener("pointerdown", (e) => {
+    if (e.target.closest("[data-place], [data-edit]")) return;
+    const item = e.target.closest(".task");
+    if (item) startPointer(e, "backlog", item.dataset.id, item);
+  });
+  $("backlogList").addEventListener("click", (e) => {
+    const p = e.target.closest("[data-place]");
+    if (p) placeFromBacklog(p.dataset.place);
+    const ed = e.target.closest("[data-edit]");
+    if (ed) openEventDialog({ id: ed.dataset.edit });
+  });
+
+  /* ---------- Event dialog (create / edit, with AI suggestions) ---------- */
+  function pencil() {
+    const ns = "http://www.w3.org/2000/svg";
+    const svg = document.createElementNS(ns, "svg");
+    svg.setAttribute("viewBox", "0 0 16 16"); svg.setAttribute("aria-hidden", "true");
+    const path = document.createElementNS(ns, "path");
+    path.setAttribute("d", "M11.2 2.3a1.6 1.6 0 0 1 2.3 2.3L5.4 12.7 2 14l1.3-3.4z");
+    path.setAttribute("fill", "none"); path.setAttribute("stroke", "currentColor"); path.setAttribute("stroke-width", "1.6"); path.setAttribute("stroke-linejoin", "round");
+    svg.append(path);
+    return svg;
+  }
+
+  const DURATIONS = [15, 30, 45, 60, 75, 90, 120, 150, 180, 240, 300, 360, 480];
+  let evEditing = null;      // task id being edited, or null for a new event
+  let evSuggestion = null;   // last AI suggestion, validated
+  let evSuggestAbort = 0;    // ignores late answers after the dialog changes
+
+  (function fillSelects() {
+    const s = $("evStart");
+    s.append(el("option", { value: "", text: "Unscheduled (backlog)" }));
+    for (let m = DAY_START; m < DAY_END; m += SNAP) s.append(el("option", { value: String(m), text: fmt(m) }));
+    const d = $("evDuration");
+    DURATIONS.forEach((m) => d.append(el("option", { value: String(m), text: dur(m) })));
+  })();
+
+  const radioVal = (name) => document.querySelector(`input[name="${name}"]:checked`)?.value;
+  const setRadio = (name, v) => { const r = document.querySelector(`input[name="${name}"][value="${v}"]`); if (r) r.checked = true; };
+  function setDuration(m) {
+    const sel = $("evDuration");
+    if (!DURATIONS.includes(m) && !sel.querySelector(`option[value="${m}"]`)) {
+      const opt = el("option", { value: String(m), text: dur(m) });
+      const after = [...sel.options].find((o) => Number(o.value) > m);
+      sel.insertBefore(opt, after || null);
+    }
+    sel.value = String(m);
+  }
+
+  function openEventDialog({ id = null, start = null } = {}) {
+    const t = id ? state.tasks.find((x) => x.id === id) : null;
+    evEditing = t ? t.id : null;
+    evSuggestion = null; evSuggestAbort++;
+    $("evHeading").textContent = t ? "Edit event" : "New event";
+    $("evSave").textContent = t ? "Save changes" : "Create event";
+    $("evDelete").hidden = !t;
+    $("evTitle").value = t ? t.title : "";
+    $("evNotes").value = t ? t.notes || "" : "";
+    $("evDate").value = t && t.date ? t.date : state.date;
+    let s = t ? t.start : start;
+    if (s == null && !t) s = firstFit(60, planFrom(), busyOn(state.date), autoEnd(planFrom())); // sensible default for a new event
+    $("evStart").value = s == null ? "" : String(s);
+    setDuration(t ? t.minutes : 60);
+    setRadio("evCat", t ? t.category : "Deep Work");
+    setRadio("evPri", t ? t.priority : "Medium");
+    $("evAiCard").hidden = true; $("evAiCard").textContent = "";
+    checkConflict();
+    const dlg = $("evDialog");
+    if (typeof dlg.showModal === "function") dlg.showModal(); else dlg.setAttribute("open", "");
+    requestAnimationFrame(() => $("evTitle").focus());
+  }
+  function closeEventDialog() {
+    evSuggestAbort++;
+    const dlg = $("evDialog");
+    if (dlg.open) { if (typeof dlg.close === "function") dlg.close(); else dlg.removeAttribute("open"); }
+  }
+
+  // Shows an overlap warning (and a one-click fix) for the chosen date/time/duration.
+  function checkConflict() {
+    const box = $("evConflict");
+    box.textContent = ""; box.hidden = true;
+    const startV = $("evStart").value;
+    if (startV === "") return true;
+    const start = Number(startV), minutes = Number($("evDuration").value), date = $("evDate").value;
+    if (start + minutes > DAY_END) {
+      box.hidden = false; box.append(`Ends after ${fmt(DAY_END)}, the end of the planner day. Pick an earlier start or shorter duration.`);
+      return false;
+    }
+    const clash = scheduledOn(date).find((x) => x.id !== evEditing && start < x.start + x.minutes && x.start < start + minutes);
+    if (!clash) return true;
+    const alt = nearestFit(start, minutes, busyOn(date, [evEditing]));
+    box.hidden = false;
+    box.append(`Overlaps “${clash.title}” (${fmt(clash.start)} – ${fmt(clash.start + clash.minutes)}).`);
+    if (alt != null) box.append(el("button", { class: "btn btn-sm", type: "button", onclick: () => { $("evStart").value = String(alt); checkConflict(); } }, `Use ${fmt(alt)} instead`));
+    else box.append(" No free slot of that length on this day.");
+    return false;
+  }
+  ["evStart", "evDuration", "evDate"].forEach((id) => $(id).addEventListener("change", checkConflict));
+
+  async function suggestForEvent() {
+    const title = $("evTitle").value.trim();
+    if (!title) { $("evTitle").focus(); $("evTitle").setAttribute("aria-invalid", "true"); toast("Type a title first, then ask the AI."); return; }
+    const date = $("evDate").value || state.date;
+    const ticket = ++evSuggestAbort;
+    const card = $("evAiCard"), btn = $("evSuggest");
+    btn.disabled = true;
+    card.hidden = false; card.className = "ai-card loading"; card.textContent = "";
+    card.append(el("p", null, el("span", { class: "spin", "aria-hidden": "true" }), "Looking at your day…"));
+    try {
+      const raw = await aiSuggestEvent({ title, notes: $("evNotes").value.trim(), date, excludeId: evEditing });
+      if (ticket !== evSuggestAbort) return;
+      const minutes = clamp(snap(Number(raw.minutes) || 30) || SNAP, SNAP, 480);
+      const busy = busyOn(date, [evEditing]);
+      const earliest = date === todayStr() ? clamp(ceilSnap(nowMin()), DAY_START, DAY_END) : DAY_START;
+      let start = typeof raw.start === "string" && /^\d{1,2}:\d{2}$/.test(raw.start) ? snap(toMin(raw.start)) : null;
+      let reason = String(raw.reason || "");
+      // Never trust a suggested time blindly: make sure it's free and not in the past.
+      if (start != null && (start < earliest || !fits(start, minutes, busy))) {
+        const fixed = nearestFit(Math.max(start, earliest), minutes, busy.concat(earliest > DAY_START ? [[DAY_START, earliest]] : []));
+        if (fixed !== start) reason += (reason ? " " : "") + (fixed == null ? "That time is taken and nothing else fits, so it's set to the backlog." : `Moved to ${fmt(fixed)}, the nearest free slot.`);
+        start = fixed;
+      }
+      if (start == null) start = firstFit(minutes, Math.max(earliest, WORK_START), busy, autoEnd(Math.max(earliest, WORK_START))) ?? firstFit(minutes, earliest, busy);
+      evSuggestion = {
+        title: String(raw.title || title).slice(0, 120),
+        minutes, start,
+        category: CATS[raw.category] ? raw.category : "Deep Work",
+        priority: PRIS.includes(raw.priority) ? raw.priority : "Medium",
+        reason, via: raw.via
+      };
+      renderSuggestion();
+    } catch (e) {
+      if (ticket !== evSuggestAbort) return;
+      card.className = "ai-card"; card.textContent = "";
+      card.append(el("p", { text: e instanceof UserFacingError ? e.message : "Couldn't get a suggestion. Try again." }));
+    } finally {
+      if (ticket === evSuggestAbort) btn.disabled = false;
+    }
+  }
+
+  function renderSuggestion() {
+    const s = evSuggestion, card = $("evAiCard");
+    card.className = "ai-card"; card.textContent = "";
+    card.append(
+      el("div", { class: "ai-top" },
+        el("span", { class: "ai-label", text: s.via === "offline" ? "Quick suggestion (offline)" : "AI suggestion" }),
+        el("span", null,
+          el("button", { class: "btn btn-sm", type: "button", onclick: () => { card.hidden = true; } }, "Dismiss"), " ",
+          el("button", { class: "btn btn-sm btn-primary", type: "button", onclick: applySuggestion }, "Apply"))),
+      el("div", { class: "ai-chips" },
+        el("span", { text: s.start == null ? "Backlog" : `${fmt(s.start)} – ${fmt(s.start + s.minutes)}` }),
+        el("span", { text: dur(s.minutes) }),
+        el("span", { text: s.category }),
+        el("span", { text: `${s.priority} priority` }),
+        s.title !== $("evTitle").value.trim() ? el("span", { text: `“${s.title}”` }) : null),
+      s.reason ? el("p", { text: s.reason }) : null
+    );
+  }
+
+  function applySuggestion() {
+    const s = evSuggestion;
+    if (!s) return;
+    $("evTitle").value = s.title;
+    setDuration(s.minutes);
+    $("evStart").value = s.start == null ? "" : String(s.start);
+    setRadio("evCat", s.category);
+    setRadio("evPri", s.priority);
+    $("evAiCard").hidden = true;
+    checkConflict();
+    toast("Suggestion applied. Review it, then save.");
+  }
+
+  function saveEvent(e) {
+    e.preventDefault();
+    const title = $("evTitle").value.trim();
+    if (!title) { $("evTitle").setAttribute("aria-invalid", "true"); $("evTitle").focus(); toast("Give the event a title."); return; }
+    const date = $("evDate").value;
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) { $("evDate").focus(); toast("Pick a date."); return; }
+    if (!checkConflict()) { $("evStart").focus(); return; }
+    const startV = $("evStart").value;
+    const fields = {
+      title, notes: $("evNotes").value.trim(),
+      minutes: Number($("evDuration").value),
+      category: radioVal("evCat") || "Deep Work",
+      priority: radioVal("evPri") || "Medium",
+      start: startV === "" ? null : Number(startV),
+      date: startV === "" ? null : date
+    };
+    let t = evEditing ? state.tasks.find((x) => x.id === evEditing) : null;
+    if (t) Object.assign(t, fields);
+    else { t = { id: uid(), done: false, ...fields }; state.tasks.push(t); }
+    const wasNew = !evEditing;
+    closeEventDialog();
+    save(); render();
+    const where = t.start == null ? "the backlog" : t.date === state.date ? fmt(t.start) : `${prettyDate(t.date)}, ${fmt(t.start)}`;
+    toast(`${wasNew ? "Created" : "Saved"} “${t.title}” · ${where}`);
+  }
+
+  let deleteArmed = false;
+  $("evDelete").addEventListener("click", (e) => {
+    const b = e.currentTarget;
+    if (!deleteArmed) { deleteArmed = true; b.textContent = "Click again to delete"; setTimeout(() => { deleteArmed = false; b.textContent = "Delete"; }, 3000); return; }
+    deleteArmed = false; b.textContent = "Delete";
+    const t = state.tasks.find((x) => x.id === evEditing);
+    state.tasks = state.tasks.filter((x) => x.id !== evEditing);
+    closeEventDialog(); save(); render();
+    if (t) toast(`Deleted “${t.title}”.`);
+  });
+  $("evForm").addEventListener("submit", saveEvent);
+  $("evSuggest").addEventListener("click", suggestForEvent);
+  $("evTitle").addEventListener("input", (e) => e.target.removeAttribute("aria-invalid"));
+  $("evTitle").addEventListener("keydown", (e) => { if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) { e.preventDefault(); suggestForEvent(); } });
+  $("evCancel").addEventListener("click", closeEventDialog);
+  $("evClose").addEventListener("click", closeEventDialog);
+  $("evDialog").addEventListener("click", (e) => { if (e.target === e.currentTarget) closeEventDialog(); }); // backdrop click
+  $("evDialog").addEventListener("close", () => { evSuggestAbort++; });
+  $("newEvent").addEventListener("click", () => openEventDialog());
+  document.addEventListener("keydown", (e) => {
+    if (e.key.toLowerCase() !== "n" || e.metaKey || e.ctrlKey || e.altKey) return;
+    if (e.target.closest("input, textarea, select, [contenteditable]") || $("evDialog").open) return;
+    e.preventDefault(); openEventDialog();
+  });
+  document.addEventListener("pointermove", onMove, { passive: false });
+  document.addEventListener("pointerup", endPointer);
+  document.addEventListener("pointercancel", endPointer);
+  // While a touch drag is active, stop the page from scrolling under the finger.
+  document.addEventListener("touchmove", (e) => { if (drag && (drag.armed || drag.moved || drag.kind === "resize")) e.preventDefault(); }, { passive: false });
+  document.addEventListener("contextmenu", (e) => { if (e.target.closest(".block, .task")) e.preventDefault(); });
+
+  /* ---------- Chat assistant: review and edit the schedule in plain language ---------- */
+  const CHAT_RULES = `You are the scheduling assistant built into Dayblock, a day planner. You can review the user's schedule and change it.
+
+How to answer:
+- Be brief and friendly: usually 1-4 short sentences, at most about 120 words. Plain text only. You may use short "- " bullet lines. No markdown headings, bold or tables.
+- Refer to events by title and time ("Gym at 6:00 PM"), never by id. Use 12-hour times in replies.
+
+Making changes:
+- When the user asks for a change, put it in "actions" and describe what you did in the reply, in past tense.
+- Action types: add (new event), update (change an existing event's title/date/start/minutes/category/priority/notes), delete, complete, uncomplete, move_to_backlog. Fill every field; use null for anything you are not setting.
+- Only use ids that appear in the schedule data. date is YYYY-MM-DD. start is "HH:MM" 24-hour. minutes is a multiple of 15 between 15 and 480. category is one of "Deep Work", "Admin", "Meetings", "Personal". priority is "High", "Medium" or "Low".
+- To add something without a specific time, set start to null and autoPlace to true and the app will find a free slot. To add it to the backlog, set start null and autoPlace false.
+- Never create overlaps: choose free times. Keep work inside working hours unless the user asks otherwise. When shifting several events, update each one.
+- If the request is ambiguous (for example, two events could match), ask one short question and return no actions.
+- Before deleting more than 3 events or clearing a whole day, ask for confirmation and return no actions, unless the user has already confirmed.
+- Never invent events the user did not ask for.
+
+Reviewing:
+- When asked to review or check the schedule, look for: overload (too many hours), long runs with no break, overlaps, high-priority backlog items that would fit, and unfinished tasks earlier today. Give 2-4 specific, actionable observations, then offer to make the changes ("Want me to do that?"). Do not change anything unless asked.`;
+
+  const chat = { messages: [], busy: false, undo: null }; // messages: {role, content, changes?, notes?, undoId?, error?}
+  const weekday = (ds) => { const [y, m, d] = ds.split("-").map(Number); return new Date(y, m - 1, d).toLocaleDateString("en-US", { weekday: "long" }); };
+  function dayLabel(ds) {
+    const t = todayStr();
+    if (ds === t) return "today";
+    if (ds === addDays(t, 1)) return "tomorrow";
+    if (ds === addDays(t, -1)) return "yesterday";
+    return prettyDate(ds).split(",").slice(0, 2).join(",");
+  }
+
+  // Everything the assistant needs to know, rebuilt fresh for every message.
+  function chatContext() {
+    const today = todayStr();
+    const lo = [addDays(state.date, -1), today].sort()[0];
+    const hi = [addDays(state.date, 7), addDays(today, 7)].sort()[1];
+    const events = state.tasks.filter((t) => t.start != null && t.date >= lo && t.date <= hi)
+      .sort((a, b) => (a.date === b.date ? a.start - b.start : a.date < b.date ? -1 : 1)).slice(0, 400);
+    const ev = events.map((t) => `[${t.id}] ${t.date} ${weekday(t.date).slice(0, 3)} ${hhmm(t.start)}-${hhmm(t.start + t.minutes)} ${t.title} | ${t.category} | ${t.priority}${t.done ? " | done" : ""}${t.notes ? ` | notes: ${t.notes.replace(/\s+/g, " ").slice(0, 100)}` : ""}`);
+    const bl = backlog().slice(0, 150).map((t) => `[${t.id}] ${t.title} | ${dur(t.minutes)} | ${t.category} | ${t.priority}`);
+    return `Today is ${weekday(today)} ${today}, and the time is ${hhmm(nowMin())}. The planner is currently showing ${weekday(state.date)} ${state.date}.
+Working hours are 08:00-20:00; events can be placed anywhere from 00:00 to 24:00.
+
+SCHEDULED EVENTS from ${lo} to ${hi} ([id] date day start-end title | category | priority):
+${ev.join("\n") || "(none)"}
+
+BACKLOG (unscheduled):
+${bl.join("\n") || "(empty)"}`;
+  }
+
+  async function aiChat(history) {
+    const turns = history.filter((m) => !m.error).slice(-14).map((m) => ({ role: m.role, content: m.content }));
+    const context = chatContext();
+    const sample = await getSample();
+    if (sample) {
+      try {
+        const input = turns.map((t, i) => (i === turns.length - 1
+          ? { role: "user", content: `${CHAT_RULES}\n\n${context}\n\nReply with only JSON: {"reply": string, "actions": [{"type": ..., "id": ..., "title": ..., "date": ..., "start": ..., "minutes": ..., "category": ..., "priority": ..., "notes": ..., "autoPlace": ...}]}\n\nUser: ${t.content}` }
+          : t));
+        const r = await sample.json(input, { modelTier: "default", cache: false });
+        return { reply: String(r.reply || ""), actions: Array.isArray(r.actions) ? r.actions : [] };
+      } catch (e) {
+        if (e && e.code === "rate_limited") throw new UserFacingError("The AI is busy right now. Try again in a minute.");
+        if (!(e && e.code === "not_granted")) throw new UserFacingError("The assistant couldn't answer that. Try again.");
+      }
+    }
+    if (canUseServer()) {
+      const j = await callServer("api/chat", { messages: turns, context });
+      if (j) return j;
+    }
+    return null; // no AI available
+  }
+
+  // Apply the assistant's actions with the same rules as manual edits: valid fields, no overlaps.
+  function applyChatActions(actions) {
+    const changes = [], notes = [];
+    const validDate = (d) => typeof d === "string" && /^\d{4}-\d{2}-\d{2}$/.test(d);
+    const parseStart = (s) => (typeof s === "string" && /^\d{1,2}:\d{2}$/.test(s) ? clamp(snap(toMin(s)), DAY_START, DAY_END - SNAP) : null);
+    const normMin = (m, fallback) => (m == null ? fallback : clamp(snap(Number(m)) || SNAP, SNAP, 480));
+    const when = (t) => (t.start == null ? "the backlog" : `${dayLabel(t.date)} at ${fmt(t.start)}`);
+    function place(t, date, wanted, excludeId) {
+      const busy = busyOn(date, [excludeId]);
+      if (wanted != null && fits(wanted, t.minutes, busy)) return { start: wanted };
+      if (wanted != null) {
+        const alt = nearestFit(wanted, t.minutes, busy);
+        return alt == null ? { start: null, note: `No free ${dur(t.minutes)} slot on ${dayLabel(date)}, so “${t.title}” went to the backlog.` }
+          : { start: alt, note: `${fmt(wanted)} was taken, so “${t.title}” went to ${fmt(alt)}.` };
+      }
+      const from = date === todayStr() ? planFrom() : WORK_START;
+      const s = firstFit(t.minutes, from, busy, autoEnd(from));
+      return s == null ? { start: null, note: `No free ${dur(t.minutes)} slot on ${dayLabel(date)}, so “${t.title}” went to the backlog.` } : { start: s };
+    }
+
+    // Lift every event that's being re-timed off the timeline first, so a batch of moves
+    // ("push everything back 30 minutes") doesn't collide with the old positions.
+    const lifted = new Map();
+    for (const a of actions) {
+      if (!a || a.type !== "update" || !a.id) continue;
+      const t = state.tasks.find((x) => x.id === a.id);
+      if (t && t.start != null && (parseStart(a.start) != null || (validDate(a.date) && a.date !== t.date) || (a.minutes != null && normMin(a.minutes, t.minutes) !== t.minutes))) lifted.set(t.id, { start: t.start, date: t.date });
+    }
+    lifted.forEach((orig, id) => { state.tasks.find((x) => x.id === id).start = null; });
+
+    for (const a of actions) {
+      if (!a || typeof a !== "object") continue;
+      const t = a.id ? state.tasks.find((x) => x.id === a.id) : null;
+      if (a.type !== "add" && !t) { notes.push("One change referred to an event that no longer exists, so it was skipped."); continue; }
+      switch (a.type) {
+        case "add": {
+          const title = String(a.title || "").trim().slice(0, 120);
+          if (!title) break;
+          const task = {
+            id: uid(), title, notes: String(a.notes || "").slice(0, 1000), done: false,
+            minutes: normMin(a.minutes, 30),
+            category: CATS[a.category] ? a.category : "Deep Work",
+            priority: PRIS.includes(a.priority) ? a.priority : "Medium",
+            date: null, start: null
+          };
+          const date = validDate(a.date) ? a.date : state.date;
+          const wanted = parseStart(a.start);
+          if (wanted != null || a.autoPlace) {
+            const r = place(task, date, wanted, task.id);
+            if (r.note) notes.push(r.note);
+            if (r.start != null) { task.start = r.start; task.date = date; }
+          }
+          state.tasks.push(task);
+          changes.push(`Added “${task.title}” · ${task.start == null ? "backlog" : `${dayLabel(task.date)}, ${fmt(task.start)} – ${fmt(task.start + task.minutes)}`}`);
+          break;
+        }
+        case "update": {
+          const orig = lifted.get(t.id);
+          if (orig) { lifted.delete(t.id); t.start = orig.start; t.date = orig.date; t.start = null; }
+          const before = orig ? when({ start: orig.start, date: orig.date }) : when(t), beforeMin = t.minutes, beforeTitle = t.title;
+          if (a.title) t.title = String(a.title).trim().slice(0, 120) || t.title;
+          if (a.notes != null) t.notes = String(a.notes).slice(0, 1000);
+          if (CATS[a.category]) t.category = a.category;
+          if (PRIS.includes(a.priority)) t.priority = a.priority;
+          const newMin = normMin(a.minutes, t.minutes);
+          const newDate = validDate(a.date) ? a.date : t.date || state.date;
+          const wanted = parseStart(a.start);
+          const timeChanged = wanted != null || newMin !== t.minutes || (validDate(a.date) && a.date !== t.date);
+          t.minutes = newMin;
+          if (timeChanged) {
+            const prevStart = orig ? orig.start : t.start;
+            const target = wanted != null ? wanted : prevStart != null ? prevStart : null;
+            const r = place(t, newDate, target, t.id);
+            if (r.note) notes.push(r.note);
+            t.start = r.start; t.date = r.start == null ? null : newDate;
+          }
+          const parts = [];
+          if (t.title !== beforeTitle) parts.push(`renamed from “${beforeTitle}”`);
+          if (when(t) !== before) parts.push(`moved to ${when(t)}`);
+          if (t.minutes !== beforeMin) parts.push(`now ${dur(t.minutes)}`);
+          changes.push(`Updated “${t.title}”${parts.length ? ` · ${parts.join(", ")}` : ""}`);
+          break;
+        }
+        case "delete":
+          state.tasks = state.tasks.filter((x) => x.id !== t.id);
+          changes.push(`Deleted “${t.title}”`);
+          break;
+        case "complete": t.done = true; changes.push(`Marked “${t.title}” done`); break;
+        case "uncomplete": t.done = false; changes.push(`Marked “${t.title}” not done`); break;
+        case "move_to_backlog":
+          t.start = null; t.date = null; t.done = false;
+          changes.push(`Moved “${t.title}” to the backlog`);
+          break;
+      }
+    }
+    // Anything lifted but not handled (e.g. a duplicate or skipped action) goes back where it was.
+    lifted.forEach((orig, id) => { const t = state.tasks.find((x) => x.id === id); if (t) { t.start = orig.start; t.date = orig.date; } });
+    return { changes, notes };
+  }
+
+  async function sendChat(text) {
+    text = String(text || "").trim();
+    if (!text || chat.busy) return;
+    chat.messages.push({ role: "user", content: text });
+    chat.busy = true;
+    $("chatInput").value = ""; autosizeChat();
+    renderChat();
+    try {
+      const res = await aiChat(chat.messages);
+      if (!res) {
+        chat.messages.push({ role: "assistant", error: true, content: "The assistant needs AI to be connected. On the Dayblock server, add a Gemini or Anthropic API key; on claude.ai it works automatically." });
+      } else {
+        const beforeJson = JSON.stringify(state.tasks);
+        const { changes, notes } = res.actions.length ? applyChatActions(res.actions) : { changes: [], notes: [] };
+        const msg = { role: "assistant", content: res.reply || (changes.length ? "Done." : "I'm not sure how to help with that."), changes, notes };
+        if (changes.length) {
+          save(); render();
+          chat.undo = { id: uid(), before: beforeJson, after: JSON.stringify(state.tasks) };
+          msg.undoId = chat.undo.id;
+        }
+        chat.messages.push(msg);
+      }
+    } catch (e) {
+      chat.messages.push({ role: "assistant", error: true, content: e instanceof UserFacingError ? e.message : "Something went wrong. Try again." });
+    } finally {
+      chat.busy = false;
+      renderChat();
+      $("chatInput").focus();
+    }
+  }
+
+  function undoChat(id) {
+    if (!chat.undo || chat.undo.id !== id) return;
+    if (JSON.stringify(state.tasks) !== chat.undo.after) { toast("Can't undo: the plan has changed since then."); return; }
+    state.tasks = JSON.parse(chat.undo.before);
+    chat.undo = null;
+    save(); render();
+    const m = chat.messages.find((x) => x.undoId === id);
+    if (m) m.undone = true;
+    renderChat();
+    toast("Changes undone.");
+  }
+
+  const CHAT_SUGGESTIONS = [
+    "Review my day",
+    "Am I overbooked this week?",
+    "Find an hour for deep work tomorrow morning",
+    "Move my low-priority tasks to tomorrow",
+    "Push everything after lunch back 30 minutes",
+  ];
+  function renderChat() {
+    const box = $("chatLog");
+    box.textContent = "";
+    if (!chat.messages.length) {
+      box.append(el("div", { class: "chat-empty" },
+        el("div", { class: "chat-hello", text: "Hi! I can look over your schedule or change it for you." }),
+        el("p", { text: "Try one of these, or type your own:" }),
+        el("div", { class: "chips" }, CHAT_SUGGESTIONS.map((s) => el("button", { class: "chip", type: "button", onclick: () => sendChat(s) }, s)))));
+    }
+    chat.messages.forEach((m) => {
+      if (m.role === "user") { box.append(el("div", { class: "bubble user", text: m.content })); return; }
+      const b = el("div", { class: "bubble bot" + (m.error ? " error" : "") });
+      // Plain text with optional "- " bullets; always set as text, never HTML.
+      let list = null;
+      String(m.content).split("\n").forEach((line) => {
+        const bullet = line.match(/^\s*[-•*]\s+(.*)/);
+        if (bullet) { if (!list) { list = el("ul"); b.append(list); } list.append(el("li", { text: bullet[1] })); }
+        else { list = null; if (line.trim()) b.append(el("p", { text: line })); }
+      });
+      if (m.changes && m.changes.length) {
+        const ch = el("div", { class: "changes" + (m.undone ? " undone" : "") },
+          el("div", { class: "changes-head" }, el("span", { text: m.undone ? "Undone" : `${m.changes.length} change${m.changes.length === 1 ? "" : "s"} made` }),
+            !m.undone && m.undoId && chat.undo && chat.undo.id === m.undoId ? el("button", { class: "btn btn-sm", type: "button", onclick: () => undoChat(m.undoId) }, "Undo") : null),
+          el("ul", null, m.changes.map((c) => el("li", { text: c }))));
+        b.append(ch);
+      }
+      if (m.notes && m.notes.length) b.append(el("div", { class: "chat-notes" }, m.notes.map((n) => el("p", { text: n }))));
+      box.append(b);
+    });
+    if (chat.busy) box.append(el("div", { class: "bubble bot typing", "aria-label": "Assistant is typing" }, el("i"), el("i"), el("i")));
+    $("chatSend").disabled = chat.busy;
+    box.scrollTop = box.scrollHeight;
+  }
+
+  function autosizeChat() { const t = $("chatInput"); t.style.height = "auto"; t.style.height = Math.min(140, t.scrollHeight) + "px"; }
+  function openChat() {
+    $("chat").hidden = false;
+    document.body.classList.add("chat-open");
+    $("chatLauncher").setAttribute("aria-expanded", "true");
+    renderChat();
+    requestAnimationFrame(() => $("chatInput").focus());
+  }
+  function closeChat() {
+    $("chat").hidden = true;
+    document.body.classList.remove("chat-open");
+    $("chatLauncher").setAttribute("aria-expanded", "false");
+    if (isPhoneLayout()) setView("timeline");
+  }
+  $("chatLauncher").addEventListener("click", () => ($("chat").hidden ? openChat() : closeChat()));
+  $("chatClose").addEventListener("click", closeChat);
+  $("chatClear").addEventListener("click", () => { chat.messages = []; chat.undo = null; renderChat(); $("chatInput").focus(); });
+  $("chatForm").addEventListener("submit", (e) => { e.preventDefault(); sendChat($("chatInput").value); });
+  $("chatInput").addEventListener("input", autosizeChat);
+  $("chatInput").addEventListener("keydown", (e) => { if (e.key === "Enter" && !e.shiftKey && !e.isComposing) { e.preventDefault(); sendChat($("chatInput").value); } });
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape" && !$("chat").hidden && !$("evDialog").open) closeChat(); });
+
+  /* ---------- Mobile view tabs (timeline vs. brain dump / backlog) ---------- */
+  function setView(v) {
+    $("layout").dataset.view = v;
+    document.querySelectorAll("#mobileTabs [data-view]").forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.view === v)));
+    window.scrollTo({ top: 0 });
+    if (v === "timeline") requestAnimationFrame(scrollTimelineTo);
+  }
+  document.querySelectorAll("#mobileTabs [data-view]").forEach((b) => b.addEventListener("click", () => { if (!$("chat").hidden) closeChat(); setView(b.dataset.view); }));
+  $("tabChat").addEventListener("click", () => ($("chat").hidden ? openChat() : closeChat()));
+  $("tabNew").addEventListener("click", () => openEventDialog());
+  const isPhoneLayout = () => matchMedia("(max-width: 900px)").matches;
+
+  /* ---------- Top bar & sidebar wiring ---------- */
+  const setDate = (d) => { state.date = d; $("advice").hidden = true; render(); scrollTimelineTo(); };
+  $("datePicker").addEventListener("change", (e) => { if (/^\d{4}-\d{2}-\d{2}$/.test(e.target.value)) setDate(e.target.value); });
+  $("prevDay").addEventListener("click", () => setDate(addDays(state.date, -1)));
+  $("nextDay").addEventListener("click", () => setDate(addDays(state.date, 1)));
+  $("todayBtn").addEventListener("click", () => setDate(todayStr()));
+  $("focusToggle").addEventListener("change", (e) => { state.focus = e.target.checked; save(); render(); });
+  $("autoSchedule").addEventListener("click", autoSchedule);
+  $("dump").addEventListener("keydown", (e) => { if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) autoSchedule(); });
+  let dumpTimer = null;
+  $("dump").addEventListener("input", (e) => { clearTimeout(dumpTimer); dumpTimer = setTimeout(() => { state.dump = e.target.value; save(); }, 400); });
+  $("reschedule").addEventListener("click", rescheduleRemaining);
+  $("askAdvice").addEventListener("click", askAdvice);
+
+  let sampleArmed = false;
+  $("loadSample").addEventListener("click", (e) => {
+    const b = e.currentTarget;
+    const hasData = scheduledOn(state.date).length || backlog().length;
+    if (hasData && !sampleArmed) {
+      sampleArmed = true; b.textContent = "Replace this day? Click again";
+      setTimeout(() => { sampleArmed = false; b.textContent = "Load Sample Day"; }, 3500);
+      return;
+    }
+    sampleArmed = false; b.textContent = "Load Sample Day";
+    loadSample();
+  });
+
+  /* ---------- Boot ---------- */
+  buildGrid();
+  (async () => {
+  if (canUseServer()) {
+    // Served by the Dayblock server: require a logged-in user and load their data.
+    let me = null;
+    try {
+      const r = await fetch("/api/me", { credentials: "same-origin" });
+      if (r.status === 401) { location.replace("/login?next=/planner"); return; }
+      if (r.ok) me = await r.json();
+    } catch {}
+    if (me && me.user) {
+      try {
+        const r = await fetch("/api/data", { credentials: "same-origin" });
+        if (r.status === 401) { location.replace("/login?next=/planner"); return; }
+        if (!r.ok) throw new Error();
+        const data = await r.json();
+        accountMode = true;
+        state.tasks = (Array.isArray(data.tasks) ? data.tasks : []).filter((t) => t && t.id && t.title);
+        state.focus = !!data.focus;
+        state.dump = typeof data.dump === "string" ? data.dump : "";
+        $("dump").value = state.dump;
+        $("acctNav").hidden = false; $("acctUser").hidden = false;
+        $("acctAvatar").textContent = me.user.name.trim().charAt(0).toUpperCase();
+        $("acctAvatar").title = `${me.user.name} (${me.user.email})`;
+        $("logoutBtn").addEventListener("click", async () => {
+          if (syncDirty) { clearTimeout(syncTimer); await syncNow(); }
+          try { await fetch("/api/auth/logout", { method: "POST", credentials: "same-origin" }); } finally { location.replace("/login"); }
+        });
+        setSync("All changes saved");
+        render();
+        if (!state.tasks.length) setStatus("Welcome! Type what's on your plate and select Auto-Schedule, or click the timeline to add an event.");
+        afterBoot();
+        return;
+      } catch {
+        setStatus("Couldn't load your saved plan. Refresh to try again.", "error");
+        return;
+      }
+    }
+  }
+  const stored = load();
+  if (stored) {
+    state.tasks = stored.tasks.filter((t) => t && t.id && t.title);
+    state.focus = !!stored.focus;
+    state.dump = typeof stored.dump === "string" ? stored.dump : "";
+    $("dump").value = state.dump;
+    render();
+  } else {
+    // First visit: open on a sample day so the timeline isn't empty.
+    state.tasks = sampleTasks(state.date);
+    state.dump = SAMPLE_DUMP;
+    $("dump").value = SAMPLE_DUMP;
+    save();
+    render();
+    setStatus("Sample day loaded. Edit anything, or select Auto-Schedule to try the brain dump.");
+  }
+  afterBoot();
+  })();
+
+  function afterBoot() {
+  scrollTimelineTo();
+  setInterval(() => { if (!drag) { if (state.focus) render(); else { updateNowLine(); } } }, 30000);
+  }
+})();
+</script>
