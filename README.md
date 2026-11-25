@@ -86,3 +86,7 @@ The repo includes `render.yaml`, so Render can set everything up from it.
 On Render the server automatically uses secure cookies and reads the visitor's real IP for rate limiting (`RENDER` is set by Render; override with `COOKIE_SECURE` / `TRUST_PROXY`).
 
 **The free plan is a demo.** Render wipes the disk on every deploy, restart and when a free instance sleeps after ~15 minutes idle, so accounts and plans reset and everyone is logged out. The first visit after a sleep takes about a minute. To keep data, change `plan: free` to `plan: starter` in `render.yaml` and uncomment the disk and `DATA_DIR` lines.
+
+## GitHub Pages demo
+
+A static demo (intro page + planner, saved in the visitor's browser, no accounts or server AI) is published by `.github/workflows/pages.yml` on every push to `main`. One-time setup: **Settings → Pages → Source: GitHub Actions**. Build it locally with `node scripts/build-pages.mjs` (output in `site/`).

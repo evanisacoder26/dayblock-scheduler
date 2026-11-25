@@ -264,6 +264,8 @@ dialog.ev {
   border-radius: 14px; background: var(--surface); color: var(--fg); box-shadow: 0 24px 60px rgba(15,23,42,.28); overflow: auto;
 }
 .mobile-tabs { display: none; }
+body.static-demo .mobile-tabs { grid-template-columns: repeat(3, 1fr) !important; }
+body.static-demo .chat-launcher, body.static-demo #tabChat { display: none !important; }
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 
 /* ---------- Chat assistant ---------- */
@@ -761,7 +763,9 @@ dialog.ev::backdrop { background: rgba(15, 23, 42, .45); }
   let samplePromise = null;
   const getSample = () => samplePromise || (samplePromise = (window.claude && typeof window.claude.use === "function")
     ? window.claude.use("sample").catch(() => null) : Promise.resolve(null));
-  const canUseServer = () => /^https?:$/.test(location.protocol) && !/claude\.ai|claudeusercontent/.test(location.hostname);
+  // Static demo build (GitHub Pages): no server, so no accounts or server AI.
+  const STATIC_DEMO = document.documentElement.dataset.static === "1";
+  const canUseServer = () => !STATIC_DEMO && /^https?:$/.test(location.protocol) && !/claude\.ai|claudeusercontent/.test(location.hostname);
 
   class UserFacingError extends Error {}
 
@@ -1909,6 +1913,15 @@ ${bl.join("\n") || "(empty)"}`;
 
   /* ---------- Boot ---------- */
   buildGrid();
+  if (STATIC_DEMO) {
+    // Hide features that need the Dayblock server, and link back to the intro page.
+    ["chatLauncher", "tabChat", "askAdvice"].forEach((id) => { const n = $(id); if (n) n.hidden = true; });
+    document.body.classList.add("static-demo");
+    const nav = $("acctNav");
+    nav.textContent = "";
+    nav.append(el("a", { href: "./" }, "Home"), el("a", { href: "planner.html", "aria-current": "page" }, "Planner"));
+    nav.hidden = false;
+  }
   (async () => {
   if (canUseServer()) {
     // Served by the Dayblock server: require a logged-in user and load their data.
