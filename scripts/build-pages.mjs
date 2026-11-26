@@ -94,9 +94,13 @@ async function buildFull(cfg) {
   const backendTags = `<script>window.DAYBLOCK_SUPABASE=${config};</script><script src="${SUPABASE_JS}"></script><script src="supabase-backend.js"></script>`;
 
   // github.io serves the site from /<repo>/, so server-style absolute links become relative files.
+  // Each build also stamps its links with ?v=<build>, because GitHub Pages lets browsers reuse a
+  // page for 10 minutes: without it, moving between pages right after a deploy can show old ones.
+  const BUILD = (process.env.GITHUB_SHA || "").slice(0, 7) || Date.now().toString(36);
   const rewritePaths = (html) => html
-    .replace(/(["'`(=])\/(login|signup|dashboard|planner|settings)(?=["'`?#])/g, "$1$2.html")
-    .replaceAll('href="/"', 'href="./"');
+    .replace(/(["'`(=])\/(login|signup|dashboard|planner|settings)(?=(["'`?#]))/g, (m, pre, page, next) => `${pre}${page}.html?v=${BUILD}${next === "?" ? "&" : ""}`)
+    .replace(/(\.html\?v=[a-z0-9]+)&\?/g, "$1&")
+    .replaceAll('href="/"', `href="./?v=${BUILD}"`);
   const withBackend = (html, label) => {
     if (!/<meta charset="utf-8">/i.test(html)) throw new Error(`build-pages: no <meta charset> in ${label}`);
     return html.replace(/<meta charset="utf-8">/i, (m) => m + backendTags);
