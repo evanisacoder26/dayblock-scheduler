@@ -1,3 +1,4 @@
+<script>/* Appearance: apply the saved Light/Dark choice before the page draws ("System" = follow the device). */(function(){function a(){try{var t=localStorage.getItem("dayblock.theme"),r=document.documentElement;if(t==="light"||t==="dark"){r.setAttribute("data-theme",t);r.setAttribute("data-theme-by","dayblock");}else if(r.getAttribute("data-theme-by")==="dayblock"){r.removeAttribute("data-theme");r.removeAttribute("data-theme-by");}}catch(e){}}a();window.addEventListener("storage",function(e){if(e.key==="dayblock.theme")a();});})();</script>
 <title>Dayblock</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">

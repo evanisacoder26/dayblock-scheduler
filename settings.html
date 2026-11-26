@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
+<script>/* Appearance: apply the saved Light/Dark choice before the page draws ("System" = follow the device). */(function(){function a(){try{var t=localStorage.getItem("dayblock.theme"),r=document.documentElement;if(t==="light"||t==="dark"){r.setAttribute("data-theme",t);r.setAttribute("data-theme-by","dayblock");}else if(r.getAttribute("data-theme-by")==="dayblock"){r.removeAttribute("data-theme");r.removeAttribute("data-theme-by");}}catch(e){}}a();window.addEventListener("storage",function(e){if(e.key==="dayblock.theme")a();});})();</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Account settings · Dayblock</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -18,13 +19,20 @@
   --font-mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
 }
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme="light"]) {
     --bg: #0a0f1c; --surface: #111827; --sunken: #0d1424; --line: #1f2937; --line-strong: #334155;
     --fg: #f1f5f9; --muted: #a3b1c6; --faint: #8090a6;
     --accent: #818cf8; --accent-hover: #a5b4fc; --accent-soft: #1e1b4b; --on-accent: #0a0f1c;
     --good: #34d399; --good-soft: #052e22; --warn: #fbbf24; --warn-soft: #2d2008; --bad: #f87171; --bad-soft: #2c1010; --on-bad: #0a0f1c;
     color-scheme: dark;
   }
+}
+:root[data-theme="dark"] {
+    --bg: #0a0f1c; --surface: #111827; --sunken: #0d1424; --line: #1f2937; --line-strong: #334155;
+    --fg: #f1f5f9; --muted: #a3b1c6; --faint: #8090a6;
+    --accent: #818cf8; --accent-hover: #a5b4fc; --accent-soft: #1e1b4b; --on-accent: #0a0f1c;
+    --good: #34d399; --good-soft: #052e22; --warn: #fbbf24; --warn-soft: #2d2008; --bad: #f87171; --bad-soft: #2c1010; --on-bad: #0a0f1c;
+    color-scheme: dark;
 }
 *, *::before, *::after { box-sizing: border-box; }
 html { scroll-padding-top: 80px; }
@@ -127,6 +135,32 @@ input:disabled { background: var(--sunken); color: var(--muted); }
 .strength[data-score="4"] i { background: var(--good); }
 
 .profile-top { display: flex; align-items: center; gap: 16px; }
+
+/* Appearance picker */
+.theme-options { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+@media (max-width: 560px) { .theme-options { grid-template-columns: 1fr; } }
+.theme-option { position: relative; display: grid; gap: 10px; padding: 12px; border: 1.5px solid var(--line); border-radius: 12px; cursor: pointer; background: var(--surface); transition: border-color .15s, box-shadow .15s; }
+.theme-option:hover { border-color: var(--line-strong); }
+.theme-option input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.theme-option:has(input:checked) { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+.theme-option:has(input:focus-visible) { outline: 2px solid var(--accent); outline-offset: 2px; }
+.theme-label { display: grid; gap: 1px; }
+.theme-label b { font-size: 14px; display: flex; align-items: center; gap: 6px; }
+.theme-option:has(input:checked) .theme-label b::after { content: "✓"; color: var(--accent); font-size: 13px; }
+.theme-label small { color: var(--faint); font-size: 12.5px; }
+/* Mini window previews use fixed colors on purpose: they show each theme, whatever the current one is. */
+.theme-preview { display: grid; gap: 6px; padding: 8px; border-radius: 8px; height: 76px; align-content: start; border: 1px solid rgba(100,116,139,.25); }
+.theme-preview .tp-bar { height: 8px; border-radius: 3px; width: 55%; }
+.theme-preview .tp-row { display: flex; gap: 6px; }
+.theme-preview i { display: block; height: 14px; border-radius: 4px; }
+.theme-preview i.a { width: 40%; } .theme-preview i.b { width: 30%; } .theme-preview i.c { width: 65%; }
+.theme-preview.light { background: #f8fafc; } .theme-preview.light .tp-bar { background: #cbd5e1; }
+.theme-preview.light i.a { background: #c7d2fe; } .theme-preview.light i.b { background: #a7f3d0; } .theme-preview.light i.c { background: #fed7aa; }
+.theme-preview.dark { background: #0a0f1c; } .theme-preview.dark .tp-bar { background: #334155; }
+.theme-preview.dark i.a { background: #4338ca; } .theme-preview.dark i.b { background: #047857; } .theme-preview.dark i.c { background: #9a3412; }
+.theme-preview.system { background: linear-gradient(135deg, #f8fafc 50%, #0a0f1c 50%); }
+.theme-preview.system .tp-bar { background: #94a3b8; }
+.theme-preview.system i.a { background: #818cf8; } .theme-preview.system i.b { background: #34d399; } .theme-preview.system i.c { background: #fb923c; }
 .avatar-lg { width: 56px; height: 56px; border-radius: 50%; background: var(--accent); color: var(--on-accent); display: grid; place-items: center; font-family: var(--font-display); font-weight: 700; font-size: 22px; flex: none; }
 .profile-top b { display: block; font-size: 16px; }
 .profile-top span { color: var(--faint); font-size: 13px; }
@@ -248,6 +282,7 @@ input:disabled { background: var(--sunken); color: var(--muted); }
 
     page.append(el("nav", { class: "index", "aria-label": "Settings sections" },
       el("a", { href: "#profile" }, "Profile"),
+      el("a", { href: "#appearance" }, "Appearance"),
       el("a", { href: "#password" }, "Password"),
       el("a", { href: "#sessions" }, "Where you're logged in"),
       el("a", { href: "#devices" }, "Trusted devices"),
@@ -256,7 +291,7 @@ input:disabled { background: var(--sunken); color: var(--muted); }
 
     const sections = el("div", { class: "sections" });
     page.append(sections);
-    sections.append(profileCard(), passwordCard(), sessionsCard(), devicesCard(), dataCard(), deleteCard());
+    sections.append(profileCard(), appearanceCard(), passwordCard(), sessionsCard(), devicesCard(), dataCard(), deleteCard());
   }
 
   /* ---------- Profile: name + email ---------- */
@@ -374,6 +409,42 @@ input:disabled { background: var(--sunken); color: var(--muted); }
     clearInterval(emailCooldown); emailChallenge = null;
     const panel = $("emailPanel"); panel.hidden = true; panel.textContent = "";
     $("changeEmailBtn").hidden = false;
+  }
+
+  /* ---------- Appearance: System / Light / Dark ---------- */
+  const THEME_KEY = "dayblock.theme";
+  function savedTheme() { try { const t = localStorage.getItem(THEME_KEY); return t === "light" || t === "dark" ? t : "system"; } catch { return "system"; } }
+  function applyTheme(choice) {
+    const r = document.documentElement;
+    try { if (choice === "system") localStorage.removeItem(THEME_KEY); else localStorage.setItem(THEME_KEY, choice); } catch {}
+    if (choice === "system") { r.removeAttribute("data-theme"); r.removeAttribute("data-theme-by"); }
+    else { r.setAttribute("data-theme", choice); r.setAttribute("data-theme-by", "dayblock"); }
+  }
+  function appearanceCard() {
+    const current = savedTheme();
+    const options = [
+      ["system", "System", "Match this device's setting"],
+      ["light", "Light", "Bright background"],
+      ["dark", "Dark", "Easier on the eyes at night"],
+    ];
+    const status = el("p", { class: "msg", role: "status" });
+    const group = el("div", { class: "theme-options", role: "radiogroup", "aria-label": "Theme" },
+      options.map(([value, label, hint]) => {
+        const input = el("input", { type: "radio", name: "theme", value, id: `theme-${value}`, checked: value === current });
+        input.addEventListener("change", () => {
+          applyTheme(value);
+          setMsg(status, value === "system" ? "Following your device's light or dark setting." : `${label} mode is on for every Dayblock page on this device.`, "ok");
+        });
+        return el("label", { class: "theme-option", for: `theme-${value}` },
+          input,
+          el("span", { class: `theme-preview ${value}`, "aria-hidden": "true" },
+            el("span", { class: "tp-bar" }), el("span", { class: "tp-row" }, el("i", { class: "a" }), el("i", { class: "b" })), el("span", { class: "tp-row" }, el("i", { class: "c" }))),
+          el("span", { class: "theme-label" }, el("b", { text: label }), el("small", { text: hint })));
+      }));
+    return el("section", { class: "card", id: "appearance", "aria-labelledby": "appTitle" },
+      el("div", { class: "card-head" }, el("h2", { id: "appTitle", text: "Appearance" }),
+        el("p", { text: "Choose how Dayblock looks. This applies to every page on this device." })),
+      group, status);
   }
 
   /* ---------- Password ---------- */

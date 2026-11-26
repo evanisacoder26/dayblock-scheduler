@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
+<script>/* Appearance: apply the saved Light/Dark choice before the page draws ("System" = follow the device). */(function(){function a(){try{var t=localStorage.getItem("dayblock.theme"),r=document.documentElement;if(t==="light"||t==="dark"){r.setAttribute("data-theme",t);r.setAttribute("data-theme-by","dayblock");}else if(r.getAttribute("data-theme-by")==="dayblock"){r.removeAttribute("data-theme");r.removeAttribute("data-theme-by");}}catch(e){}}a();window.addEventListener("storage",function(e){if(e.key==="dayblock.theme")a();});})();</script>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Dayblock · Plan your day from one brain dump</title>
 <meta name="description" content="Dayblock turns a messy list of tasks into a planned day. AI estimates, prioritizes and schedules everything on a drag-and-drop timeline.">
@@ -21,7 +22,7 @@
   --font-mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
 }
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not([data-theme="light"]) {
     --bg: #0a0f1c; --surface: #111827; --sunken: #0d1424; --line: #1f2937; --line-strong: #334155;
     --fg: #f1f5f9; --muted: #a3b1c6; --faint: #8090a6;
     --accent: #818cf8; --accent-hover: #a5b4fc; --accent-soft: #1e1b4b; --on-accent: #0a0f1c;
@@ -29,6 +30,14 @@
     --good: #34d399;
     color-scheme: dark;
   }
+}
+:root[data-theme="dark"] {
+    --bg: #0a0f1c; --surface: #111827; --sunken: #0d1424; --line: #1f2937; --line-strong: #334155;
+    --fg: #f1f5f9; --muted: #a3b1c6; --faint: #8090a6;
+    --accent: #818cf8; --accent-hover: #a5b4fc; --accent-soft: #1e1b4b; --on-accent: #0a0f1c;
+    --ink: #120f33; --ink-2: #1b1748;
+    --good: #34d399;
+    color-scheme: dark;
 }
 *, *::before, *::after { box-sizing: border-box; }
 html { scroll-padding-top: 76px; }
