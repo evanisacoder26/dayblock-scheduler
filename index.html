@@ -415,6 +415,11 @@ dialog.ev::backdrop { background: rgba(15, 23, 42, .45); }
 .task-actions .iconbtn svg { width: 13px; height: 13px; }
 
 .foot { font-size: 12px; color: var(--faint); }
+.toast button { margin-left: 14px; border: 0; background: none; color: inherit; font: inherit; font-weight: 700; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; padding: 2px 4px; border-radius: 4px; }
+.toast button:focus-visible { outline: 2px solid currentColor; }
+.b-x svg { width: 13px; height: 13px; }
+.b-x:hover { color: var(--bad); }
+.icon-danger:hover { color: var(--bad) !important; border-color: var(--bad) !important; }
 .toast { position: fixed; left: 50%; bottom: calc(20px + env(safe-area-inset-bottom, 0px)); transform: translateX(-50%); background: var(--fg); color: var(--bg); padding: 10px 16px; border-radius: 10px; font-size: 13px; font-weight: 500; z-index: 200; box-shadow: var(--shadow); max-width: calc(100vw - 32px); }
 
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition: none !important; animation: none !important; } }
@@ -516,8 +521,8 @@ dialog.ev::backdrop { background: rgba(15, 23, 42, .45); }
         <div class="tl" id="tl" aria-label="Timeline"></div>
       </div>
     </div>
-    <p class="foot desktop-only">Click an empty spot on the timeline (or press N) to create an event. Click a block to mark it done, the pencil to edit it. Drag to move, drag the bottom edge to resize, × sends it back to the backlog. Shaded hours are outside your 8 AM – 8 PM working day; auto-schedule keeps to working hours.</p>
-    <p class="foot phone-only">Tap an empty spot to add an event. Tap a block to mark it done; press and hold to move it, or hold without moving to edit. Drag the bottom edge to resize.</p>
+    <p class="foot desktop-only">Click an empty spot on the timeline (or press N) to create an event. Click a block to mark it done, the pencil to edit it. Drag to move, drag the bottom edge to resize, the trash icon (or Delete key) deletes it, with Undo. Drag a block onto the backlog to unschedule it. Shaded hours are outside your 8 AM – 8 PM working day; auto-schedule keeps to working hours.</p>
+    <p class="foot phone-only">Tap an empty spot to add an event. Tap a block to mark it done; press and hold to move it, or hold without moving to edit. Drag the bottom edge to resize. The trash icon deletes it, with Undo.</p>
   </main>
 </div>
 
@@ -1003,11 +1008,58 @@ Reply with only JSON like {"title":"Write launch email","minutes":60,"category":
   }
 
   let toastTimer = null;
-  function toast(msg) {
-    let el = document.querySelector(".toast");
-    if (!el) { el = document.createElement("div"); el.className = "toast"; el.setAttribute("role", "status"); document.body.append(el); }
-    el.textContent = msg; el.hidden = false;
-    clearTimeout(toastTimer); toastTimer = setTimeout(() => { el.hidden = true; }, 3200);
+  function toast(msg, action) {
+    let box = document.querySelector(".toast");
+    if (!box) { box = document.createElement("div"); box.className = "toast"; box.setAttribute("role", "status"); document.body.append(box); }
+    box.textContent = "";
+    box.append(document.createTextNode(msg));
+    if (action) {
+      const b = document.createElement("button");
+      b.type = "button"; b.textContent = action.label;
+      b.addEventListener("click", () => { box.hidden = true; clearTimeout(toastTimer); action.run(); });
+      box.append(b);
+    }
+    box.hidden = false;
+    clearTimeout(toastTimer); toastTimer = setTimeout(() => { box.hidden = true; }, action ? 7000 : 3200);
+  }
+
+  // Delete an event or backlog task, with a few seconds to undo it.
+  let lastDeleted = null;
+  function deleteTask(id) {
+    const t = state.tasks.find((x) => x.id === id);
+    if (!t) return;
+    const index = state.tasks.indexOf(t);
+    state.tasks = state.tasks.filter((x) => x.id !== id);
+    const token = uid();
+    lastDeleted = { task: { ...t }, index, token };
+    save(); render();
+    toast(`Deleted “${t.title}”`, { label: "Undo", run: () => undoDelete(token) });
+  }
+  function undoDelete(token) {
+    if (!lastDeleted || lastDeleted.token !== token) return;
+    const { task: t, index } = lastDeleted;
+    lastDeleted = null;
+    if (state.tasks.some((x) => x.id === t.id)) return;
+    let note = "";
+    if (t.start != null && !fits(t.start, t.minutes, busyOn(t.date))) {
+      // Something was put in its place meanwhile: use the nearest free time instead of double-booking.
+      const alt = nearestFit(t.start, t.minutes, busyOn(t.date));
+      if (alt == null) { t.start = null; t.date = null; note = ". Its time was taken, so it's in the backlog"; }
+      else { note = ` at ${fmt(alt)}, since its old time was taken`; t.start = alt; }
+    }
+    state.tasks.splice(Math.min(index, state.tasks.length), 0, t);
+    save(); render();
+    toast(`Restored “${t.title}”${note}.`);
+  }
+  function trashIcon() {
+    const ns = "http://www.w3.org/2000/svg";
+    const svg = document.createElementNS(ns, "svg");
+    svg.setAttribute("viewBox", "0 0 16 16"); svg.setAttribute("aria-hidden", "true");
+    const path = document.createElementNS(ns, "path");
+    path.setAttribute("d", "M2.5 4h11M6 4V2.5h4V4M4 4l.7 9.5h6.6L12 4M6.6 6.5v4.5M9.4 6.5v4.5");
+    path.setAttribute("fill", "none"); path.setAttribute("stroke", "currentColor"); path.setAttribute("stroke-width", "1.5"); path.setAttribute("stroke-linecap", "round"); path.setAttribute("stroke-linejoin", "round");
+    svg.append(path);
+    return svg;
   }
 
   /* ---------- Suggestions ---------- */
@@ -1166,7 +1218,7 @@ Reply with only JSON like {"title":"Write launch email","minutes":60,"category":
         el("div", { class: "b-title" }, el("span", { class: "check", "aria-hidden": "true" }), el("span", { class: "t", text: t.title })),
         el("div", { class: "b-meta", text: compact ? `${fmtShort(t.start)}–${fmtShort(t.start + t.minutes)}` : `${fmt(t.start)} – ${fmt(t.start + t.minutes)} · ${dur(t.minutes)} · ${t.priority}` }),
         el("button", { class: "b-edit", type: "button", "aria-label": `Edit ${t.title}`, title: "Edit" }, pencil()),
-        el("button", { class: "b-x", type: "button", "aria-label": `Move ${t.title} to backlog`, title: "Move to backlog", text: "×" }),
+        el("button", { class: "b-x", type: "button", "aria-label": `Delete ${t.title}`, title: "Delete" }, trashIcon()),
         el("div", { class: "b-resize", "aria-hidden": "true", title: "Drag to resize" })
       );
       tl.append(b);
@@ -1185,6 +1237,7 @@ Reply with only JSON like {"title":"Write launch email","minutes":60,"category":
       el("span", { class: "task-title", text: t.title }),
       el("span", { class: "task-actions" },
         el("button", { class: "iconbtn", type: "button", "data-edit": t.id, "aria-label": `Edit ${t.title}`, title: "Edit" }, pencil()),
+        el("button", { class: "iconbtn icon-danger", type: "button", "data-delete": t.id, "aria-label": `Delete ${t.title}`, title: "Delete" }, trashIcon()),
         el("button", { class: "btn btn-sm", type: "button", "data-place": t.id, "aria-label": `Place ${t.title} in the next free slot` }, "Place")),
       el("span", { class: "task-meta" }, el("span", { class: `pri ${t.priority}`, text: t.priority }), el("span", { class: "dur", text: dur(t.minutes) }), el("span", { text: t.category }))
     )));
@@ -1350,7 +1403,7 @@ Reply with only JSON like {"title":"Write launch email","minutes":60,"category":
   });
   $("tl").addEventListener("click", (e) => {
     const x = e.target.closest(".b-x");
-    if (x) { e.stopPropagation(); unschedule(x.closest(".block").dataset.id); return; }
+    if (x) { e.stopPropagation(); deleteTask(x.closest(".block").dataset.id); return; }
     const ed = e.target.closest(".b-edit");
     if (ed) { e.stopPropagation(); openEventDialog({ id: ed.closest(".block").dataset.id }); return; }
     if (e.target.closest(".block")) return;
@@ -1363,10 +1416,10 @@ Reply with only JSON like {"title":"Write launch email","minutes":60,"category":
     const block = e.target.closest(".block");
     if (!block || e.target !== block) return;
     if (e.key === "Enter" || e.key === " ") { e.preventDefault(); toggleDone(block.dataset.id); requestAnimationFrame(() => document.querySelector(`.block[data-id="${block.dataset.id}"]`)?.focus()); }
-    if (e.key === "Delete" || e.key === "Backspace") { e.preventDefault(); unschedule(block.dataset.id); }
+    if (e.key === "Delete" || e.key === "Backspace") { e.preventDefault(); deleteTask(block.dataset.id); }
   });
   $("backlogList").addEventListener("pointerdown", (e) => {
-    if (e.target.closest("[data-place], [data-edit]")) return;
+    if (e.target.closest("[data-place], [data-edit], [data-delete]")) return;
     const item = e.target.closest(".task");
     if (item) startPointer(e, "backlog", item.dataset.id, item);
   });
@@ -1375,6 +1428,8 @@ Reply with only JSON like {"title":"Write launch email","minutes":60,"category":
     if (p) placeFromBacklog(p.dataset.place);
     const ed = e.target.closest("[data-edit]");
     if (ed) openEventDialog({ id: ed.dataset.edit });
+    const del = e.target.closest("[data-delete]");
+    if (del) deleteTask(del.dataset.delete);
   });
 
   /* ---------- Event dialog (create / edit, with AI suggestions) ---------- */
@@ -1563,15 +1618,10 @@ Reply with only JSON like {"title":"Write launch email","minutes":60,"category":
     toast(`${wasNew ? "Created" : "Saved"} “${t.title}” · ${where}`);
   }
 
-  let deleteArmed = false;
-  $("evDelete").addEventListener("click", (e) => {
-    const b = e.currentTarget;
-    if (!deleteArmed) { deleteArmed = true; b.textContent = "Click again to delete"; setTimeout(() => { deleteArmed = false; b.textContent = "Delete"; }, 3000); return; }
-    deleteArmed = false; b.textContent = "Delete";
-    const t = state.tasks.find((x) => x.id === evEditing);
-    state.tasks = state.tasks.filter((x) => x.id !== evEditing);
-    closeEventDialog(); save(); render();
-    if (t) toast(`Deleted “${t.title}”.`);
+  $("evDelete").addEventListener("click", () => {
+    const id = evEditing;
+    closeEventDialog();
+    deleteTask(id);
   });
   $("evForm").addEventListener("submit", saveEvent);
   $("evSuggest").addEventListener("click", suggestForEvent);
