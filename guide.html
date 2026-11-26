@@ -1,0 +1,782 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<script>/* Appearance: apply the saved Light/Dark choice before the page draws ("System" = follow the device). */(function(){function a(){try{var t=localStorage.getItem("dayblock.theme"),r=document.documentElement;if(t==="light"||t==="dark"){r.setAttribute("data-theme",t);r.setAttribute("data-theme-by","dayblock");}else if(r.getAttribute("data-theme-by")==="dayblock"){r.removeAttribute("data-theme");r.removeAttribute("data-theme-by");}}catch(e){}}a();window.addEventListener("storage",function(e){if(e.key==="dayblock.theme")a();});})();</script>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>User Guide · Dayblock</title>
+<meta name="description" content="How to use Dayblock: brain dump, the timeline, AI suggestions, the assistant, focus mode, settings and more.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@500&display=swap">
+<style>
+/* Layout: app bar; a search hero; then a sticky sidebar (search-aware table of contents) beside the article column. Sidebar becomes a top drawer on phones. */
+:root {
+  --bg: #f8fafc; --surface: #ffffff; --sunken: #f1f5f9; --line: #e2e8f0; --line-strong: #cbd5e1;
+  --fg: #0f172a; --muted: #475569; --faint: #64748b;
+  --accent: #4f46e5; --accent-hover: #4338ca; --accent-soft: #eef2ff; --on-accent: #ffffff;
+  --good: #047857; --good-soft: #ecfdf5; --warn: #b45309; --warn-soft: #fffbeb; --bad: #b91c1c; --bad-soft: #fef2f2;
+  --mark: #fde68a; --mark-fg: #0f172a;
+  --deep-bg: #eef2ff; --deep-bar: #4f46e5; --deep-fg: #312e81;
+  --admin-bg: #fff7ed; --admin-bar: #ea580c; --admin-fg: #7c2d12;
+  --meet-bg: #e0f2fe; --meet-bar: #0284c7; --meet-fg: #0c4a6e;
+  --personal-bg: #ecfdf5; --personal-bar: #059669; --personal-fg: #064e3b;
+  --ink: #1e1b4b; --ink-fg: #eef2ff; --ink-muted: #b4bcf5; --ink-line: rgba(180,188,245,.16);
+  --font-display: "Space Grotesk", "Inter", system-ui, sans-serif;
+  --font-body: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0a0f1c; --surface: #111827; --sunken: #0d1424; --line: #1f2937; --line-strong: #334155;
+    --fg: #f1f5f9; --muted: #a3b1c6; --faint: #8090a6;
+    --accent: #818cf8; --accent-hover: #a5b4fc; --accent-soft: #1e1b4b; --on-accent: #0a0f1c;
+    --good: #34d399; --good-soft: #052e22; --warn: #fbbf24; --warn-soft: #2d2008; --bad: #f87171; --bad-soft: #2c1010;
+    --mark: #854d0e; --mark-fg: #fef9c3;
+    --deep-bg: #1e1b4b; --deep-bar: #818cf8; --deep-fg: #e0e7ff;
+    --admin-bg: #2a1708; --admin-bar: #fb923c; --admin-fg: #ffedd5;
+    --meet-bg: #082f49; --meet-bar: #38bdf8; --meet-fg: #e0f2fe;
+    --personal-bg: #052e22; --personal-bar: #34d399; --personal-fg: #d1fae5;
+    --ink: #120f33;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0a0f1c; --surface: #111827; --sunken: #0d1424; --line: #1f2937; --line-strong: #334155;
+  --fg: #f1f5f9; --muted: #a3b1c6; --faint: #8090a6;
+  --accent: #818cf8; --accent-hover: #a5b4fc; --accent-soft: #1e1b4b; --on-accent: #0a0f1c;
+  --good: #34d399; --good-soft: #052e22; --warn: #fbbf24; --warn-soft: #2d2008; --bad: #f87171; --bad-soft: #2c1010;
+  --mark: #854d0e; --mark-fg: #fef9c3;
+  --deep-bg: #1e1b4b; --deep-bar: #818cf8; --deep-fg: #e0e7ff;
+  --admin-bg: #2a1708; --admin-bar: #fb923c; --admin-fg: #ffedd5;
+  --meet-bg: #082f49; --meet-bar: #38bdf8; --meet-fg: #e0f2fe;
+  --personal-bg: #052e22; --personal-bar: #34d399; --personal-fg: #d1fae5;
+  --ink: #120f33;
+  color-scheme: dark;
+}
+*, *::before, *::after { box-sizing: border-box; }
+html { scroll-padding-top: 84px; }
+@media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
+body { margin: 0; background: var(--bg); color: var(--fg); font-family: var(--font-body); font-size: 16px; line-height: 1.65; }
+h1, h2, h3 { font-family: var(--font-display); letter-spacing: -0.015em; text-wrap: balance; margin: 0; }
+p { margin: 0 0 12px; }
+a { color: var(--accent); }
+button, input, textarea { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 6px; }
+kbd { font-family: var(--font-mono); font-size: 12px; padding: 2px 7px; border-radius: 6px; border: 1px solid var(--line-strong); border-bottom-width: 2px; background: var(--surface); white-space: nowrap; }
+mark { background: var(--mark); color: var(--mark-fg); border-radius: 3px; padding: 0 2px; }
+
+/* App bar */
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 40; background: var(--surface); }
+.appbar { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 30; background: var(--surface); border-bottom: 1px solid var(--line); }
+.appbar-inner { max-width: 1200px; margin: 0 auto; padding-block: 10px; padding-left: max(16px, env(safe-area-inset-left)); padding-right: max(16px, env(safe-area-inset-right)); display: flex; align-items: center; gap: 16px; }
+.logo { display: flex; align-items: center; gap: 10px; font-family: var(--font-display); font-weight: 700; font-size: 18px; color: var(--fg); text-decoration: none; }
+.logo-mark { width: 30px; height: 30px; border-radius: 8px; background: var(--accent); display: grid; place-items: center; }
+.logo-mark span { width: 12px; height: 4px; background: var(--on-accent); border-radius: 2px; box-shadow: 0 -6px 0 var(--on-accent), 0 6px 0 var(--on-accent); }
+.logo small { font-family: var(--font-body); font-weight: 600; font-size: 13px; color: var(--faint); padding-left: 10px; border-left: 1px solid var(--line); margin-left: 2px; }
+.spacer { flex: 1; }
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 38px; padding: 0 16px; border-radius: 9px; border: 1px solid var(--line-strong); background: var(--surface); color: var(--fg); font-weight: 600; font-size: 14px; text-decoration: none; cursor: pointer; transition: border-color .15s, color .15s, background .15s; white-space: nowrap; }
+.btn:hover { border-color: var(--accent); color: var(--accent); }
+.btn-primary { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+.btn-primary:hover { background: var(--accent-hover); border-color: var(--accent-hover); color: var(--on-accent); }
+.btn-sm { height: 32px; padding: 0 12px; font-size: 13px; }
+.menu-btn { display: none; }
+@media (max-width: 920px) { .menu-btn { display: inline-flex; } }
+@media (max-width: 520px) { .logo small { display: none; } .appbar .btn-ghost-hide { display: none; } }
+
+/* Hero */
+.hero { background: var(--ink); color: var(--ink-fg); position: relative; overflow: hidden; }
+.hero::before { content: ""; position: absolute; inset: 0; background-image: linear-gradient(var(--ink-line) 1px, transparent 1px); background-size: 100% 40px; mask-image: linear-gradient(180deg, transparent, #000 30%, #000 70%, transparent); pointer-events: none; }
+.hero .wrap { position: relative; max-width: 1200px; margin: 0 auto; padding-block: 44px 48px; padding-left: max(16px, env(safe-area-inset-left)); padding-right: max(16px, env(safe-area-inset-right)); display: grid; gap: 14px; }
+.hero h1 { font-size: clamp(30px, 4.4vw, 46px); line-height: 1.05; }
+.hero p { color: var(--ink-muted); max-width: 56ch; margin: 0; font-size: 17px; }
+.search { position: relative; max-width: 620px; margin-top: 10px; }
+.search input { width: 100%; height: 54px; padding: 0 92px 0 48px; border-radius: 14px; border: 1px solid transparent; background: #ffffff; color: #0f172a; font-size: 16px; box-shadow: 0 14px 34px rgba(0,0,0,.25); }
+.search input::placeholder { color: #64748b; }
+.search input:focus { outline: none; box-shadow: 0 0 0 4px rgba(129,140,248,.45), 0 14px 34px rgba(0,0,0,.25); }
+.search .ico { position: absolute; left: 16px; top: 50%; transform: translateY(-50%); color: #64748b; width: 20px; height: 20px; }
+.search kbd { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); background: #f1f5f9; color: #475569; border-color: #cbd5e1; }
+.search-status { color: var(--ink-muted); font-size: 14px; min-height: 1.4em; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chips button { border: 1px solid var(--ink-line); background: rgba(255,255,255,.06); color: var(--ink-fg); border-radius: 999px; padding: 5px 12px; font-size: 13px; cursor: pointer; transition: background .15s; }
+.chips button:hover { background: rgba(255,255,255,.14); }
+
+/* Layout */
+.layout { max-width: 1200px; margin: 0 auto; padding-block: 32px 80px; padding-left: max(16px, env(safe-area-inset-left)); padding-right: max(16px, env(safe-area-inset-right)); display: grid; grid-template-columns: 240px minmax(0, 1fr); gap: 48px; align-items: start; }
+@media (max-width: 920px) { .layout { grid-template-columns: 1fr; gap: 0; padding-top: 16px; } }
+.sidebar { position: sticky; top: 76px; max-height: calc(100dvh - 96px); overflow-y: auto; padding-right: 6px; display: grid; gap: 2px; font-size: 14px; }
+.sidebar .group { font-family: var(--font-display); font-size: 11.5px; font-weight: 700; letter-spacing: .09em; text-transform: uppercase; color: var(--faint); margin: 16px 0 4px 12px; }
+.sidebar .group:first-child { margin-top: 0; }
+.sidebar a { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 6px 12px; border-radius: 8px; color: var(--muted); text-decoration: none; border-left: 2px solid transparent; transition: background .12s, color .12s; }
+.sidebar a:hover { background: var(--surface); color: var(--fg); }
+.sidebar a.active { background: var(--accent-soft); color: var(--accent); font-weight: 600; }
+.sidebar a .hits { font-family: var(--font-mono); font-size: 11px; background: var(--mark); color: var(--mark-fg); border-radius: 999px; padding: 0 7px; }
+.sidebar a.dim { opacity: .4; }
+@media (max-width: 920px) {
+  .sidebar { position: fixed; inset: 0 0 auto 0; top: calc(57px + env(safe-area-inset-top, 0px)); max-height: 70dvh; z-index: 25; background: var(--surface); border-bottom: 1px solid var(--line); padding: 16px max(16px, env(safe-area-inset-left)); box-shadow: 0 18px 40px rgba(15,23,42,.18); transform: translateY(-8px); opacity: 0; pointer-events: none; transition: opacity .18s, transform .18s; }
+  body.menu-open .sidebar { opacity: 1; transform: none; pointer-events: auto; }
+}
+
+/* Article */
+.article { min-width: 0; max-width: 78ch; }
+.doc-section { padding-block: 8px 36px; border-bottom: 1px solid var(--line); margin-bottom: 36px; }
+.doc-section:last-child { border-bottom: 0; }
+.doc-section[hidden] { display: none; }
+.doc-section > h2 { font-size: clamp(24px, 2.6vw, 30px); display: flex; align-items: center; gap: 12px; margin-bottom: 10px; }
+.doc-section > h2 .icon { width: 36px; height: 36px; flex: none; border-radius: 10px; background: var(--accent-soft); color: var(--accent); display: grid; place-items: center; font-size: 17px; }
+.doc-section > .lead { color: var(--muted); font-size: 17px; }
+.doc-section h3 { font-size: 18px; margin: 26px 0 8px; }
+.doc-section ul, .doc-section ol { padding-left: 22px; margin: 0 0 12px; }
+.doc-section li { margin-bottom: 6px; }
+.anchor { opacity: 0; color: var(--faint); text-decoration: none; font-size: 18px; transition: opacity .15s; }
+.doc-section > h2:hover .anchor, .anchor:focus { opacity: 1; }
+.callout { display: grid; grid-template-columns: 24px minmax(0, 1fr); gap: 10px; padding: 14px 16px; border-radius: 12px; margin: 14px 0; font-size: 15px; background: var(--accent-soft); }
+.callout p:last-child { margin: 0; }
+.callout .ci { font-size: 16px; line-height: 1.5; }
+.callout.tip { background: var(--good-soft); } .callout.warn { background: var(--warn-soft); }
+.empty-search { display: none; text-align: center; padding: 56px 20px; color: var(--muted); border: 1px dashed var(--line-strong); border-radius: 14px; }
+.empty-search b { display: block; font-family: var(--font-display); font-size: 18px; color: var(--fg); margin-bottom: 6px; }
+
+/* Quick start cards */
+.quick { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin: 18px 0 8px; }
+@media (max-width: 680px) { .quick { grid-template-columns: 1fr; } }
+.quick a { display: grid; gap: 4px; padding: 16px; border: 1px solid var(--line); border-radius: 14px; background: var(--surface); text-decoration: none; color: var(--fg); transition: border-color .15s, transform .15s, box-shadow .15s; }
+.quick a:hover { border-color: var(--accent); transform: translateY(-2px); box-shadow: 0 12px 26px rgba(15,23,42,.08); }
+.quick b { font-family: var(--font-display); font-size: 16px; }
+.quick span { color: var(--muted); font-size: 14px; }
+.quick .q-ico { font-size: 20px; }
+
+/* Checklist */
+.checklist { border: 1px solid var(--line); border-radius: 14px; background: var(--surface); overflow: hidden; margin: 16px 0; }
+.checklist-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 16px; border-bottom: 1px solid var(--line); }
+.checklist-head b { font-family: var(--font-display); }
+.progress { flex: 1; max-width: 220px; height: 8px; border-radius: 999px; background: var(--sunken); overflow: hidden; }
+.progress span { display: block; height: 100%; background: var(--good); border-radius: 999px; transition: width .3s; }
+.checklist ol { list-style: none; margin: 0; padding: 0; }
+.checklist li { display: grid; grid-template-columns: 26px minmax(0, 1fr); gap: 12px; padding: 13px 16px; border-bottom: 1px solid var(--line); margin: 0; align-items: start; }
+.checklist li:last-child { border-bottom: 0; }
+.checklist input { width: 20px; height: 20px; margin-top: 3px; accent-color: var(--good); cursor: pointer; }
+.checklist label { cursor: pointer; }
+.checklist label b { display: block; }
+.checklist label span { color: var(--muted); font-size: 14px; }
+.checklist li.done label b { text-decoration: line-through; color: var(--faint); }
+
+/* Demo frames */
+.demo { border: 1px solid var(--line); border-radius: 16px; background: var(--surface); margin: 18px 0; overflow: hidden; box-shadow: 0 1px 2px rgba(15,23,42,.04); }
+.demo-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 14px; border-bottom: 1px solid var(--line); background: var(--sunken); }
+.demo-head .dots { display: flex; gap: 6px; }
+.demo-head .dots i { width: 10px; height: 10px; border-radius: 50%; background: var(--line-strong); }
+.demo-head .title { font-size: 12.5px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; color: var(--faint); }
+.demo-body { padding: 16px; display: grid; gap: 12px; }
+.demo textarea { width: 100%; min-height: 96px; resize: vertical; padding: 10px 12px; border: 1px solid var(--line-strong); border-radius: 10px; background: var(--surface); font-family: var(--font-mono); font-size: 13.5px; line-height: 1.6; }
+.demo textarea:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+.parsed { display: grid; gap: 8px; }
+.ptask { display: grid; grid-template-columns: 4px minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 9px 12px 9px 0; border: 1px solid var(--line); border-radius: 10px; background: var(--surface); }
+@media (prefers-reduced-motion: no-preference) { .ptask { animation: pop .3s ease both; } }
+@keyframes pop { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+.ptask i { align-self: stretch; border-radius: 0 3px 3px 0; }
+.ptask b { font-size: 14.5px; }
+.ptask .tags { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+.tag { font-size: 11.5px; font-weight: 700; padding: 2px 8px; border-radius: 999px; background: var(--sunken); color: var(--muted); border: 1px solid var(--line); white-space: nowrap; }
+.tag.High { background: var(--bad-soft); color: var(--bad); border-color: transparent; }
+.tag.Medium { background: var(--warn-soft); color: var(--warn); border-color: transparent; }
+.tag.time { background: var(--accent-soft); color: var(--accent); border-color: transparent; }
+.demo-note { font-size: 13px; color: var(--faint); }
+
+/* Mini timeline */
+.mini { display: grid; grid-template-columns: 56px minmax(0, 1fr); user-select: none; }
+.mini .hours { position: relative; }
+.mini .hours span { position: absolute; right: 10px; transform: translateY(-50%); font-family: var(--font-mono); font-size: 11px; color: var(--faint); }
+.mini .col { position: relative; border-left: 1px solid var(--line); background-image: linear-gradient(var(--line) 1px, transparent 1px); background-size: 100% 48px; }
+.mini .blk { position: absolute; left: 8px; right: 8px; border-radius: 8px; padding: 5px 10px 5px 14px; font-size: 13px; font-weight: 600; cursor: grab; touch-action: none; overflow: hidden; transition: box-shadow .15s, opacity .2s; display: flex; justify-content: space-between; gap: 8px; align-items: flex-start; }
+.mini .blk::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; }
+.mini .blk small { font-weight: 500; opacity: .8; font-family: var(--font-mono); font-size: 11px; white-space: nowrap; }
+.mini .blk:hover { box-shadow: 0 6px 16px rgba(15,23,42,.12); }
+.mini .blk.dragging { cursor: grabbing; box-shadow: 0 12px 28px rgba(15,23,42,.25); z-index: 2; }
+.mini .blk.done { opacity: .55; } .mini .blk.done span.t { text-decoration: line-through; }
+.mini .deep { background: var(--deep-bg); color: var(--deep-fg); } .mini .deep::before { background: var(--deep-bar); }
+.mini .admin { background: var(--admin-bg); color: var(--admin-fg); } .mini .admin::before { background: var(--admin-bar); }
+.mini .meet { background: var(--meet-bg); color: var(--meet-fg); } .mini .meet::before { background: var(--meet-bar); }
+.mini .personal { background: var(--personal-bg); color: var(--personal-fg); } .mini .personal::before { background: var(--personal-bar); }
+.live { font-size: 13.5px; color: var(--muted); min-height: 1.5em; }
+.live b { color: var(--fg); }
+
+/* Prompt cards */
+.prompts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin: 14px 0; }
+@media (max-width: 640px) { .prompts { grid-template-columns: 1fr; } }
+.prompt { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 10px; align-items: center; padding: 12px 12px 12px 14px; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); }
+.prompt q { quotes: "“" "”"; font-size: 14.5px; }
+.prompt small { display: block; color: var(--faint); font-size: 12.5px; margin-top: 2px; }
+.copy { border: 1px solid var(--line); background: var(--surface); border-radius: 8px; padding: 5px 10px; font-size: 12px; font-weight: 600; color: var(--muted); cursor: pointer; }
+.copy:hover { color: var(--accent); border-color: var(--accent); }
+.copy.done { color: var(--good); border-color: var(--good); }
+
+/* Tables */
+.table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 12px; margin: 12px 0; }
+table { border-collapse: collapse; width: 100%; min-width: 480px; font-size: 14.5px; background: var(--surface); }
+th, td { text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font-size: 12px; text-transform: uppercase; letter-spacing: .06em; color: var(--faint); background: var(--sunken); }
+tr:last-child td { border-bottom: 0; }
+.legend { display: flex; gap: 14px; flex-wrap: wrap; font-size: 14px; margin: 10px 0; }
+.legend span { display: inline-flex; align-items: center; gap: 7px; }
+.legend i { width: 12px; height: 12px; border-radius: 4px; }
+
+/* FAQ */
+.faq { display: grid; gap: 8px; margin-top: 12px; }
+.faq details { border: 1px solid var(--line); border-radius: 12px; background: var(--surface); }
+.faq summary { cursor: pointer; list-style: none; padding: 14px 44px 14px 16px; font-weight: 600; position: relative; }
+.faq summary::-webkit-details-marker { display: none; }
+.faq summary::after { content: "+"; position: absolute; right: 16px; top: 50%; transform: translateY(-50%); font-size: 20px; color: var(--faint); transition: transform .2s; }
+.faq details[open] summary::after { transform: translateY(-50%) rotate(45deg); }
+.faq details > div { padding: 0 16px 14px; color: var(--muted); }
+.faq details > div p:last-child { margin: 0; }
+
+.to-top { position: fixed; right: max(18px, env(safe-area-inset-right)); bottom: calc(18px + env(safe-area-inset-bottom, 0px)); width: 44px; height: 44px; border-radius: 50%; border: 1px solid var(--line); background: var(--surface); color: var(--fg); box-shadow: 0 8px 22px rgba(15,23,42,.14); cursor: pointer; display: grid; place-items: center; opacity: 0; pointer-events: none; transition: opacity .2s; z-index: 20; font-size: 18px; }
+.to-top.show { opacity: 1; pointer-events: auto; }
+.footer { border-top: 1px solid var(--line); padding-block: 24px calc(24px + env(safe-area-inset-bottom, 0px)); color: var(--faint); font-size: 14px; }
+.footer .wrap { max-width: 1200px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left)); padding-right: max(16px, env(safe-area-inset-right)); display: flex; gap: 16px; flex-wrap: wrap; justify-content: space-between; }
+.footer a { color: var(--muted); text-decoration: none; margin-left: 16px; }
+.footer a:hover { color: var(--fg); }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+</style>
+</head>
+<body>
+<header class="appbar">
+  <div class="appbar-inner">
+    <button class="btn btn-sm menu-btn" id="menuBtn" type="button" aria-controls="sidebar" aria-expanded="false">☰ Contents</button>
+    <a class="logo" href="/"><span class="logo-mark" aria-hidden="true"><span></span></span>Dayblock<small>User Guide</small></a>
+    <span class="spacer"></span>
+    <a class="btn btn-sm btn-ghost-hide" href="/dashboard">Dashboard</a>
+    <a class="btn btn-sm btn-primary" href="/planner">Open planner</a>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="wrap">
+    <h1>How to use Dayblock</h1>
+    <p>Everything from your first brain dump to the AI assistant. Search, or jump in with the live demos below.</p>
+    <div class="search" role="search">
+      <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+      <input type="search" id="search" placeholder="Search the guide, e.g. “undo”, “dark mode”, “code”" autocomplete="off" aria-describedby="searchStatus">
+      <kbd aria-hidden="true">/</kbd>
+    </div>
+    <p class="search-status" id="searchStatus" role="status" aria-live="polite"></p>
+    <div class="chips" aria-label="Popular topics">
+      <button type="button" data-q="brain dump">Brain dump</button>
+      <button type="button" data-q="assistant">AI assistant</button>
+      <button type="button" data-q="undo">Undo</button>
+      <button type="button" data-q="dark mode">Dark mode</button>
+      <button type="button" data-q="code">Sign-in code</button>
+    </div>
+  </div>
+</section>
+
+<div class="layout">
+  <nav class="sidebar" id="sidebar" aria-label="Guide contents"></nav>
+
+  <main class="article" id="article">
+    <div class="empty-search" id="emptySearch"><b>No matches</b>Try another word, or browse the contents. You can also ask the AI assistant in the planner.</div>
+
+    <section class="doc-section" id="start" data-group="Basics" data-title="Getting started">
+      <h2><span class="icon" aria-hidden="true">🚀</span>Getting started<a class="anchor" href="#start" aria-label="Link to this section">#</a></h2>
+      <p class="lead">Dayblock turns a messy list of things to do into a planned day. Here's the fastest way to get going. Tick steps off as you go; your progress is saved in this browser.</p>
+      <div class="checklist" id="checklist">
+        <div class="checklist-head"><b id="checkCount">0 of 5 done</b><div class="progress" aria-hidden="true"><span id="checkBar" style="width:0%"></span></div></div>
+        <ol>
+          <li><input type="checkbox" id="c1"><label for="c1"><b>Create your account</b><span>Click <a href="/signup">Get started</a>, enter your name, email and a password.</span></label></li>
+          <li><input type="checkbox" id="c2"><label for="c2"><b>Enter the code from your email</b><span>A 6-digit code arrives in your inbox. It proves the email is yours.</span></label></li>
+          <li><input type="checkbox" id="c3"><label for="c3"><b>Do your first brain dump</b><span>In the <a href="/planner">planner</a>, type everything on your mind and select <b>Auto-Schedule with AI</b>.</span></label></li>
+          <li><input type="checkbox" id="c4"><label for="c4"><b>Adjust your timeline</b><span>Drag blocks to move them, stretch the bottom edge to resize, click to tick them off.</span></label></li>
+          <li><input type="checkbox" id="c5"><label for="c5"><b>Ask the assistant something</b><span>Select <b>✦ Ask the assistant</b> and try “Review my day”.</span></label></li>
+        </ol>
+      </div>
+      <div class="quick">
+        <a href="#brain-dump"><span class="q-ico" aria-hidden="true">🧠</span><b>Brain dump</b><span>From notes to a schedule</span></a>
+        <a href="#timeline"><span class="q-ico" aria-hidden="true">🗓️</span><b>The timeline</b><span>Drag, resize, tick off</span></a>
+        <a href="#assistant"><span class="q-ico" aria-hidden="true">✦</span><b>AI assistant</b><span>Change your day by chatting</span></a>
+      </div>
+    </section>
+
+    <section class="doc-section" id="brain-dump" data-group="Planning" data-title="Brain dump & Auto-Schedule">
+      <h2><span class="icon" aria-hidden="true">🧠</span>Brain dump &amp; Auto-Schedule<a class="anchor" href="#brain-dump" aria-label="Link to this section">#</a></h2>
+      <p class="lead">Type tasks the way you'd say them. AI splits them up, estimates how long each takes, picks a priority and category, and fits them into free time.</p>
+      <ol>
+        <li>Open the <a href="/planner">planner</a>. On a phone, tap the <b>Plan</b> tab.</li>
+        <li>Type into <b>Brain dump</b>: one task per line, or separated by commas.</li>
+        <li>Select <b>Auto-Schedule with AI</b>, or press <kbd>Ctrl</kbd> + <kbd>Enter</kbd>.</li>
+      </ol>
+      <div class="demo" aria-label="Try the brain dump">
+        <div class="demo-head"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="title">Try it: brain dump</span><span></span></div>
+        <div class="demo-body">
+          <label for="dumpDemo" class="demo-note">Edit the notes, then select Split into tasks.</label>
+          <textarea id="dumpDemo" spellcheck="false">finish Q3 report takes 2 hrs - important
+call dentist 15m
+standup at 9am
+reply to emails
+maybe clean up the Jira board</textarea>
+          <div><button class="btn btn-primary btn-sm" type="button" id="dumpRun">Split into tasks</button></div>
+          <div class="parsed" id="dumpOut" aria-live="polite"></div>
+          <p class="demo-note">This demo uses simple keyword rules. The real planner uses AI, which understands much more.</p>
+        </div>
+      </div>
+      <h3>Tips for better results</h3>
+      <ul>
+        <li><b>Add a duration</b> when you know it: “2 hrs”, “45m”, “half an hour”.</li>
+        <li><b>Add a time</b> for fixed things: “call with Sam at 3pm” is placed at 3:00 PM.</li>
+        <li><b>Say how important it is</b>: “urgent”, “today”, or “maybe” and “if time” for low priority.</li>
+      </ul>
+      <div class="callout"><span class="ci" aria-hidden="true">💡</span><div><p>Auto-Schedule keeps to working hours (8 AM to 8 PM) and puts the most important tasks first. Late in the evening it uses the rest of the evening instead. Anything that doesn't fit goes to the <a href="#backlog">backlog</a>.</p></div></div>
+    </section>
+
+    <section class="doc-section" id="timeline" data-group="Planning" data-title="The timeline">
+      <h2><span class="icon" aria-hidden="true">🗓️</span>The timeline<a class="anchor" href="#timeline" aria-label="Link to this section">#</a></h2>
+      <p class="lead">Your day from midnight to midnight, in 15-minute steps. Hours outside 8 AM to 8 PM are lightly shaded.</p>
+      <div class="demo" aria-label="Try the timeline">
+        <div class="demo-head"><span class="dots" aria-hidden="true"><i></i><i></i><i></i></span><span class="title">Try it: drag and click</span><button class="btn btn-sm" type="button" id="miniReset">Reset</button></div>
+        <div class="demo-body">
+          <div class="mini" id="mini"><div class="hours" id="miniHours" aria-hidden="true"></div><div class="col" id="miniCol"></div></div>
+          <p class="live" id="miniLive" role="status" aria-live="polite">Drag a block up or down, or click one to mark it done.</p>
+        </div>
+      </div>
+      <div class="table-wrap"><table>
+        <thead><tr><th>To do this</th><th>On a computer</th><th>On a phone</th></tr></thead>
+        <tbody>
+          <tr><td>Move an event</td><td>Drag the block</td><td>Press and hold, then drag</td></tr>
+          <tr><td>Change its length</td><td>Drag the bottom edge</td><td>Drag the bottom edge</td></tr>
+          <tr><td>Mark it done</td><td>Click the block</td><td>Tap the block</td></tr>
+          <tr><td>Edit it</td><td>Pencil icon</td><td>Press and hold without moving</td></tr>
+          <tr><td>Add an event at a time</td><td>Click an empty spot</td><td>Tap an empty spot</td></tr>
+          <tr><td>Unschedule it</td><td colspan="2">Drag it onto the backlog, or open it and set Start to “Unscheduled”</td></tr>
+        </tbody>
+      </table></div>
+      <h3>Colors</h3>
+      <div class="legend">
+        <span><i style="background:var(--deep-bar)"></i>Deep Work</span>
+        <span><i style="background:var(--admin-bar)"></i>Admin</span>
+        <span><i style="background:var(--meet-bar)"></i>Meetings</span>
+        <span><i style="background:var(--personal-bar)"></i>Personal</span>
+      </div>
+      <p>Events can never overlap. If you drop one on a taken slot, it snaps to the nearest free time.</p>
+    </section>
+
+    <section class="doc-section" id="events" data-group="Planning" data-title="Creating & editing events">
+      <h2><span class="icon" aria-hidden="true">✏️</span>Creating &amp; editing events<a class="anchor" href="#events" aria-label="Link to this section">#</a></h2>
+      <p class="lead">Add events one at a time, with an AI helper that fills in the details.</p>
+      <ol>
+        <li>Select <b>+ New event</b>, click an empty spot on the timeline, or press <kbd>N</kbd>.</li>
+        <li>Type a title, for example “Write launch email”.</li>
+        <li>Optional: select <b>Suggest with AI</b>. It proposes a duration, category, priority and a free time that fits your day, with a reason. Select <b>Apply</b> to use it.</li>
+        <li>Adjust anything, then select <b>Create event</b>.</li>
+      </ol>
+      <p>To change an event later, click its pencil icon (or press and hold on a phone). If the time you pick overlaps another event, the form tells you and offers the nearest free time.</p>
+    </section>
+
+    <section class="doc-section" id="delete" data-group="Planning" data-title="Deleting & Undo">
+      <h2><span class="icon" aria-hidden="true">🗑️</span>Deleting &amp; Undo<a class="anchor" href="#delete" aria-label="Link to this section">#</a></h2>
+      <p class="lead">Delete with the trash icon on a block or backlog item, the <kbd>Delete</kbd> key on a selected block, or <b>Delete</b> in the edit form.</p>
+      <p>Every delete shows <b>“Deleted ‘…’ · Undo”</b> for a few seconds. Undo puts the event back where it was. If you've filled that slot in the meantime, it goes to the nearest free time instead.</p>
+      <div class="callout tip"><span class="ci" aria-hidden="true">✅</span><div><p>Changes made by the AI assistant also have their own <b>Undo</b> button in the chat.</p></div></div>
+    </section>
+
+    <section class="doc-section" id="backlog" data-group="Planning" data-title="The backlog">
+      <h2><span class="icon" aria-hidden="true">📥</span>The backlog<a class="anchor" href="#backlog" aria-label="Link to this section">#</a></h2>
+      <p class="lead">Tasks that aren't on the timeline yet: things that didn't fit, or that you unscheduled.</p>
+      <ul>
+        <li><b>Place</b> drops a task into the next free slot.</li>
+        <li><b>Drag</b> a task onto the timeline to choose the time yourself.</li>
+        <li>Tasks are sorted by priority, with High first.</li>
+      </ul>
+    </section>
+
+    <section class="doc-section" id="focus" data-group="Planning" data-title="Focus Mode & rescheduling">
+      <h2><span class="icon" aria-hidden="true">🎯</span>Focus Mode &amp; rescheduling<a class="anchor" href="#focus" aria-label="Link to this section">#</a></h2>
+      <h3>Focus Mode</h3>
+      <p>Turn on <b>Focus Mode</b> in the top bar to dim everything except the task happening right now, with the minutes left. It follows the clock, so it works on today's schedule.</p>
+      <h3>Reschedule Remaining</h3>
+      <p>Running behind? <b>Reschedule Remaining</b> re-packs every unfinished task from the current time. <b>Meetings stay where they are</b>, since other people are involved, and finished tasks stay as a record.</p>
+      <h3>The assistant card</h3>
+      <p>In the sidebar, the assistant card warns you about an overloaded day, three or more hours without a break, and high-priority backlog tasks that would fit. It can move low-priority tasks to tomorrow in one click.</p>
+    </section>
+
+    <section class="doc-section" id="assistant" data-group="AI" data-title="The AI assistant">
+      <h2><span class="icon" aria-hidden="true">✦</span>The AI assistant<a class="anchor" href="#assistant" aria-label="Link to this section">#</a></h2>
+      <p class="lead">Review or change your schedule by chatting. Open it with <b>✦ Ask the assistant</b> (bottom right), or the <b>Assistant</b> tab on a phone.</p>
+      <p>Try these. Copy one and paste it into the chat:</p>
+      <div class="prompts">
+        <div class="prompt"><div><q>Review my day</q><small>Spots overload, missing breaks, unscheduled priorities</small></div><button class="copy" type="button">Copy</button></div>
+        <div class="prompt"><div><q>Am I overbooked this week?</q><small>Looks across the next 7 days</small></div><button class="copy" type="button">Copy</button></div>
+        <div class="prompt"><div><q>Move gym to 7pm and add a 30 min call with mom tomorrow evening</q><small>Several changes at once</small></div><button class="copy" type="button">Copy</button></div>
+        <div class="prompt"><div><q>Push everything after lunch back 30 minutes</q><small>Shifts a whole stretch of the day</small></div><button class="copy" type="button">Copy</button></div>
+        <div class="prompt"><div><q>Find an hour for deep work tomorrow morning</q><small>Finds a free slot and books it</small></div><button class="copy" type="button">Copy</button></div>
+        <div class="prompt"><div><q>Move my low-priority tasks to Friday</q><small>Bulk reschedule</small></div><button class="copy" type="button">Copy</button></div>
+      </div>
+      <h3>How it keeps you safe</h3>
+      <ul>
+        <li>Every change appears in the chat as a list, with an <b>Undo</b> button.</li>
+        <li>It can't double-book you. If a time is taken, it picks the nearest free slot and says so.</li>
+        <li>If your request is unclear (“move the meeting” when there are two), it asks which one.</li>
+        <li>It asks before deleting more than three things.</li>
+      </ul>
+      <div class="callout warn"><span class="ci" aria-hidden="true">⚠️</span><div><p>AI can make mistakes. Check important changes. If you see “Google's AI is overloaded”, wait a minute and try again.</p></div></div>
+    </section>
+
+    <section class="doc-section" id="dashboard" data-group="Your account" data-title="Dashboard">
+      <h2><span class="icon" aria-hidden="true">📊</span>Dashboard<a class="anchor" href="#dashboard" aria-label="Link to this section">#</a></h2>
+      <p class="lead">Your home page after logging in.</p>
+      <ul>
+        <li><b>Today at a glance</b>: hours planned, % done, backlog size, and this week's completed hours.</li>
+        <li><b>Today's schedule</b>, with a <b>Now</b> badge on the current event.</li>
+        <li><b>This week</b>: planned vs. done hours for each day.</li>
+        <li><b>Where your time goes</b>: the split between deep work, admin, meetings and personal time.</li>
+      </ul>
+    </section>
+
+    <section class="doc-section" id="settings" data-group="Your account" data-title="Settings & dark mode">
+      <h2><span class="icon" aria-hidden="true">⚙️</span>Settings &amp; dark mode<a class="anchor" href="#settings" aria-label="Link to this section">#</a></h2>
+      <p class="lead">Open <a href="/settings">Settings</a> from the top menu or by clicking your avatar.</p>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Section</th><th>What you can do</th></tr></thead>
+        <tbody>
+          <tr><td>Profile</td><td>Change your name. Change your email (we send a code to the new address first).</td></tr>
+          <tr><td>Appearance</td><td>Choose <b>System</b>, <b>Light</b> or <b>Dark</b> mode for every page on this device.</td></tr>
+          <tr><td>Password</td><td>Change it. This logs you out on your other devices.</td></tr>
+          <tr><td>Where you're logged in</td><td>Log out of your other devices.</td></tr>
+          <tr><td>Trusted devices</td><td>See and forget devices that skip the email code.</td></tr>
+          <tr><td>Your data</td><td>Download everything as a file.</td></tr>
+          <tr><td>Delete account</td><td>Permanently delete your account and plans.</td></tr>
+        </tbody>
+      </table></div>
+    </section>
+
+    <section class="doc-section" id="security" data-group="Your account" data-title="Sign-in codes & security">
+      <h2><span class="icon" aria-hidden="true">🔐</span>Sign-in codes &amp; security<a class="anchor" href="#security" aria-label="Link to this section">#</a></h2>
+      <p class="lead">Every new login needs your password and a 6-digit code sent to your email.</p>
+      <ul>
+        <li>Codes expire after 10 minutes and work only once. After 5 wrong tries, start again.</li>
+        <li>Didn't get it? Wait a minute and select <b>Resend code</b>, and check your spam folder.</li>
+        <li>Tick <b>Don't ask for a code on this device for 30 days</b> on your own computer or phone to skip the code next time.</li>
+      </ul>
+      <p>See the <a href="/privacy">Privacy Policy</a> for how your data is stored and protected.</p>
+    </section>
+
+    <section class="doc-section" id="mobile" data-group="More" data-title="Using Dayblock on a phone">
+      <h2><span class="icon" aria-hidden="true">📱</span>Using Dayblock on a phone<a class="anchor" href="#mobile" aria-label="Link to this section">#</a></h2>
+      <p class="lead">The planner has a tab bar along the bottom:</p>
+      <ul>
+        <li><b>Timeline</b>: your day. Swipe to scroll, and press and hold a block to move it.</li>
+        <li><b>Plan</b>: brain dump, the assistant card and your backlog. The red badge counts backlog tasks.</li>
+        <li><b>Assistant</b>: the AI chat.</li>
+        <li><b>New event</b>: add an event.</li>
+      </ul>
+    </section>
+
+    <section class="doc-section" id="shortcuts" data-group="More" data-title="Keyboard shortcuts">
+      <h2><span class="icon" aria-hidden="true">⌨️</span>Keyboard shortcuts<a class="anchor" href="#shortcuts" aria-label="Link to this section">#</a></h2>
+      <div class="table-wrap"><table>
+        <thead><tr><th>Keys</th><th>What it does</th><th>Where</th></tr></thead>
+        <tbody>
+          <tr><td><kbd>N</kbd></td><td>New event</td><td>Planner</td></tr>
+          <tr><td><kbd>Ctrl</kbd> + <kbd>Enter</kbd></td><td>Auto-Schedule the brain dump</td><td>Brain dump box</td></tr>
+          <tr><td><kbd>Ctrl</kbd> + <kbd>Enter</kbd></td><td>Suggest with AI</td><td>Event title</td></tr>
+          <tr><td><kbd>Enter</kbd> or <kbd>Space</kbd></td><td>Mark the selected block done</td><td>Timeline</td></tr>
+          <tr><td><kbd>Delete</kbd></td><td>Delete the selected block (with Undo)</td><td>Timeline</td></tr>
+          <tr><td><kbd>Enter</kbd> / <kbd>Shift</kbd> + <kbd>Enter</kbd></td><td>Send / new line</td><td>Assistant chat</td></tr>
+          <tr><td><kbd>Esc</kbd></td><td>Close the assistant or a dialog</td><td>Anywhere</td></tr>
+          <tr><td><kbd>/</kbd></td><td>Search this guide</td><td>This page</td></tr>
+        </tbody>
+      </table></div>
+    </section>
+
+    <section class="doc-section" id="faq" data-group="More" data-title="FAQ & troubleshooting">
+      <h2><span class="icon" aria-hidden="true">❓</span>FAQ &amp; troubleshooting<a class="anchor" href="#faq" aria-label="Link to this section">#</a></h2>
+      <div class="faq">
+        <details><summary>I didn't receive my sign-in code</summary><div><p>Check your spam or junk folder, wait a minute, then select <b>Resend code</b>. Make sure you typed your email correctly. If you still get nothing, the site's email service may only be set up for certain addresses while Dayblock is in testing.</p></div></details>
+        <details><summary>It says “Google's AI is overloaded”</summary><div><p>Google's AI is temporarily busy. Wait a minute and try again. Your plan isn't affected. Everything except the AI features keeps working.</p></div></details>
+        <details><summary>Is my plan saved? Will it sync to my phone?</summary><div><p>Yes. When you're logged in, every change saves to your account automatically (the top bar shows “All changes saved”) and appears on any device you log in from.</p></div></details>
+        <details><summary>The site looks out of date after an update</summary><div><p>Press <kbd>Ctrl</kbd> + <kbd>F5</kbd> (or <kbd>Cmd</kbd> + <kbd>Shift</kbd> + <kbd>R</kbd> on a Mac) to reload the newest version.</p></div></details>
+        <details><summary>Dark mode isn't applying to a page</summary><div><p>Choose Light or Dark in <a href="/settings#appearance">Settings → Appearance</a>, then reload the page with <kbd>Ctrl</kbd> + <kbd>F5</kbd>. The setting is saved per device, so choose it on each one.</p></div></details>
+        <details><summary>The AI put a task at the wrong time</summary><div><p>Drag it where you want it, or ask the assistant to move it. You can make results more precise by including durations and times in your brain dump, like “2 hrs” or “at 3pm”.</p></div></details>
+        <details><summary>How do I delete my account?</summary><div><p>Go to <a href="/settings#delete">Settings → Delete account</a>, enter your password, type DELETE and confirm. Download your data first if you want a copy.</p></div></details>
+        <details><summary>Something else is wrong</summary><div><p>Report it on the project's <a href="https://github.com/evanisacoder26/dayblock-scheduler/issues" rel="noopener">GitHub Issues page</a>. Describe what you did and what happened.</p></div></details>
+      </div>
+    </section>
+  </main>
+</div>
+
+<button class="to-top" id="toTop" type="button" aria-label="Back to top">↑</button>
+<footer class="footer">
+  <div class="wrap">
+    <span>© <span id="year"></span> Dayblock</span>
+    <span><a href="/">Home</a><a href="/planner">Planner</a><a href="/privacy">Privacy</a><a href="/terms">Terms</a></span>
+  </div>
+</footer>
+
+<script>
+(() => {
+  "use strict";
+  const $ = (id) => document.getElementById(id);
+  const sections = [...document.querySelectorAll(".doc-section")];
+  $("year").textContent = String(new Date().getFullYear());
+
+  /* ---------- Sidebar built from the sections ---------- */
+  const sidebar = $("sidebar");
+  let lastGroup = null;
+  const links = new Map();
+  sections.forEach((sec) => {
+    if (sec.dataset.group !== lastGroup) {
+      lastGroup = sec.dataset.group;
+      const g = document.createElement("div"); g.className = "group"; g.textContent = lastGroup; sidebar.append(g);
+    }
+    const a = document.createElement("a");
+    a.href = `#${sec.id}`;
+    const label = document.createElement("span"); label.textContent = sec.dataset.title;
+    const hits = document.createElement("span"); hits.className = "hits"; hits.hidden = true;
+    a.append(label, hits);
+    a.addEventListener("click", () => document.body.classList.remove("menu-open"));
+    sidebar.append(a);
+    links.set(sec.id, { a, hits });
+  });
+
+  // Mobile contents drawer
+  $("menuBtn").addEventListener("click", () => {
+    const open = !document.body.classList.contains("menu-open");
+    document.body.classList.toggle("menu-open", open);
+    $("menuBtn").setAttribute("aria-expanded", String(open));
+  });
+  document.addEventListener("keydown", (e) => { if (e.key === "Escape") document.body.classList.remove("menu-open"); });
+
+  /* ---------- Scrollspy ---------- */
+  const spy = new IntersectionObserver((entries) => {
+    entries.forEach((en) => {
+      if (!en.isIntersecting) return;
+      links.forEach(({ a }) => a.classList.remove("active"));
+      links.get(en.target.id)?.a.classList.add("active");
+    });
+  }, { rootMargin: "-90px 0px -65% 0px" });
+  sections.forEach((s) => spy.observe(s));
+
+  /* ---------- Search with highlighting ---------- */
+  const search = $("search");
+  function clearMarks(root) {
+    root.querySelectorAll("mark[data-hl]").forEach((m) => m.replaceWith(document.createTextNode(m.textContent)));
+    root.normalize();
+  }
+  function markText(root, terms) {
+    let count = 0;
+    const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, {
+      acceptNode: (n) => (n.parentElement.closest("textarea, script, style, .anchor, .icon") || !n.nodeValue.trim()) ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT,
+    });
+    const nodes = []; while (walker.nextNode()) nodes.push(walker.currentNode);
+    const re = new RegExp(`(${terms.map((t) => t.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|")})`, "gi");
+    nodes.forEach((node) => {
+      const parts = node.nodeValue.split(re);
+      if (parts.length < 2) return;
+      const frag = document.createDocumentFragment();
+      parts.forEach((part, i) => {
+        if (i % 2 === 1) { const m = document.createElement("mark"); m.dataset.hl = "1"; m.textContent = part; frag.append(m); count++; }
+        else if (part) frag.append(document.createTextNode(part));
+      });
+      node.replaceWith(frag);
+    });
+    return count;
+  }
+  let searchTimer = null;
+  function runSearch() {
+    const q = search.value.trim().toLowerCase();
+    sections.forEach((s) => clearMarks(s));
+    if (!q) {
+      sections.forEach((s) => (s.hidden = false));
+      links.forEach(({ a, hits }) => { a.classList.remove("dim"); hits.hidden = true; });
+      $("emptySearch").style.display = "none";
+      $("searchStatus").textContent = "";
+      return;
+    }
+    const terms = q.split(/\s+/).filter((t) => t.length > 1);
+    let shown = 0, total = 0;
+    sections.forEach((s) => {
+      const text = (s.dataset.title + " " + s.textContent).toLowerCase();
+      const match = terms.length && terms.every((t) => text.includes(t));
+      s.hidden = !match;
+      const { a, hits } = links.get(s.id);
+      a.classList.toggle("dim", !match);
+      if (match) {
+        const n = markText(s, terms);
+        shown++; total += n;
+        hits.textContent = String(n); hits.hidden = !n;
+      } else hits.hidden = true;
+    });
+    $("emptySearch").style.display = shown ? "none" : "block";
+    $("searchStatus").textContent = shown ? `${shown} section${shown === 1 ? "" : "s"} mention “${search.value.trim()}”` : "";
+  }
+  search.addEventListener("input", () => { clearTimeout(searchTimer); searchTimer = setTimeout(runSearch, 120); });
+  search.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") { search.value = ""; runSearch(); search.blur(); }
+    if (e.key === "Enter") { const first = sections.find((s) => !s.hidden); if (first) first.scrollIntoView(); }
+  });
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "/" && !e.target.closest("input, textarea")) { e.preventDefault(); search.focus(); search.select(); }
+  });
+  document.querySelectorAll(".chips [data-q]").forEach((b) => b.addEventListener("click", () => {
+    search.value = b.dataset.q; runSearch();
+    sections.find((s) => !s.hidden)?.scrollIntoView();
+  }));
+
+  /* ---------- Getting-started checklist (saved in this browser) ---------- */
+  const CHECK_KEY = "dayblock.guide.checklist";
+  const boxes = [...document.querySelectorAll("#checklist input")];
+  let saved = {}; try { saved = JSON.parse(localStorage.getItem(CHECK_KEY) || "{}"); } catch {}
+  function syncChecklist() {
+    const done = boxes.filter((b) => b.checked).length;
+    $("checkCount").textContent = done === boxes.length ? "All done. Nice work! 🎉" : `${done} of ${boxes.length} done`;
+    $("checkBar").style.width = `${(done / boxes.length) * 100}%`;
+    boxes.forEach((b) => b.closest("li").classList.toggle("done", b.checked));
+  }
+  boxes.forEach((b) => {
+    b.checked = Boolean(saved[b.id]);
+    b.addEventListener("change", () => {
+      saved[b.id] = b.checked;
+      try { localStorage.setItem(CHECK_KEY, JSON.stringify(saved)); } catch {}
+      syncChecklist();
+    });
+  });
+  syncChecklist();
+
+  /* ---------- Demo: brain dump splitter (keyword rules, like the planner's offline mode) ---------- */
+  const COLORS = { "Deep Work": "var(--deep-bar)", Admin: "var(--admin-bar)", Meetings: "var(--meet-bar)", Personal: "var(--personal-bar)" };
+  const pad = (n) => String(n).padStart(2, "0");
+  const fmt = (min) => { const h = Math.floor(min / 60) % 24, m = min % 60; return `${h % 12 || 12}:${pad(m)} ${h >= 12 ? "PM" : "AM"}`; };
+  const dur = (m) => (m >= 60 ? `${Math.floor(m / 60)}h${m % 60 ? ` ${m % 60}m` : ""}` : `${m}m`);
+  function splitDump(text) {
+    return text.split(/\n|;|,/).map((s) => s.replace(/^\s*(?:[-*]|\d+[.)])\s*/, "").trim()).filter((s) => s.length > 1).map((p) => {
+      const lower = p.toLowerCase();
+      let minutes = null, at = null;
+      const dm = p.match(/(\d+(?:\.\d+)?)\s*(hours?|hrs?|h|minutes?|mins?|m)\b/i);
+      if (dm) minutes = /^h/i.test(dm[2]) ? parseFloat(dm[1]) * 60 : parseFloat(dm[1]);
+      else if (/half an? hour/.test(lower)) minutes = 30;
+      const tm = p.match(/\bat\s+(\d{1,2})(?::(\d{2}))?\s*(am|pm)?\b/i);
+      if (tm) { let h = +tm[1]; const ap = (tm[3] || "").toLowerCase(); if (ap === "pm" && h < 12) h += 12; if (ap === "am" && h === 12) h = 0; if (!ap && h < 8) h += 12; at = h * 60 + (+tm[2] || 0); }
+      let category = "Deep Work";
+      if (/dentist|doctor|gym|walk|lunch|dinner|groceries|pick up|laundry|family|pharmacy|break/.test(lower)) category = "Personal";
+      else if (/\bcall\b|meeting|sync|standup|stand-up|1:1|interview|demo/.test(lower)) category = "Meetings";
+      else if (/email|inbox|invoice|expense|book|form|reply|slack|jira|admin|pay|update/.test(lower)) category = "Admin";
+      let priority = "Medium";
+      if (/urgent|asap|important|today|deadline|due|!/.test(lower)) priority = "High";
+      else if (/maybe|someday|if time|optional/.test(lower)) priority = "Low";
+      if (minutes == null) minutes = { "Deep Work": 60, Admin: 30, Meetings: 30, Personal: 30 }[category];
+      minutes = Math.max(15, Math.min(480, Math.round(minutes / 15) * 15));
+      let title = p.replace(/[([]?\s*(?:takes?|for|about|~)?\s*\d+(?:\.\d+)?\s*(?:hours?|hrs?|h|minutes?|mins?|m)\b\s*[)\]]?/gi, "")
+        .replace(/\bat\s+\d{1,2}(?::\d{2})?\s*(?:am|pm)?\b/gi, "").replace(/[-–—]\s*(important|urgent|asap|optional)\b/gi, "")
+        .replace(/^\s*maybe\s+/i, "").replace(/\s{2,}/g, " ").replace(/[\s,.;:–—-]+$/, "").trim() || p;
+      return { title: title.charAt(0).toUpperCase() + title.slice(1), minutes, priority, category, at };
+    });
+  }
+  function renderDump() {
+    const out = $("dumpOut"); out.textContent = "";
+    const tasks = splitDump($("dumpDemo").value);
+    if (!tasks.length) { const p = document.createElement("p"); p.className = "demo-note"; p.textContent = "Type a few tasks first."; out.append(p); return; }
+    tasks.forEach((t, i) => {
+      const row = document.createElement("div"); row.className = "ptask"; row.style.animationDelay = `${i * 60}ms`;
+      const bar = document.createElement("i"); bar.style.background = COLORS[t.category];
+      const title = document.createElement("b"); title.textContent = t.title;
+      const tags = document.createElement("div"); tags.className = "tags";
+      const add = (text, cls) => { const s = document.createElement("span"); s.className = `tag ${cls || ""}`; s.textContent = text; tags.append(s); };
+      if (t.at != null) add(fmt(t.at), "time");
+      add(dur(t.minutes)); add(t.category); add(t.priority, t.priority);
+      row.append(bar, title, tags); out.append(row);
+    });
+  }
+  $("dumpRun").addEventListener("click", renderDump);
+  $("dumpDemo").addEventListener("keydown", (e) => { if (e.key === "Enter" && (e.ctrlKey || e.metaKey)) renderDump(); });
+  renderDump();
+
+  /* ---------- Demo: mini timeline (drag to move, click to mark done) ---------- */
+  const START = 9 * 60, END = 13 * 60, PX = 48 / 60;
+  const INITIAL = [
+    { id: "a", title: "Team standup", cat: "meet", start: 9 * 60, minutes: 15 },
+    { id: "b", title: "Write report", cat: "deep", start: 9 * 60 + 30, minutes: 90 },
+    { id: "c", title: "Reply to emails", cat: "admin", start: 11 * 60 + 15, minutes: 30 },
+    { id: "d", title: "Lunch walk", cat: "personal", start: 12 * 60, minutes: 45 },
+  ];
+  let blocks = INITIAL.map((b) => ({ ...b, done: false }));
+  const col = $("miniCol"), hours = $("miniHours");
+  col.style.height = hours.style.height = `${(END - START) * PX}px`;
+  for (let m = START; m <= END; m += 60) { const s = document.createElement("span"); s.style.top = `${(m - START) * PX}px`; s.textContent = fmt(m).replace(":00", ""); hours.append(s); }
+  const fits = (b, start) => start >= START && start + b.minutes <= END && blocks.every((o) => o === b || start + b.minutes <= o.start || start >= o.start + o.minutes);
+  function nearest(b, want) {
+    want = Math.max(START, Math.min(END - b.minutes, Math.round(want / 15) * 15));
+    for (let d = 0; d <= END - START; d += 15) { if (fits(b, want + d)) return want + d; if (fits(b, want - d)) return want - d; }
+    return b.start;
+  }
+  function drawMini() {
+    col.querySelectorAll(".blk").forEach((n) => n.remove());
+    blocks.forEach((b) => {
+      const el = document.createElement("div");
+      el.className = `blk ${b.cat}${b.done ? " done" : ""}`;
+      el.style.top = `${(b.start - START) * PX + 1}px`; el.style.height = `${b.minutes * PX - 2}px`;
+      el.tabIndex = 0; el.setAttribute("role", "button"); el.setAttribute("aria-pressed", String(b.done));
+      el.setAttribute("aria-label", `${b.title}, ${fmt(b.start)}. Press Enter to mark done, arrow keys to move.`);
+      const t = document.createElement("span"); t.className = "t"; t.textContent = b.title;
+      const tm = document.createElement("small"); tm.textContent = fmt(b.start);
+      el.append(t, tm);
+      el.dataset.id = b.id;
+      col.append(el);
+    });
+  }
+  const live = (html) => { $("miniLive").textContent = ""; $("miniLive").append(...html); };
+  const strong = (txt) => { const b = document.createElement("b"); b.textContent = txt; return b; };
+  let drag = null;
+  col.addEventListener("pointerdown", (e) => {
+    const el = e.target.closest(".blk"); if (!el) return;
+    const b = blocks.find((x) => x.id === el.dataset.id);
+    drag = { b, el, y0: e.clientY, start0: b.start, moved: false, id: e.pointerId };
+    el.setPointerCapture(e.pointerId);
+  });
+  col.addEventListener("pointermove", (e) => {
+    if (!drag || e.pointerId !== drag.id) return;
+    const dy = e.clientY - drag.y0;
+    if (!drag.moved && Math.abs(dy) < 4) return;
+    drag.moved = true; drag.el.classList.add("dragging");
+    const next = nearest(drag.b, drag.start0 + dy / PX);
+    if (next !== drag.b.start) { drag.b.start = next; drag.el.style.top = `${(next - START) * PX + 1}px`; drag.el.querySelector("small").textContent = fmt(next); }
+  });
+  function endDrag(e) {
+    if (!drag || e.pointerId !== drag.id) return;
+    const d = drag; drag = null;
+    d.el.classList.remove("dragging");
+    if (!d.moved) { d.b.done = !d.b.done; drawMini(); live([d.b.done ? "Marked " : "Unmarked ", strong(d.b.title), d.b.done ? " done. Click again to undo." : "."]); return; }
+    drawMini();
+    live(d.b.start === d.start0 ? ["That slot is taken, so ", strong(d.b.title), " stayed put. Events never overlap."] : ["Moved ", strong(d.b.title), ` to ${fmt(d.b.start)}.`]);
+  }
+  col.addEventListener("pointerup", endDrag);
+  col.addEventListener("pointercancel", endDrag);
+  col.addEventListener("keydown", (e) => {
+    const el = e.target.closest(".blk"); if (!el) return;
+    const b = blocks.find((x) => x.id === el.dataset.id);
+    if (e.key === "Enter" || e.key === " ") { e.preventDefault(); b.done = !b.done; }
+    else if (e.key === "ArrowUp" || e.key === "ArrowDown") { e.preventDefault(); const want = b.start + (e.key === "ArrowUp" ? -15 : 15); if (fits(b, want)) b.start = want; }
+    else return;
+    drawMini(); col.querySelector(`[data-id="${b.id}"]`).focus();
+    live([strong(b.title), ` · ${fmt(b.start)}${b.done ? " · done" : ""}`]);
+  });
+  $("miniReset").addEventListener("click", () => { blocks = INITIAL.map((b) => ({ ...b, done: false })); drawMini(); live(["Reset. Drag a block up or down, or click one to mark it done."]); });
+  drawMini();
+
+  /* ---------- Copy buttons ---------- */
+  document.querySelectorAll(".prompt .copy").forEach((btn) => btn.addEventListener("click", async () => {
+    const text = btn.closest(".prompt").querySelector("q").textContent;
+    let ok = false;
+    try { await navigator.clipboard.writeText(text); ok = true; } catch {
+      const ta = document.createElement("textarea"); ta.value = text; ta.style.position = "fixed"; ta.style.left = "-9999px"; document.body.append(ta); ta.select();
+      try { ok = document.execCommand("copy"); } catch {} ta.remove();
+    }
+    btn.textContent = ok ? "Copied" : "Copy failed"; btn.classList.toggle("done", ok);
+    setTimeout(() => { btn.textContent = "Copy"; btn.classList.remove("done"); }, 1600);
+  }));
+
+  /* ---------- Back to top ---------- */
+  const toTop = $("toTop");
+  window.addEventListener("scroll", () => toTop.classList.toggle("show", scrollY > 900), { passive: true });
+  toTop.addEventListener("click", () => window.scrollTo({ top: 0 }));
+})();
+</script>
+</body>
+</html>

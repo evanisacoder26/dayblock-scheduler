@@ -351,6 +351,7 @@ const server = http.createServer(async (req, res) => {
       if (p === "/planner" || p === "/index.html") return user ? sendPage(res, "index.html") : redirect(res, "/login?next=/planner");
       if (p === "/settings") return user ? sendPage(res, "settings.html") : redirect(res, "/login?next=/settings");
       if (p === "/privacy" || p === "/terms") return sendPage(res, "legal.html");
+      if (p === "/guide") return sendPage(res, "guide.html");
     }
 
     if (p.startsWith("/api/") && req.method !== "GET" && !sameOrigin(req)) throw httpError(403, "Cross-site request blocked.");
