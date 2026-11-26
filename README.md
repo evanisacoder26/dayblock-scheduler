@@ -90,3 +90,15 @@ On Render the server automatically uses secure cookies and reads the visitor's r
 ## GitHub Pages demo
 
 A static demo (intro page + planner, saved in the visitor's browser, no accounts or server AI) is published by `.github/workflows/pages.yml` on every push to `main`. One-time setup: **Settings → Pages → Source: GitHub Actions**. Build it locally with `node scripts/build-pages.mjs` (output in `site/`).
+
+## Full app on GitHub Pages (Supabase)
+
+GitHub Pages can't run `server.mjs`, so the github.io build talks to Supabase instead:
+
+- **Supabase Auth** holds the accounts; **Postgres** (`supabase/schema.sql`) stores each user's plan, with row-level security so a user can only reach their own data, and only from a login that passed the emailed code.
+- The **`dayblock-api` edge function** (`supabase/functions/dayblock-api`) sends the email codes (Resend), handles trusted devices, email/password changes and account deletion, and makes every AI call, so API keys stay server-side. It uses the same prompts as the Node server (`ai-prompts.mjs`).
+- **`web/supabase-backend.js`** answers the pages' `/api/...` requests in the browser, so the HTML is identical to the localhost version.
+
+Setup: create a Supabase project, put `SUPABASE_ACCESS_TOKEN` and `SUPABASE_PROJECT_REF` in `.env`, then run `node --env-file=.env scripts/setup-supabase.mjs`. It creates the tables, configures sign-in, stores the API keys as function secrets, deploys the function, and writes the public `supabase.config.json`. Commit that file and push; the Pages workflow builds the full app whenever it's filled in (and the browser-only demo when it's empty).
+
+Difference from the Node version: Supabase can't list other logged-in devices individually, so Settings offers "Log out of all other devices" instead. Free Supabase projects pause after a week without visits; resume them from the Supabase dashboard.

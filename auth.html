@@ -191,9 +191,9 @@ input[aria-invalid="true"] { border-color: var(--bad); }
 (() => {
   "use strict";
   const $ = (id) => document.getElementById(id);
-  const isSignup = location.pathname === "/signup";
+  const isSignup = /\/signup(\.html)?$/.test(location.pathname);
   const params = new URLSearchParams(location.search);
-  const next = ["/dashboard", "/planner"].includes(params.get("next")) ? params.get("next") : "/dashboard";
+  const next = ["/dashboard", "/planner", "/settings"].includes(params.get("next")) ? params.get("next") : "/dashboard";
   const keepNext = params.get("next") ? `?next=${encodeURIComponent(next)}` : "";
 
   // Decorative sample day on the brand panel

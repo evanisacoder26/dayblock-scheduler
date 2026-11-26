@@ -23,6 +23,14 @@ function replaceOnce(html, find, replacement, label) {
 await rm(out, { recursive: true, force: true });
 await mkdir(out, { recursive: true });
 
+/* ---------- Full app (Supabase) or demo? ---------- */
+let supa = null;
+try { supa = JSON.parse(await readFile(path.join(root, "supabase.config.json"), "utf8")); } catch {}
+if (supa && supa.url && supa.anonKey) {
+  await buildFull(supa);
+  process.exit(0);
+}
+
 /* ---------- Planner ---------- */
 const planner = await readFile(path.join(root, "index.html"), "utf8");
 await writeFile(path.join(out, "planner.html"),
@@ -77,4 +85,45 @@ for (const f of ["index.html"]) {
   const bad = html.match(/href="\/(login|signup|dashboard|settings|planner)"/);
   if (bad) throw new Error(`build-pages: ${f} still links to the server route ${bad[0]}`);
 }
-console.log("Built GitHub Pages demo into site/ (index.html, planner.html)");
+console.log("Supabase isn't configured (supabase.config.json), so built the browser-only demo into site/ (index.html, planner.html)");
+
+/* ---------- Full app: same pages as localhost, backed by Supabase ---------- */
+async function buildFull(cfg) {
+  const SUPABASE_JS = "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js";
+  const config = JSON.stringify({ url: cfg.url, anonKey: cfg.anonKey }).replace(/</g, "\\u003c");
+  const backendTags = `<script>window.DAYBLOCK_SUPABASE=${config};</script><script src="${SUPABASE_JS}"></script><script src="supabase-backend.js"></script>`;
+
+  // github.io serves the site from /<repo>/, so server-style absolute links become relative files.
+  const rewritePaths = (html) => html
+    .replace(/(["'`(=])\/(login|signup|dashboard|planner|settings)(?=["'`?#])/g, "$1$2.html")
+    .replaceAll('href="/"', 'href="./"');
+  const withBackend = (html, label) => {
+    if (!/<meta charset="utf-8">/i.test(html)) throw new Error(`build-pages: no <meta charset> in ${label}`);
+    return html.replace(/<meta charset="utf-8">/i, (m) => m + backendTags);
+  };
+
+  const pages = [
+    ["landing.html", "index.html"],
+    ["auth.html", "login.html"],
+    ["auth.html", "signup.html"],
+    ["dashboard.html", "dashboard.html"],
+    ["settings.html", "settings.html"],
+  ];
+  for (const [src, dest] of pages) {
+    const html = await readFile(path.join(root, src), "utf8");
+    await writeFile(path.join(out, dest), withBackend(rewritePaths(html), src));
+  }
+  const planner = rewritePaths(await readFile(path.join(root, "index.html"), "utf8"));
+  await writeFile(path.join(out, "planner.html"),
+    `<!doctype html><html lang="en"><head><meta charset="utf-8">${backendTags}<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"></head><body>${planner}</body></html>`);
+  await writeFile(path.join(out, "supabase-backend.js"), await readFile(path.join(root, "web", "supabase-backend.js"), "utf8"));
+  await writeFile(path.join(out, ".nojekyll"), "");
+
+  // Guard: nothing may still point at a server-only absolute route.
+  for (const f of ["index.html", "login.html", "dashboard.html", "settings.html", "planner.html"]) {
+    const html = await readFile(path.join(out, f), "utf8");
+    const bad = html.match(/["'`(=]\/(login|signup|dashboard|planner|settings)["'`?#]/);
+    if (bad) throw new Error(`build-pages: ${f} still has an absolute link ${bad[0]}`);
+  }
+  console.log("Built the full app for GitHub Pages into site/ (Supabase: " + cfg.url + ")");
+}

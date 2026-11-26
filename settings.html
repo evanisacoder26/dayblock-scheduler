@@ -436,8 +436,8 @@ input:disabled { background: var(--sunken); color: var(--muted); }
     });
     body.append(list);
     const others = account.sessions.filter((s) => !s.current).length;
-    if (others) {
-      const all = el("button", { class: "btn btn-sm btn-ghost-danger", type: "button" }, `Log out of ${others} other device${others === 1 ? "" : "s"}`);
+    if (others || account.otherSessionsUnknown) {
+      const all = el("button", { class: "btn btn-sm btn-ghost-danger", type: "button" }, others ? `Log out of ${others} other device${others === 1 ? "" : "s"}` : "Log out of all other devices");
       all.addEventListener("click", async () => {
         busy(all, true, "Logging out…");
         try { const r = await api("/api/account/sessions/revoke-others", {}); account.sessions = r.sessions; renderSessions(); toast("Logged out of all other devices."); }
