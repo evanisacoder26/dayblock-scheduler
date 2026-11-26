@@ -98,7 +98,7 @@ async function buildFull(cfg) {
   // page for 10 minutes: without it, moving between pages right after a deploy can show old ones.
   const BUILD = (process.env.GITHUB_SHA || "").slice(0, 7) || Date.now().toString(36);
   const rewritePaths = (html) => html
-    .replace(/(["'`(=])\/(login|signup|dashboard|planner|settings)(?=(["'`?#]))/g, (m, pre, page, next) => `${pre}${page}.html?v=${BUILD}${next === "?" ? "&" : ""}`)
+    .replace(/(["'`(=])\/(login|signup|dashboard|planner|settings|privacy|terms)(?=(["'`?#]))/g, (m, pre, page, next) => `${pre}${page}.html?v=${BUILD}${next === "?" ? "&" : ""}`)
     .replace(/(\.html\?v=[a-z0-9]+)&\?/g, "$1&")
     .replaceAll('href="/"', `href="./?v=${BUILD}"`);
   const withBackend = (html, label) => {
@@ -112,6 +112,8 @@ async function buildFull(cfg) {
     ["auth.html", "signup.html"],
     ["dashboard.html", "dashboard.html"],
     ["settings.html", "settings.html"],
+    ["legal.html", "privacy.html"],
+    ["legal.html", "terms.html"],
   ];
   for (const [src, dest] of pages) {
     const html = await readFile(path.join(root, src), "utf8");
@@ -124,9 +126,9 @@ async function buildFull(cfg) {
   await writeFile(path.join(out, ".nojekyll"), "");
 
   // Guard: nothing may still point at a server-only absolute route.
-  for (const f of ["index.html", "login.html", "dashboard.html", "settings.html", "planner.html"]) {
+  for (const f of ["index.html", "login.html", "dashboard.html", "settings.html", "planner.html", "privacy.html"]) {
     const html = await readFile(path.join(out, f), "utf8");
-    const bad = html.match(/["'`(=]\/(login|signup|dashboard|planner|settings)["'`?#]/);
+    const bad = html.match(/["'`(=]\/(login|signup|dashboard|planner|settings|privacy|terms)["'`?#]/);
     if (bad) throw new Error(`build-pages: ${f} still has an absolute link ${bad[0]}`);
   }
   console.log("Built the full app for GitHub Pages into site/ (Supabase: " + cfg.url + ")");

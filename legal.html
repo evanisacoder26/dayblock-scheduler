@@ -1,0 +1,281 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<script>/* Appearance: apply the saved Light/Dark choice before the page draws ("System" = follow the device). */(function(){function a(){try{var t=localStorage.getItem("dayblock.theme"),r=document.documentElement;if(t==="light"||t==="dark"){r.setAttribute("data-theme",t);r.setAttribute("data-theme-by","dayblock");}else if(r.getAttribute("data-theme-by")==="dayblock"){r.removeAttribute("data-theme");r.removeAttribute("data-theme-by");}}catch(e){}}a();window.addEventListener("storage",function(e){if(e.key==="dayblock.theme")a();});})();</script>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Privacy Policy & Terms of Use · Dayblock</title>
+<meta name="description" content="How Dayblock handles your data, and the terms for using it.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap">
+<style>
+/* Layout: slim app bar; sticky table of contents on the left, readable document column on the right (stacks on phones). */
+:root {
+  --bg: #f8fafc; --surface: #ffffff; --sunken: #f1f5f9; --line: #e2e8f0; --line-strong: #cbd5e1;
+  --fg: #0f172a; --muted: #475569; --faint: #64748b;
+  --accent: #4f46e5; --accent-hover: #4338ca; --accent-soft: #eef2ff; --on-accent: #ffffff;
+  --font-display: "Space Grotesk", "Inter", system-ui, sans-serif;
+  --font-body: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0a0f1c; --surface: #111827; --sunken: #0d1424; --line: #1f2937; --line-strong: #334155;
+    --fg: #f1f5f9; --muted: #a3b1c6; --faint: #8090a6;
+    --accent: #818cf8; --accent-hover: #a5b4fc; --accent-soft: #1e1b4b; --on-accent: #0a0f1c;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0a0f1c; --surface: #111827; --sunken: #0d1424; --line: #1f2937; --line-strong: #334155;
+  --fg: #f1f5f9; --muted: #a3b1c6; --faint: #8090a6;
+  --accent: #818cf8; --accent-hover: #a5b4fc; --accent-soft: #1e1b4b; --on-accent: #0a0f1c;
+  color-scheme: dark;
+}
+*, *::before, *::after { box-sizing: border-box; }
+html { scroll-padding-top: 84px; }
+@media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
+body { margin: 0; background: var(--bg); color: var(--fg); font-family: var(--font-body); font-size: 16px; line-height: 1.7; }
+h1, h2, h3 { font-family: var(--font-display); letter-spacing: -0.01em; text-wrap: balance; margin: 0; }
+a { color: var(--accent); }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 30; background: var(--surface); }
+.appbar { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20; background: var(--surface); border-bottom: 1px solid var(--line); }
+.appbar-inner { max-width: 1100px; margin: 0 auto; padding-block: 12px; padding-left: max(16px, env(safe-area-inset-left)); padding-right: max(16px, env(safe-area-inset-right)); display: flex; align-items: center; gap: 16px; }
+.logo { display: flex; align-items: center; gap: 10px; font-family: var(--font-display); font-weight: 700; font-size: 18px; color: var(--fg); text-decoration: none; }
+.logo-mark { width: 30px; height: 30px; border-radius: 8px; background: var(--accent); display: grid; place-items: center; }
+.logo-mark span { width: 12px; height: 4px; background: var(--on-accent); border-radius: 2px; box-shadow: 0 -6px 0 var(--on-accent), 0 6px 0 var(--on-accent); }
+.spacer { flex: 1; }
+.btn { display: inline-flex; align-items: center; height: 38px; padding: 0 16px; border-radius: 9px; border: 1px solid var(--line-strong); background: var(--surface); color: var(--fg); font-weight: 600; font-size: 14px; text-decoration: none; }
+.btn:hover { border-color: var(--accent); color: var(--accent); }
+
+.page { max-width: 1100px; margin: 0 auto; padding-block: 40px 80px; padding-left: max(16px, env(safe-area-inset-left)); padding-right: max(16px, env(safe-area-inset-right)); display: grid; grid-template-columns: 220px minmax(0, 1fr); gap: 48px; align-items: start; }
+@media (max-width: 860px) { .page { grid-template-columns: 1fr; gap: 24px; padding-top: 24px; } }
+.toc { position: sticky; top: 84px; display: grid; gap: 2px; font-size: 14px; }
+.toc b { font-family: var(--font-display); font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--faint); margin: 14px 0 4px 10px; }
+.toc b:first-child { margin-top: 0; }
+.toc a { padding: 5px 10px; border-radius: 7px; color: var(--muted); text-decoration: none; }
+.toc a:hover { background: var(--surface); color: var(--fg); }
+@media (max-width: 860px) { .toc { position: static; display: flex; flex-wrap: wrap; gap: 6px; } .toc b, .toc a.sub { display: none; } .toc a { background: var(--surface); border: 1px solid var(--line); } }
+
+.doc { min-width: 0; max-width: 72ch; }
+.doc-head { display: grid; gap: 8px; margin-bottom: 8px; }
+.doc-head h1 { font-size: clamp(30px, 4vw, 40px); line-height: 1.1; }
+.doc-head p { color: var(--muted); }
+.meta { font-size: 14px; color: var(--faint); }
+.summary { margin: 28px 0 8px; padding: 18px 20px; background: var(--accent-soft); border-radius: 12px; }
+.summary h2 { font-size: 16px; margin-bottom: 6px; }
+.summary ul { margin: 0; padding-left: 20px; }
+.summary li + li { margin-top: 4px; }
+section.part { padding-top: 40px; margin-top: 40px; border-top: 1px solid var(--line); }
+section.part > h2 { font-size: 28px; margin-bottom: 4px; }
+section.part h3 { font-size: 18px; margin: 30px 0 8px; }
+p { margin: 0 0 12px; }
+ul.list { margin: 0 0 12px; padding-left: 22px; }
+ul.list li { margin-bottom: 6px; }
+.table-wrap { overflow-x: auto; margin: 6px 0 14px; border: 1px solid var(--line); border-radius: 10px; }
+table { border-collapse: collapse; width: 100%; min-width: 520px; font-size: 14.5px; background: var(--surface); }
+th, td { text-align: left; padding: 10px 14px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font-size: 12.5px; text-transform: uppercase; letter-spacing: .05em; color: var(--faint); background: var(--sunken); }
+tr:last-child td { border-bottom: 0; }
+.caps { text-transform: uppercase; font-size: 14px; letter-spacing: .01em; }
+.footer { border-top: 1px solid var(--line); padding-block: 24px calc(24px + env(safe-area-inset-bottom, 0px)); color: var(--faint); font-size: 14px; }
+.footer .wrap { max-width: 1100px; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left)); padding-right: max(16px, env(safe-area-inset-right)); display: flex; gap: 16px; flex-wrap: wrap; justify-content: space-between; }
+.footer a { color: var(--muted); text-decoration: none; margin-left: 16px; }
+.footer a:hover { color: var(--fg); }
+</style>
+</head>
+<body>
+<header class="appbar">
+  <div class="appbar-inner">
+    <a class="logo" href="/"><span class="logo-mark" aria-hidden="true"><span></span></span>Dayblock</a>
+    <span class="spacer"></span>
+    <a class="btn" href="/">Back to Dayblock</a>
+  </div>
+</header>
+
+<main class="page">
+  <nav class="toc" aria-label="On this page">
+    <b>Privacy Policy</b>
+    <a href="#privacy">Privacy Policy</a>
+    <a class="sub" href="#p-collect">What we collect</a>
+    <a class="sub" href="#p-use">How we use it</a>
+    <a class="sub" href="#p-ai">AI features</a>
+    <a class="sub" href="#p-services">Services we rely on</a>
+    <a class="sub" href="#p-storage">Browser storage</a>
+    <a class="sub" href="#p-keep">How long we keep it</a>
+    <a class="sub" href="#p-rights">Your choices</a>
+    <a class="sub" href="#p-security">Security</a>
+    <b>Terms of Use</b>
+    <a href="#terms">Terms of Use</a>
+    <a class="sub" href="#t-account">Your account</a>
+    <a class="sub" href="#t-use">Acceptable use</a>
+    <a class="sub" href="#t-ai">AI suggestions</a>
+    <a class="sub" href="#t-liability">Disclaimers</a>
+    <a class="sub" href="#contact">Contact</a>
+  </nav>
+
+  <article class="doc">
+    <div class="doc-head">
+      <h1>Privacy Policy &amp; Terms of Use</h1>
+      <p>This page explains what Dayblock does with your information and the rules for using it, in plain language.</p>
+      <p class="meta">Last updated: November 26, 2026</p>
+    </div>
+
+    <div class="summary">
+      <h2>The short version</h2>
+      <ul>
+        <li>We store only what Dayblock needs: your name, email, a scrambled (hashed) password, and your plans.</li>
+        <li>No ads, no tracking, and we never sell your data.</li>
+        <li>When you use an AI feature, the text involved is sent to Google's Gemini AI to produce the answer.</li>
+        <li>You can download all your data or delete your account at any time from Settings.</li>
+      </ul>
+    </div>
+
+    <!-- ===================== PRIVACY ===================== -->
+    <section class="part" id="privacy" aria-labelledby="privacyTitle">
+      <h2 id="privacyTitle">Privacy Policy</h2>
+      <p>This policy covers the Dayblock website and app ("Dayblock", "we", "us").</p>
+
+      <h3 id="p-collect">What we collect</h3>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Information</th><th>Why we have it</th></tr></thead>
+          <tbody>
+            <tr><td>Name and email address</td><td>To create your account, show your name, and send you sign-in codes.</td></tr>
+            <tr><td>Password</td><td>To let you log in. We store only a one-way hash, never the password itself.</td></tr>
+            <tr><td>Your plans: tasks, events, times, notes, priorities and brain-dump text</td><td>This is the planner itself, saved to your account so it syncs across devices.</td></tr>
+            <tr><td>Sign-in codes</td><td>Stored only as a hash and deleted after use or within 30 minutes.</td></tr>
+            <tr><td>Login sessions and trusted devices</td><td>To keep you logged in and remember devices where you chose "Don't ask for a code". This includes a device label based on your browser type (for example "Chrome on Windows") and dates.</td></tr>
+            <tr><td>Technical data such as IP address</td><td>Handled by our hosting and database providers to deliver the site and protect it from abuse (for example, limiting repeated login attempts).</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>We don't collect payment details, location, contacts or anything from your device beyond what's listed here. If you use the planner without an account, your plan stays in your own browser and never reaches us.</p>
+
+      <h3 id="p-use">How we use your information</h3>
+      <ul class="list">
+        <li>To run Dayblock: save and sync your plans, and show your dashboard.</li>
+        <li>To keep your account secure: sign-in codes, login sessions, and alerts such as "your email was changed".</li>
+        <li>To provide AI features when you use them (see below).</li>
+      </ul>
+      <p>We don't use your information for advertising, we don't build profiles about you, and we don't sell or rent it to anyone.</p>
+
+      <h3 id="p-ai">AI features</h3>
+      <p>The AI brain dump, event suggestions, schedule advice and the chat assistant are powered by <a href="https://ai.google.dev/" rel="noopener">Google Gemini</a>. When you use one, we send Google the text needed to answer: your notes or message, and the relevant part of your schedule (event titles, times, categories, priorities and notes). We don't send your name, email or password.</p>
+      <p>Google processes this under its own terms. Depending on the service plan, Google may keep or review this content, including to improve its products. Please don't put passwords, health details or other sensitive information into tasks, notes or chat messages. AI features only run when you use them.</p>
+
+      <h3 id="p-services">Services we rely on</h3>
+      <p>These providers handle data on our behalf, only to run Dayblock:</p>
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Provider</th><th>What it does</th><th>Data involved</th></tr></thead>
+          <tbody>
+            <tr><td><a href="https://supabase.com/privacy" rel="noopener">Supabase</a></td><td>Accounts and database (servers in Tokyo, Japan)</td><td>Account details, plans, sessions, trusted devices</td></tr>
+            <tr><td><a href="https://resend.com/legal/privacy-policy" rel="noopener">Resend</a></td><td>Sends sign-in codes and security emails</td><td>Your email address, name, the code</td></tr>
+            <tr><td><a href="https://policies.google.com/privacy" rel="noopener">Google (Gemini API)</a></td><td>AI features</td><td>Text you send to an AI feature, as described above</td></tr>
+            <tr><td><a href="https://docs.github.com/site-policy/privacy-policies/github-general-privacy-statement" rel="noopener">GitHub Pages</a></td><td>Hosts the website</td><td>Standard web request data such as IP address</td></tr>
+            <tr><td>Google Fonts, jsDelivr</td><td>Deliver the site's fonts and a code library</td><td>Standard web request data such as IP address</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p>Because these providers may process data in other countries, your information may be handled outside the country where you live.</p>
+
+      <h3 id="p-storage">Cookies and browser storage</h3>
+      <p>Dayblock uses your browser's storage only for things it needs to work: keeping you logged in, remembering a trusted device, saving the plan if you use the planner without an account, and remembering your Light/Dark choice. We don't use advertising or analytics cookies.</p>
+
+      <h3 id="p-keep">How long we keep it</h3>
+      <ul class="list">
+        <li>Account details and plans: until you delete them or delete your account.</li>
+        <li>Sign-in codes: until used, or at most 30 minutes.</li>
+        <li>Login sessions: until you log out, or log out your other devices from Settings.</li>
+        <li>Trusted devices: 30 days, or until you forget them in Settings or change your password.</li>
+      </ul>
+      <p>When you delete your account, your account, plans, sessions and trusted devices are deleted immediately. Copies held by our providers (for example in backups) are removed on their normal schedule.</p>
+
+      <h3 id="p-rights">Your choices and rights</h3>
+      <p>From <a href="/settings">Settings</a> you can, at any time:</p>
+      <ul class="list">
+        <li><strong>See and change</strong> your name, email and password.</li>
+        <li><strong>Download</strong> a copy of your account details and all your plans.</li>
+        <li><strong>Log out</strong> other devices and forget trusted devices.</li>
+        <li><strong>Delete</strong> your account and everything in it.</li>
+      </ul>
+      <p>Depending on where you live, you may have further rights, such as asking what data we hold or objecting to how it's used. To make a request, <a href="#contact">contact us</a>.</p>
+
+      <h3 id="p-security">Security</h3>
+      <p>Passwords are stored only as hashes. Every new login needs a code emailed to you, and the database only releases your plans to a login that passed that check. Connections use HTTPS. No system is perfectly secure, so please use a strong password you don't use elsewhere.</p>
+
+      <h3>Children</h3>
+      <p>Dayblock isn't meant for children under 13, and we don't knowingly collect their information. If you believe a child has created an account, contact us and we'll delete it.</p>
+
+      <h3>Changes to this policy</h3>
+      <p>If we change this policy, we'll update the date at the top of this page. For important changes, we'll give notice on the site before they take effect.</p>
+    </section>
+
+    <!-- ===================== TERMS ===================== -->
+    <section class="part" id="terms" aria-labelledby="termsTitle">
+      <h2 id="termsTitle">Terms of Use</h2>
+      <p>By creating an account or using Dayblock, you agree to these terms. If you don't agree, please don't use Dayblock.</p>
+
+      <h3>The service</h3>
+      <p>Dayblock is a free day planner with optional AI features. We may add, change or remove features, and we may pause or stop the service. Because Dayblock runs on free hosting, it may sometimes be slow or temporarily unavailable.</p>
+
+      <h3 id="t-account">Your account</h3>
+      <ul class="list">
+        <li>You must be at least 13 years old, and old enough to agree to these terms where you live.</li>
+        <li>Give an email address you control, and keep your password private. You're responsible for activity under your account.</li>
+        <li>Tell us if you think someone else has accessed your account, and change your password from Settings.</li>
+      </ul>
+
+      <h3>Your content</h3>
+      <p>Your plans, notes and messages belong to you. You give us permission to store and process them only as needed to run Dayblock for you, including sending them to our AI provider when you use an AI feature. You can delete your content at any time.</p>
+
+      <h3 id="t-use">Acceptable use</h3>
+      <p>Please don't:</p>
+      <ul class="list">
+        <li>Break the law, or use Dayblock to harm, harass or deceive anyone.</li>
+        <li>Try to access other people's accounts or data, or get around security measures.</li>
+        <li>Overload, attack, scrape or reverse-engineer the service, or use automated tools to create accounts or send requests.</li>
+        <li>Use the AI features to create unlawful or harmful content, or to make excessive requests.</li>
+      </ul>
+      <p>We may suspend or delete accounts that break these rules.</p>
+
+      <h3 id="t-ai">AI suggestions</h3>
+      <p>AI features can make mistakes: estimates, priorities, suggested times and schedule changes may be wrong. Review what the AI suggests or changes before relying on it, especially for important appointments. Changes made by the chat assistant can be undone right after they happen.</p>
+
+      <h3 id="t-liability">Disclaimers and limitation of liability</h3>
+      <p class="caps">Dayblock is provided "as is" and "as available", without warranties of any kind, to the extent the law allows. We don't promise that it will be uninterrupted, error-free, or that your data will never be lost, so keep your own copy of anything important (Settings → Download my data).</p>
+      <p class="caps">To the extent the law allows, we are not liable for indirect or consequential losses, or for missed appointments, lost data or other losses arising from your use of Dayblock. Nothing in these terms limits rights you have under consumer law that can't be limited.</p>
+
+      <h3>Ending your use</h3>
+      <p>You can stop using Dayblock and delete your account at any time from Settings. We may suspend or close accounts that break these terms or put the service or other users at risk.</p>
+
+      <h3>Changes to these terms</h3>
+      <p>We may update these terms. We'll change the date at the top of this page and, for important changes, give notice on the site. Continuing to use Dayblock after changes take effect means you accept them.</p>
+    </section>
+
+    <section class="part" id="contact" aria-labelledby="contactTitle">
+      <h2 id="contactTitle">Contact</h2>
+      <p>Questions about this policy or these terms, or a privacy request? Open an issue on the project's GitHub page: <a href="https://github.com/evanisacoder26/dayblock-scheduler/issues" rel="noopener">github.com/evanisacoder26/dayblock-scheduler/issues</a>. For account changes, downloads and deletion, <a href="/settings">Settings</a> is the fastest way.</p>
+    </section>
+  </article>
+</main>
+
+<footer class="footer">
+  <div class="wrap">
+    <span>© <span id="year"></span> Dayblock</span>
+    <span><a href="#privacy">Privacy</a><a href="#terms">Terms</a><a href="/">Home</a></span>
+  </div>
+</footer>
+<script>
+(() => {
+  document.getElementById("year").textContent = String(new Date().getFullYear());
+  // /terms (or terms.html) opens at the Terms section; /privacy at the top.
+  if (!location.hash && /\/terms(\.html)?$/.test(location.pathname)) {
+    requestAnimationFrame(() => document.getElementById("terms").scrollIntoView());
+  }
+})();
+</script>
+</body>
+</html>

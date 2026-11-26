@@ -100,6 +100,8 @@ const codeEmail = (to: string, name: string, code: string, purpose: "login" | "e
 
 /* ---------- email-code challenges ---------- */
 async function startChallenge(userId: string, sessionId: string | null, purpose: "login" | "email-change", email: string, name: string) {
+  // Housekeeping: codes are never kept longer than 30 minutes, used or not.
+  await admin.from("email_challenges").delete().lt("created_at", new Date(Date.now() - 30 * 60 * 1000).toISOString());
   const { count } = await admin.from("email_challenges").select("id", { count: "exact", head: true })
     .eq("user_id", userId).gte("created_at", new Date(Date.now() - 60 * 60 * 1000).toISOString());
   if ((count ?? 0) >= 10) throw new HttpError(429, "Too many codes requested. Try again in an hour.");

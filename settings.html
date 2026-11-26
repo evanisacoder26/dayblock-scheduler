@@ -552,7 +552,8 @@ input:disabled { background: var(--sunken); color: var(--muted); }
   function dataCard() {
     return el("section", { class: "card", id: "data", "aria-labelledby": "dataTitle" },
       el("div", { class: "card-head" }, el("h2", { id: "dataTitle", text: "Your data" }),
-        el("p", { text: "Download a copy of your account details and every task and event in your planner, as a JSON file." })),
+        el("p", null, "Download a copy of your account details and every task and event in your planner, as a JSON file. ",
+          "See the ", el("a", { href: "/privacy" }, "Privacy Policy"), " for what Dayblock stores and why.")),
       el("div", null, el("a", { class: "btn", href: "/api/account/export", download: "" }, "Download my data")));
   }
 
