@@ -48,7 +48,7 @@
     return os ? `${browser} on ${os}` : browser;
   }
   const readDevice = () => { try { return JSON.parse(localStorage.getItem(DEVICE_KEY) || "null"); } catch { return null; } };
-  const EMPTY_PLAN = { tasks: [], focus: false, dump: "" };
+  const EMPTY_PLAN = { tasks: [], series: [], focus: false, dump: "" };
 
   async function getPlan(userId) {
     const { data, error } = await sb.from("plans").select("data").eq("user_id", userId).maybeSingle();
@@ -106,7 +106,7 @@
       }
       case "PUT /api/data": {
         const u = await currentUser();
-        const plan = { tasks: Array.isArray(body.tasks) ? body.tasks.slice(0, 3000) : [], focus: Boolean(body.focus), dump: typeof body.dump === "string" ? body.dump.slice(0, 8000) : "" };
+        const plan = { tasks: Array.isArray(body.tasks) ? body.tasks.slice(0, 3000) : [], series: Array.isArray(body.series) ? body.series.slice(0, 200) : [], focus: Boolean(body.focus), dump: typeof body.dump === "string" ? body.dump.slice(0, 8000) : "" };
         const { error } = await sb.from("plans").upsert({ user_id: u.id, data: plan, updated_at: new Date().toISOString() });
         if (error) fail(500, "Couldn't save your plan.");
         return [200, { ok: true }];

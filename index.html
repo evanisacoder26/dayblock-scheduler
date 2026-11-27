@@ -416,6 +416,69 @@ dialog.ev::backdrop { background: rgba(15, 23, 42, .45); }
 .task-actions .iconbtn svg { width: 13px; height: 13px; }
 
 .foot { font-size: 12px; color: var(--faint); }
+
+/* ---------- Day / Week switch ---------- */
+.view-switch { display: inline-flex; border: 1px solid var(--line-strong); border-radius: 9px; padding: 2px; background: var(--sunken); }
+.view-switch button { border: 0; background: none; padding: 6px 14px; border-radius: 7px; font-weight: 600; font-size: 13px; color: var(--muted); cursor: pointer; }
+.view-switch button[aria-pressed="true"] { background: var(--surface); color: var(--accent); box-shadow: 0 1px 2px rgba(15,23,42,.12); }
+.view-switch button:hover:not([aria-pressed="true"]) { color: var(--fg); }
+
+/* ---------- Week view ---------- */
+.week-head { position: sticky; top: -12px; z-index: 6; display: grid; grid-template-columns: 64px repeat(7, minmax(0, 1fr)); background: var(--surface); border-bottom: 1px solid var(--line); margin-top: -12px; padding-top: 12px; }
+.wh-day { border: 0; background: none; display: grid; justify-items: center; gap: 0; padding: 6px 2px 8px; cursor: pointer; color: var(--muted); border-radius: 8px; }
+.wh-day:hover { background: var(--sunken); color: var(--fg); }
+.wh-dow { font-size: 11px; font-weight: 700; letter-spacing: .06em; text-transform: uppercase; }
+.wh-num { font-family: var(--font-display); font-size: 20px; font-weight: 700; line-height: 1.2; color: var(--fg); width: 34px; height: 34px; display: grid; place-items: center; border-radius: 50%; }
+.wh-day.today .wh-num { background: var(--accent); color: var(--on-accent); }
+.wh-day.sel:not(.today) .wh-num { box-shadow: inset 0 0 0 2px var(--accent); }
+.wh-hrs { font-family: var(--font-mono); font-size: 10.5px; color: var(--faint); min-height: 14px; }
+.week-grid { display: grid; grid-template-columns: 64px minmax(0, 1fr); }
+.week-cols { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); }
+.week-col { background-image: linear-gradient(var(--line) 1px, transparent 1px); background-size: 100% 90px; }
+.week-col.is-today { background-color: color-mix(in srgb, var(--accent-soft) 45%, transparent); }
+.week-col .offhours { opacity: .6; }
+.block.wk { left: 3px; right: 3px; padding: 3px 5px 3px 8px; border-radius: 6px; }
+.block.wk:has(.b-edit) { padding-right: 5px; }
+.block.wk .b-title { font-size: 11.5px; white-space: normal; line-height: 1.25; display: block; overflow: hidden; }
+.block.wk .b-title .check { display: none; }
+.block.wk .b-meta { font-size: 10.5px; }
+.block.wk.compact .b-title { white-space: nowrap; }
+.block.wk .b-edit, .block.wk .b-x { display: none; width: 20px; height: 20px; top: 2px; background: color-mix(in srgb, var(--surface) 80%, transparent); }
+.block.wk .b-x { right: 2px; } .block.wk .b-edit { right: 24px; }
+@media (hover: hover) { .block.wk:hover .b-edit, .block.wk:hover .b-x { display: grid; opacity: .9; } }
+.block.wk:focus-within .b-edit, .block.wk:focus-within .b-x { display: grid; opacity: .9; }
+.rep { font-size: .9em; opacity: .75; margin-right: 3px; }
+@media (max-width: 900px) {
+  .week { overflow-x: auto; }
+  .week-head, .week-grid { min-width: 660px; }
+  .week-head { position: static; margin-top: 0; padding-top: 0; }
+}
+
+/* ---------- Repeat options in the event form ---------- */
+.repeat-row { display: flex; gap: 8px; flex-wrap: wrap; }
+.repeat-row select, .repeat-row input { flex: 1 1 160px; }
+.repeat-weekly { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin-top: 8px; }
+.day-chips { display: flex; gap: 4px; flex-wrap: wrap; }
+.day-chips label { position: relative; cursor: pointer; }
+.day-chips input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.day-chips span { display: inline-grid; place-items: center; min-width: 42px; height: 32px; padding: 0 6px; border-radius: 8px; border: 1px solid var(--line-strong); font-size: 12.5px; font-weight: 600; color: var(--muted); background: var(--surface); }
+.day-chips input:checked + span { background: var(--accent); border-color: var(--accent); color: var(--on-accent); }
+.day-chips input:focus-visible + span { outline: 2px solid var(--accent); outline-offset: 2px; }
+.repeat-weekly select { width: auto; flex: 0 1 auto; }
+.repeat-summary { font-size: 12.5px; color: var(--accent); margin: 6px 0 0; min-height: 0; }
+.repeat-summary:empty { display: none; }
+#evRepeatField.disabled { opacity: .5; pointer-events: none; }
+.scope-field { background: var(--accent-soft); border-radius: 10px; padding: 10px 12px; }
+
+/* ---------- "This event or following?" prompt ---------- */
+dialog.scope-dialog { width: min(440px, calc(100vw - 32px)); }
+.scope-form { padding: 22px; display: grid; gap: 12px; }
+.scope-form h2 { font-size: 18px; }
+.scope-form p { color: var(--muted); font-size: 14px; }
+.scope-actions { display: flex; gap: 8px; flex-wrap: wrap; justify-content: flex-end; margin-top: 4px; }
+.btn-danger-solid { background: var(--bad); border-color: var(--bad); color: #fff; }
+.btn-danger-solid:hover { filter: brightness(1.08); color: #fff; border-color: var(--bad); }
+.btn-quiet { border-color: transparent; background: transparent; color: var(--muted); }
 .toast button { margin-left: 14px; border: 0; background: none; color: inherit; font: inherit; font-weight: 700; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; padding: 2px 4px; border-radius: 4px; }
 .toast button:focus-visible { outline: 2px solid currentColor; }
 .b-x svg { width: 13px; height: 13px; }
@@ -506,6 +569,10 @@ dialog.ev::backdrop { background: rgba(15, 23, 42, .45); }
         <p class="sub" id="daySub">Full day</p>
       </div>
       <div class="head-actions">
+        <div class="view-switch" role="group" aria-label="Calendar view">
+          <button type="button" id="viewDay" aria-pressed="true">Day</button>
+          <button type="button" id="viewWeek" aria-pressed="false">Week</button>
+        </div>
         <button class="btn" id="reschedule" type="button">Reschedule Remaining</button>
         <button class="btn btn-primary" id="newEvent" type="button">+ New event</button>
       </div>
@@ -518,15 +585,34 @@ dialog.ev::backdrop { background: rgba(15, 23, 42, .45); }
     </div>
     <div class="focusbar" id="focusbar" hidden></div>
     <div class="timeline-card" id="tlScroll">
-      <div class="tl-wrap">
+      <div class="tl-wrap" id="dayWrap">
         <div class="hours" id="hours" aria-hidden="true"></div>
-        <div class="tl" id="tl" aria-label="Timeline"></div>
+        <div class="tl tl-col" id="tl" aria-label="Timeline"></div>
+      </div>
+      <div class="week" id="week" hidden>
+        <div class="week-head" id="weekHead"></div>
+        <div class="week-grid">
+          <div class="hours" id="weekHours" aria-hidden="true"></div>
+          <div class="week-cols" id="weekCols"></div>
+        </div>
       </div>
     </div>
-    <p class="foot desktop-only">Click an empty spot on the timeline (or press N) to create an event. Click a block to mark it done, the pencil to edit it. Drag to move, drag the bottom edge to resize, the trash icon (or Delete key) deletes it, with Undo. Drag a block onto the backlog to unschedule it. Shaded hours are outside your 8 AM – 8 PM working day; auto-schedule keeps to working hours.</p>
+    <p class="foot desktop-only">Click an empty spot on the timeline (or press N) to create an event. Click a block to mark it done, the pencil to edit it. Drag to move, drag the bottom edge to resize, the trash icon (or Delete key) deletes it, with Undo. Drag a block onto the backlog to unschedule it. Switch to Week to plan across days; set Repeat in the event form for recurring events. Shaded hours are outside your 8 AM – 8 PM working day; auto-schedule keeps to working hours.</p>
     <p class="foot phone-only">Tap an empty spot to add an event. Tap a block to mark it done; press and hold to move it, or hold without moving to edit. Drag the bottom edge to resize. The trash icon deletes it, with Undo.</p>
   </main>
 </div>
+
+<dialog class="ev scope-dialog" id="scopeDialog" aria-labelledby="scopeTitle">
+  <form method="dialog" class="scope-form">
+    <h2 id="scopeTitle">Delete repeating event</h2>
+    <p id="scopeText">Delete only this occurrence, or this and all following ones?</p>
+    <div class="scope-actions">
+      <button class="btn" type="button" value="one" id="scopeOne">This event</button>
+      <button class="btn btn-danger-solid" type="button" value="following" id="scopeAll">This and following</button>
+      <button class="btn btn-quiet" type="button" value="cancel" id="scopeCancel">Cancel</button>
+    </div>
+  </form>
+</dialog>
 
 <nav class="mobile-tabs" id="mobileTabs" aria-label="Views">
   <button type="button" data-view="timeline" aria-pressed="true"><span class="ico" aria-hidden="true">▤</span>Timeline</button>
@@ -590,6 +676,50 @@ dialog.ev::backdrop { background: rgba(15, 23, 42, .45); }
       </div>
     </div>
     <div class="conflict" id="evConflict" role="alert" hidden></div>
+
+    <div class="ev-field scope-field" id="evScopeField" hidden>
+      <span class="lbl" id="evScopeLabel">↻ This is a repeating event. Apply changes to:</span>
+      <div class="seg" role="radiogroup" aria-labelledby="evScopeLabel">
+        <label><input type="radio" name="evScope" value="one" checked><span>This event only</span></label>
+        <label><input type="radio" name="evScope" value="following"><span>This and following events</span></label>
+      </div>
+    </div>
+
+    <div class="ev-field" id="evRepeatField">
+      <label for="evRepeat">Repeat</label>
+      <div class="repeat-row">
+        <select id="evRepeat">
+          <option value="none">Does not repeat</option>
+          <option value="daily">Every day</option>
+          <option value="weekdays">Every weekday (Mon–Fri)</option>
+          <option value="weekly">Weekly on…</option>
+          <option value="monthly">Monthly</option>
+        </select>
+        <select id="evRepeatEnd" aria-label="When the repeat ends">
+          <option value="never">Never ends</option>
+          <option value="until">Ends on a date</option>
+        </select>
+        <input type="date" id="evRepeatUntil" aria-label="Last day it repeats" hidden>
+      </div>
+      <div class="repeat-weekly" id="evRepeatWeekly" hidden>
+        <div class="day-chips" role="group" aria-label="Repeat on these days">
+          <label><input type="checkbox" value="1"><span>Mon</span></label>
+          <label><input type="checkbox" value="2"><span>Tue</span></label>
+          <label><input type="checkbox" value="3"><span>Wed</span></label>
+          <label><input type="checkbox" value="4"><span>Thu</span></label>
+          <label><input type="checkbox" value="5"><span>Fri</span></label>
+          <label><input type="checkbox" value="6"><span>Sat</span></label>
+          <label><input type="checkbox" value="0"><span>Sun</span></label>
+        </div>
+        <select id="evRepeatEvery" aria-label="How often">
+          <option value="1">Every week</option>
+          <option value="2">Every 2 weeks</option>
+          <option value="3">Every 3 weeks</option>
+          <option value="4">Every 4 weeks</option>
+        </select>
+      </div>
+      <p class="repeat-summary" id="evRepeatSummary"></p>
+    </div>
 
     <div class="ev-field">
       <span class="lbl" id="evCatLabel">Category</span>
@@ -655,16 +785,16 @@ dialog.ev::backdrop { background: rgba(15, 23, 42, .45); }
   const prettyDate = (s) => { const [y, m, d] = s.split("-").map(Number); return new Date(y, m - 1, d).toLocaleDateString([], { weekday: "long", month: "long", day: "numeric" }); };
 
   /* ---------- State ---------- */
-  let state = { tasks: [], date: todayStr(), focus: false, dump: "" };
+  let state = { tasks: [], series: [], date: todayStr(), focus: false, dump: "" };
   // Account mode (served by the Dayblock server with a logged-in user): data lives on the server.
   // Otherwise (claude.ai, opened as a file): data lives in this browser's localStorage.
   let accountMode = false;
   let syncTimer = null, syncDirty = false, syncing = false;
   function save() {
     if (accountMode) { syncDirty = true; setSync("Saving…"); clearTimeout(syncTimer); syncTimer = setTimeout(syncNow, 600); return; }
-    try { localStorage.setItem(STORE_KEY, JSON.stringify({ tasks: state.tasks, focus: state.focus, dump: state.dump })); } catch {}
+    try { localStorage.setItem(STORE_KEY, JSON.stringify({ tasks: state.tasks, series: state.series, focus: state.focus, dump: state.dump })); } catch {}
   }
-  const payload = () => JSON.stringify({ tasks: state.tasks, focus: state.focus, dump: state.dump });
+  const payload = () => JSON.stringify({ tasks: state.tasks, series: state.series, focus: state.focus, dump: state.dump });
   async function syncNow() {
     if (syncing) { syncTimer = setTimeout(syncNow, 400); return; }
     if (!syncDirty) return;
@@ -1161,21 +1291,25 @@ Reply with only JSON like {"title":"Write launch email","minutes":60,"category":
       hours.append(el("span", { class: half ? "half" : null, style: `top:${y}px`, text: half ? fmtShort(m) : fmt(m).replace(":00", "") }));
     }
     tl.append(el("div", { class: "nowline", id: "nowline", hidden: true }));
+    const wh = $("weekHours");
+    wh.style.height = `${h}px`;
+    for (let m = DAY_START + 60; m < DAY_END; m += 60) wh.append(el("span", { style: `top:${(m - DAY_START) * PX}px`, text: fmt(m).replace(":00", "") }));
   }
 
   function activeTask() {
-    if (!isToday()) return null;
     const n = nowMin();
-    const day = scheduledOn(state.date).filter((t) => !t.done);
+    const day = scheduledOn(todayStr()).filter((t) => !t.done);
     return day.find((t) => t.start <= n && n < t.start + t.minutes) || null;
   }
   function nextTask() {
-    const n = isToday() ? nowMin() : -1;
-    return scheduledOn(state.date).find((t) => !t.done && t.start > n) || null;
+    const n = nowMin();
+    return scheduledOn(todayStr()).find((t) => !t.done && t.start > n) || null;
   }
 
   function render() {
-    const day = scheduledOn(state.date);
+    const week = calView === "week";
+    const range = week ? weekDays(state.date) : [state.date];
+    const day = range.flatMap((ds) => scheduledOn(ds));
     const today = isToday();
 
     // Top bar
@@ -1185,11 +1319,23 @@ Reply with only JSON like {"title":"Write launch email","minutes":60,"category":
     const done = day.filter((t) => t.done).reduce((s, t) => s + t.minutes, 0);
     $("progressText").textContent = `${hrs(done)} / ${hrs(total)} h`;
     $("progressBar").style.width = total ? `${(done / total) * 100}%` : "0%";
+    document.querySelector(".progress-top span").textContent = week ? "This week" : "Progress";
 
     // Heading
     const tomorrow = addDays(todayStr(), 1), yesterday = addDays(todayStr(), -1);
-    $("dayTitle").textContent = today ? "Today" : state.date === tomorrow ? "Tomorrow" : state.date === yesterday ? "Yesterday" : prettyDate(state.date).split(",")[0];
-    $("daySub").textContent = `${prettyDate(state.date)} · ${day.length} block${day.length === 1 ? "" : "s"} · ${hrs(total)} h planned`;
+    if (week) {
+      const a = range[0], b = range[6];
+      const fmtD = (ds) => { const [y, m, d] = ds.split("-").map(Number); return new Date(y, m - 1, d).toLocaleDateString([], { month: "short", day: "numeric" }); };
+      $("dayTitle").textContent = range.includes(todayStr()) ? "This week" : `Week of ${fmtD(a)}`;
+      $("daySub").textContent = `${fmtD(a)} – ${fmtD(b)} · ${day.length} event${day.length === 1 ? "" : "s"} · ${hrs(total)} h planned`;
+    } else {
+      $("dayTitle").textContent = today ? "Today" : state.date === tomorrow ? "Tomorrow" : state.date === yesterday ? "Yesterday" : prettyDate(state.date).split(",")[0];
+      $("daySub").textContent = `${prettyDate(state.date)} · ${day.length} block${day.length === 1 ? "" : "s"} · ${hrs(total)} h planned`;
+    }
+    $("viewDay").setAttribute("aria-pressed", String(!week));
+    $("viewWeek").setAttribute("aria-pressed", String(week));
+    $("prevDay").setAttribute("aria-label", week ? "Previous week" : "Previous day");
+    $("nextDay").setAttribute("aria-label", week ? "Next week" : "Next day");
 
     // Focus
     const act = activeTask();
@@ -1197,34 +1343,16 @@ Reply with only JSON like {"title":"Write launch email","minutes":60,"category":
     fb.textContent = "";
     if (state.focus) {
       fb.hidden = false;
-      if (!today) fb.append("Focus Mode follows the clock, so it works on today's schedule.");
+      if (week ? !range.includes(todayStr()) : !today) fb.append("Focus Mode follows the clock, so it works on today's schedule.");
       else if (act) fb.append(el("span", { class: "dot" }), "Now: ", el("b", { text: act.title }), ` · ${Math.max(1, Math.round(act.start + act.minutes - nowMin()))} min left`);
       else { const nx = nextTask(); fb.append(nx ? ["Nothing scheduled right now. Next: ", el("b", { text: nx.title }), ` at ${fmt(nx.start)}`] : "Nothing left on today's schedule."); }
     } else fb.hidden = true;
 
-    // Timeline blocks
-    const tl = $("tl");
-    tl.querySelectorAll(".block").forEach((n) => n.remove());
-    day.forEach((t) => {
-      const h = t.minutes * PX;
-      const compact = h < 40;
-      const isActive = act && act.id === t.id;
-      const dim = state.focus && today && !isActive;
-      const b = el("div", {
-        class: `block ${CATS[t.category]}${t.done ? " done" : ""}${compact ? " compact" : ""}${dim ? " dim" : ""}${isActive && state.focus ? " active" : ""}`,
-        style: `top:${(t.start - DAY_START) * PX + 1}px;height:${h - 2}px`,
-        title: t.notes || null,
-        "data-id": t.id, tabindex: "0", role: "button", "aria-pressed": String(!!t.done),
-        "aria-label": `${t.title}, ${fmt(t.start)} to ${fmt(t.start + t.minutes)}, ${t.category}, ${t.priority} priority${t.done ? ", done" : ""}. Press Enter to toggle done.`
-      },
-        el("div", { class: "b-title" }, el("span", { class: "check", "aria-hidden": "true" }), el("span", { class: "t", text: t.title })),
-        el("div", { class: "b-meta", text: compact ? `${fmtShort(t.start)}–${fmtShort(t.start + t.minutes)}` : `${fmt(t.start)} – ${fmt(t.start + t.minutes)} · ${dur(t.minutes)} · ${t.priority}` }),
-        el("button", { class: "b-edit", type: "button", "aria-label": `Edit ${t.title}`, title: "Edit" }, pencil()),
-        el("button", { class: "b-x", type: "button", "aria-label": `Delete ${t.title}`, title: "Delete" }, trashIcon()),
-        el("div", { class: "b-resize", "aria-hidden": "true", title: "Drag to resize" })
-      );
-      tl.append(b);
-    });
+    // Timeline: one day, or Monday to Sunday side by side
+    $("dayWrap").hidden = week;
+    $("week").hidden = !week;
+    if (week) renderWeek(act);
+    else { $("tl").dataset.date = state.date; renderBlocks($("tl"), state.date, act, false); }
     updateNowLine();
 
     // Backlog
@@ -1256,11 +1384,12 @@ Reply with only JSON like {"title":"Write launch email","minutes":60,"category":
 
   // Bring the useful part of the day into view: now (today) or the start of working hours.
   function scrollTimelineTo() {
-    const target = isToday() ? Math.max(DAY_START, nowMin() - 90) : WORK_START - 30;
+    const showsToday = calView === "week" ? weekDays(state.date).includes(todayStr()) : isToday();
+    const target = showsToday ? Math.max(DAY_START, nowMin() - 90) : WORK_START - 30;
     const box = $("tlScroll");
     const y = (target - DAY_START) * PX;
     if (box.scrollHeight > box.clientHeight + 4) box.scrollTop = y;          // desktop: timeline scrolls inside its card
-    else window.scrollTo({ top: Math.max(0, $("tl").getBoundingClientRect().top + scrollY + y - 140) }); // phone: page scrolls
+    else window.scrollTo({ top: Math.max(0, $(calView === "week" ? "weekCols" : "tl").getBoundingClientRect().top + scrollY + y - 140) }); // phone: page scrolls
   }
 
   function updateNowLine() {
@@ -1269,6 +1398,146 @@ Reply with only JSON like {"title":"Write launch email","minutes":60,"category":
     const n = nowMin();
     if (isToday() && n >= DAY_START && n <= DAY_END) { line.hidden = false; line.style.top = `${(n - DAY_START) * PX}px`; }
     else line.hidden = true;
+    document.querySelectorAll(".wk-now").forEach((w) => { w.style.top = `${(n - DAY_START) * PX}px`; });
+  }
+
+  /* ---------- Repeating events ----------
+     A series is a template (title, time, length, rule). It generates normal tasks with a
+     seriesId on matching days, so dragging, ticking off, the assistant and stats all just work.
+     Occurrences are generated forward only (series.generatedUntil), so an occurrence you delete
+     or change on its own is never recreated. */
+  const SERIES_HORIZON_DAYS = 56;
+  const dowOf = (ds) => { const [y, m, d] = ds.split("-").map(Number); return new Date(y, m - 1, d).getDay(); };
+  const weekStartOf = (ds) => addDays(ds, -((dowOf(ds) + 6) % 7)); // Monday
+  const weekDays = (ds) => { const mon = weekStartOf(ds); return [0, 1, 2, 3, 4, 5, 6].map((i) => addDays(mon, i)); };
+  const daysBetween = (a, b) => { const [y1, m1, d1] = a.split("-").map(Number), [y2, m2, d2] = b.split("-").map(Number); return Math.round((Date.UTC(y2, m2 - 1, d2) - Date.UTC(y1, m1 - 1, d1)) / 864e5); };
+  const DOW_NAMES = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+
+  function occursOn(s, ds) {
+    if (ds < s.startDate || (s.until && ds > s.until)) return false;
+    const r = s.rule || {}, dow = dowOf(ds);
+    switch (r.freq) {
+      case "daily": return true;
+      case "weekdays": return dow >= 1 && dow <= 5;
+      case "weekly": {
+        const days = r.days && r.days.length ? r.days : [dowOf(s.startDate)];
+        if (!days.includes(dow)) return false;
+        return Math.round(daysBetween(weekStartOf(s.startDate), weekStartOf(ds)) / 7) % (r.interval || 1) === 0;
+      }
+      case "monthly": return Number(ds.slice(8)) === Number(s.startDate.slice(8));
+      default: return false;
+    }
+  }
+  const occurrenceId = (s, ds) => `${s.id}-${ds}`;
+
+  // Create the occurrences of every series up to `until` (YYYY-MM-DD). Returns what happened.
+  function extendSeries(until) {
+    let created = 0; const moved = [], skipped = [];
+    for (const s of state.series) {
+      let d = s.generatedUntil ? addDays(s.generatedUntil, 1) : s.startDate;
+      const end = s.until && s.until < until ? s.until : until;
+      let guard = 0;
+      while (d <= end && guard++ < 800) {
+        if (occursOn(s, d) && !state.tasks.some((x) => x.id === occurrenceId(s, d))) {
+          const busy = busyOn(d);
+          let start = fits(s.start, s.minutes, busy) ? s.start : nearestFit(s.start, s.minutes, busy);
+          if (start == null) skipped.push(d);
+          else {
+            if (start !== s.start) moved.push({ date: d, start });
+            state.tasks.push({ id: occurrenceId(s, d), seriesId: s.id, title: s.title, notes: s.notes || "", minutes: s.minutes, category: s.category, priority: s.priority, date: d, start, done: false });
+            created++;
+          }
+        }
+        d = addDays(d, 1);
+      }
+      if (!s.generatedUntil || end > s.generatedUntil) s.generatedUntil = end;
+    }
+    return { created, moved, skipped };
+  }
+  // Keep occurrences generated through the horizon (and through any week being viewed).
+  function ensureSeriesThrough(ds) {
+    if (!state.series.length) return null;
+    const horizon = addDays(todayStr(), SERIES_HORIZON_DAYS);
+    const r = extendSeries(ds && ds > horizon ? ds : horizon);
+    if (r.created) save();
+    return r;
+  }
+  function describeRule(rule, until, start) {
+    const at = start != null ? ` at ${fmt(start)}` : "";
+    const end = until ? `, until ${prettyDate(until).split(", ").slice(1).join(", ")}` : "";
+    switch (rule.freq) {
+      case "daily": return `Repeats every day${at}${end}`;
+      case "weekdays": return `Repeats every weekday${at}${end}`;
+      case "weekly": {
+        const order = [1, 2, 3, 4, 5, 6, 0];
+        const names = order.filter((d) => rule.days.includes(d)).map((d) => DOW_NAMES[d]);
+        const list = names.length > 1 ? `${names.slice(0, -1).join(", ")} and ${names[names.length - 1]}` : names[0] || "";
+        const every = (rule.interval || 1) > 1 ? `every ${rule.interval} weeks on ${list}` : `every ${list}`;
+        return `Repeats ${every}${at}${end}`;
+      }
+      case "monthly": return `Repeats monthly on day ${Number((rule.startDate || "").slice(8)) || ""}${at}${end}`;
+      default: return "";
+    }
+  }
+
+  /* ---------- Day / Week view ---------- */
+  let calView = "day";
+  try { calView = localStorage.getItem("dayblock.view") === "week" ? "week" : "day"; } catch {}
+  function setCalView(v) {
+    calView = v;
+    try { localStorage.setItem("dayblock.view", v); } catch {}
+    if (v === "week") ensureSeriesThrough(addDays(weekStartOf(state.date), 6));
+    render();
+    requestAnimationFrame(scrollTimelineTo);
+  }
+
+  function blockEl(t, { week = false, act = null } = {}) {
+    const h = t.minutes * PX;
+    const compact = h < 40;
+    const isActive = act && act.id === t.id;
+    const dim = state.focus && t.date === todayStr() && act && !isActive;
+    const shortTime = `${fmtShort(t.start)}–${fmtShort(t.start + t.minutes)}`;
+    return el("div", {
+      class: `block ${CATS[t.category]}${t.done ? " done" : ""}${compact ? " compact" : ""}${dim ? " dim" : ""}${isActive && state.focus ? " active" : ""}${week ? " wk" : ""}`,
+      style: `top:${(t.start - DAY_START) * PX + 1}px;height:${h - 2}px`,
+      title: [t.title + (t.seriesId ? " (repeats)" : ""), t.notes].filter(Boolean).join("\n"),
+      "data-id": t.id, tabindex: "0", role: "button", "aria-pressed": String(!!t.done),
+      "aria-label": `${t.title}${t.seriesId ? ", repeating" : ""}, ${prettyDate(t.date).split(",")[0]} ${fmt(t.start)} to ${fmt(t.start + t.minutes)}, ${t.category}, ${t.priority} priority${t.done ? ", done" : ""}. Press Enter to toggle done.`
+    },
+      el("div", { class: "b-title" }, el("span", { class: "check", "aria-hidden": "true" }), t.seriesId ? el("span", { class: "rep", "aria-hidden": "true", text: "↻" }) : null, el("span", { class: "t", text: t.title })),
+      el("div", { class: "b-meta", text: compact || week ? shortTime : `${fmt(t.start)} – ${fmt(t.start + t.minutes)} · ${dur(t.minutes)} · ${t.priority}` }),
+      el("button", { class: "b-edit", type: "button", "aria-label": `Edit ${t.title}`, title: "Edit" }, pencil()),
+      el("button", { class: "b-x", type: "button", "aria-label": `Delete ${t.title}`, title: "Delete" }, trashIcon()),
+      el("div", { class: "b-resize", "aria-hidden": "true", title: "Drag to resize" })
+    );
+  }
+  function renderBlocks(col, ds, act, week) {
+    col.querySelectorAll(".block").forEach((n) => n.remove());
+    scheduledOn(ds).forEach((t) => col.append(blockEl(t, { week, act })));
+  }
+  function renderWeek(act) {
+    const days = weekDays(state.date), today = todayStr();
+    const head = $("weekHead");
+    head.textContent = "";
+    head.append(el("div", { "aria-hidden": "true" }));
+    days.forEach((ds) => {
+      const mins = scheduledOn(ds).reduce((s, t) => s + t.minutes, 0);
+      const [, , d] = ds.split("-").map(Number);
+      head.append(el("button", { class: `wh-day${ds === today ? " today" : ""}${ds === state.date ? " sel" : ""}`, type: "button", "data-day": ds, "aria-label": `Open ${prettyDate(ds)} in day view` },
+        el("span", { class: "wh-dow", text: DOW_NAMES[dowOf(ds)].slice(0, 3) }),
+        el("span", { class: "wh-num", text: String(d) }),
+        el("span", { class: "wh-hrs", text: mins ? `${hrs(mins)} h` : "" })));
+    });
+    const cols = $("weekCols");
+    cols.textContent = "";
+    days.forEach((ds) => {
+      const col = el("div", { class: `tl tl-col week-col${ds === today ? " is-today" : ""}`, "data-date": ds, "aria-label": prettyDate(ds), style: `height:${(DAY_END - DAY_START) * PX}px` },
+        el("div", { class: "offhours", style: `top:0;height:${(WORK_START - DAY_START) * PX}px` }),
+        el("div", { class: "offhours", style: `top:${(WORK_END - DAY_START) * PX}px;height:${(DAY_END - WORK_END) * PX}px` }),
+        ds === today ? el("div", { class: "nowline wk-now" }) : null);
+      renderBlocks(col, ds, act, true);
+      cols.append(col);
+    });
   }
 
   /* ---------- Drag, drop, resize (pointer events: mouse, pen and touch) ---------- */
@@ -1324,7 +1593,7 @@ Reply with only JSON like {"title":"Write launch email","minutes":60,"category":
         t.minutes = minutes;
         drag.srcEl.style.height = `${minutes * PX - 2}px`;
         const meta = drag.srcEl.querySelector(".b-meta");
-        if (meta) meta.textContent = `${fmt(t.start)} – ${fmt(t.start + minutes)} · ${dur(minutes)} · ${t.priority}`;
+        if (meta) meta.textContent = drag.srcEl.classList.contains("wk") ? `${fmtShort(t.start)}–${fmtShort(t.start + minutes)}` : `${fmt(t.start)} – ${fmt(t.start + minutes)} · ${dur(minutes)} · ${t.priority}`;
       }
       return;
     }
@@ -1341,18 +1610,20 @@ Reply with only JSON like {"title":"Write launch email","minutes":60,"category":
     } else if (e.clientY < 70) window.scrollBy(0, -14); else if (e.clientY > innerHeight - 90) window.scrollBy(0, 14);
 
     const target = document.elementFromPoint(e.clientX, e.clientY);
-    const tl = $("tl"), bl = $("backlog");
-    const overTl = target && target.closest("#tl");
+    const col = target && target.closest(".tl-col");
     const overBl = target && target.closest("#backlog");
-    tl.classList.toggle("drop-active", !!overTl);
-    bl.classList.toggle("drop-target", !!overBl && drag.kind === "block");
-    let ph = tl.querySelector(".placeholder");
-    if (overTl) {
-      const r = tl.getBoundingClientRect();
+    if (drag.col && drag.col !== col) { drag.col.classList.remove("drop-active"); drag.col.querySelector(".placeholder")?.remove(); }
+    drag.col = col || null;
+    $("backlog").classList.toggle("drop-target", !!overBl && drag.kind === "block");
+    let ph = col ? col.querySelector(".placeholder") : null;
+    if (col) {
+      col.classList.add("drop-active");
+      const date = col.dataset.date || state.date;
+      const r = col.getBoundingClientRect();
       const want = DAY_START + (e.clientY - r.top - drag.grabY) / PX;
-      const start = nearestFit(want, drag.task.minutes, busyOn(state.date, [drag.task.id]));
-      drag.dropStart = start;
-      if (!ph) { ph = el("div", { class: "placeholder" }); tl.append(ph); }
+      const start = nearestFit(want, drag.task.minutes, busyOn(date, [drag.task.id]));
+      drag.dropStart = start; drag.dropDate = date;
+      if (!ph) { ph = el("div", { class: "placeholder" }); col.append(ph); }
       const shown = start ?? clamp(snap(want), DAY_START, DAY_END - drag.task.minutes);
       ph.style.top = `${(shown - DAY_START) * PX + 1}px`;
       ph.style.height = `${drag.task.minutes * PX - 2}px`;
@@ -1360,9 +1631,8 @@ Reply with only JSON like {"title":"Write launch email","minutes":60,"category":
       ph.textContent = start == null ? "No room" : `${fmt(start)} – ${fmt(start + drag.task.minutes)}`;
     } else {
       drag.dropStart = undefined;
-      if (ph) ph.remove();
     }
-    drag.over = overTl ? "tl" : overBl ? "backlog" : null;
+    drag.over = col ? "tl" : overBl ? "backlog" : null;
   }
 
   function endPointer(e) {
@@ -1370,9 +1640,9 @@ Reply with only JSON like {"title":"Write launch email","minutes":60,"category":
     const d = drag; drag = null;
     clearTimeout(d.lpTimer);
     d.srcEl.classList.remove("lifted");
-    const tl = $("tl");
-    tl.classList.remove("drop-active"); $("backlog").classList.remove("drop-target");
-    tl.querySelector(".placeholder")?.remove();
+    document.querySelectorAll(".tl-col.drop-active").forEach((c) => c.classList.remove("drop-active"));
+    $("backlog").classList.remove("drop-target");
+    document.querySelectorAll(".tl-col .placeholder").forEach((p) => p.remove());
     d.ghost?.remove();
     d.srcEl.classList.remove("dragging-src");
 
@@ -1386,7 +1656,7 @@ Reply with only JSON like {"title":"Write launch email","minutes":60,"category":
     if (d.kind === "resize") { save(); render(); return; }
 
     if (d.over === "tl" && d.dropStart != null) {
-      d.task.start = d.dropStart; d.task.date = state.date;
+      d.task.start = d.dropStart; d.task.date = d.dropDate || state.date;
       save(); render();
       return;
     }
@@ -1396,29 +1666,34 @@ Reply with only JSON like {"title":"Write launch email","minutes":60,"category":
   }
 
   // Delegated listeners
-  $("tl").addEventListener("pointerdown", (e) => {
+  $("tlScroll").addEventListener("pointerdown", (e) => {
     if (e.target.closest(".b-x, .b-edit")) return;
     const block = e.target.closest(".block");
     if (!block) return;
     const id = block.dataset.id;
     startPointer(e, e.target.closest(".b-resize") ? "resize" : "block", id, block);
   });
-  $("tl").addEventListener("click", (e) => {
+  $("tlScroll").addEventListener("click", (e) => {
+    const dayBtn = e.target.closest(".wh-day");
+    if (dayBtn) { state.date = dayBtn.dataset.day; setCalView("day"); return; }
     const x = e.target.closest(".b-x");
-    if (x) { e.stopPropagation(); deleteTask(x.closest(".block").dataset.id); return; }
+    if (x) { e.stopPropagation(); requestDelete(x.closest(".block").dataset.id); return; }
     const ed = e.target.closest(".b-edit");
     if (ed) { e.stopPropagation(); openEventDialog({ id: ed.closest(".block").dataset.id }); return; }
     if (e.target.closest(".block")) return;
-    // Empty spot: start a new event at that time (snapped to the half hour).
-    const r = $("tl").getBoundingClientRect();
+    // Empty spot: start a new event on that day at that time (snapped to the half hour).
+    const col = e.target.closest(".tl-col");
+    if (!col) return;
+    const r = col.getBoundingClientRect();
     const at = clamp(Math.floor((DAY_START + (e.clientY - r.top) / PX) / 30) * 30, DAY_START, DAY_END - 30);
-    openEventDialog({ start: at });
+    openEventDialog({ start: at, date: col.dataset.date || state.date });
   });
-  $("tl").addEventListener("keydown", (e) => {
+  $("tlScroll").addEventListener("keydown", (e) => {
     const block = e.target.closest(".block");
     if (!block || e.target !== block) return;
     if (e.key === "Enter" || e.key === " ") { e.preventDefault(); toggleDone(block.dataset.id); requestAnimationFrame(() => document.querySelector(`.block[data-id="${block.dataset.id}"]`)?.focus()); }
-    if (e.key === "Delete" || e.key === "Backspace") { e.preventDefault(); deleteTask(block.dataset.id); }
+    if (e.key === "Delete" || e.key === "Backspace") { e.preventDefault(); requestDelete(block.dataset.id); }
+    if (e.key === "e" || e.key === "E") { e.preventDefault(); openEventDialog({ id: block.dataset.id }); }
   });
   $("backlogList").addEventListener("pointerdown", (e) => {
     if (e.target.closest("[data-place], [data-edit], [data-delete]")) return;
@@ -1431,7 +1706,7 @@ Reply with only JSON like {"title":"Write launch email","minutes":60,"category":
     const ed = e.target.closest("[data-edit]");
     if (ed) openEventDialog({ id: ed.dataset.edit });
     const del = e.target.closest("[data-delete]");
-    if (del) deleteTask(del.dataset.delete);
+    if (del) requestDelete(del.dataset.delete);
   });
 
   /* ---------- Event dialog (create / edit, with AI suggestions) ---------- */
@@ -1471,7 +1746,7 @@ Reply with only JSON like {"title":"Write launch email","minutes":60,"category":
     sel.value = String(m);
   }
 
-  function openEventDialog({ id = null, start = null } = {}) {
+  function openEventDialog({ id = null, start = null, date = null } = {}) {
     const t = id ? state.tasks.find((x) => x.id === id) : null;
     evEditing = t ? t.id : null;
     evSuggestion = null; evSuggestAbort++;
@@ -1480,14 +1755,20 @@ Reply with only JSON like {"title":"Write launch email","minutes":60,"category":
     $("evDelete").hidden = !t;
     $("evTitle").value = t ? t.title : "";
     $("evNotes").value = t ? t.notes || "" : "";
-    $("evDate").value = t && t.date ? t.date : state.date;
+    $("evDate").value = t && t.date ? t.date : (date || state.date);
     let s = t ? t.start : start;
-    if (s == null && !t) s = firstFit(60, planFrom(), busyOn(state.date), autoEnd(planFrom())); // sensible default for a new event
+    if (s == null && !t) { const d0 = date || state.date; const from = d0 === todayStr() ? planFrom() : WORK_START; s = firstFit(60, from, busyOn(d0), autoEnd(from)); } // sensible default for a new event
     $("evStart").value = s == null ? "" : String(s);
     setDuration(t ? t.minutes : 60);
     setRadio("evCat", t ? t.category : "Deep Work");
     setRadio("evPri", t ? t.priority : "Medium");
     $("evAiCard").hidden = true; $("evAiCard").textContent = "";
+    // Repeat settings: a repeating occurrence shows its series; anything else starts as "does not repeat".
+    const series = t && t.seriesId ? state.series.find((x) => x.id === t.seriesId) : null;
+    $("evScopeField").hidden = !series;
+    setRadio("evScope", "one");
+    fillRepeat(series ? series.rule : null, series ? series.until : null, $("evDate").value);
+    syncRepeatUI();
     checkConflict();
     const dlg = $("evDialog");
     if (typeof dlg.showModal === "function") dlg.showModal(); else dlg.setAttribute("open", "");
@@ -1594,6 +1875,78 @@ Reply with only JSON like {"title":"Write launch email","minutes":60,"category":
     toast("Suggestion applied. Review it, then save.");
   }
 
+  /* ----- Repeat controls ----- */
+  const repeatDayBoxes = () => [...document.querySelectorAll("#evRepeatWeekly input[type=checkbox]")];
+  function fillRepeat(rule, until, dateStr) {
+    $("evRepeat").value = rule ? rule.freq : "none";
+    const days = rule && rule.days && rule.days.length ? rule.days : [dowOf(dateStr || state.date)];
+    repeatDayBoxes().forEach((b) => (b.checked = days.includes(Number(b.value))));
+    $("evRepeatEvery").value = String(rule ? rule.interval || 1 : 1);
+    $("evRepeatEnd").value = until ? "until" : "never";
+    $("evRepeatUntil").value = until || "";
+  }
+  function readRepeat() {
+    const freq = $("evRepeat").value;
+    if (freq === "none" || $("evStart").value === "") return null;
+    const rule = { freq, days: [], interval: 1 };
+    if (freq === "weekly") {
+      rule.days = repeatDayBoxes().filter((b) => b.checked).map((b) => Number(b.value));
+      if (!rule.days.length) rule.days = [dowOf($("evDate").value)];
+      rule.interval = Number($("evRepeatEvery").value) || 1;
+    }
+    const until = $("evRepeatEnd").value === "until" && /^\d{4}-\d{2}-\d{2}$/.test($("evRepeatUntil").value) ? $("evRepeatUntil").value : null;
+    return { rule, until };
+  }
+  function syncRepeatUI() {
+    const unscheduled = $("evStart").value === "";
+    const series = evEditing ? state.tasks.find((x) => x.id === evEditing)?.seriesId : null;
+    const locked = unscheduled || (series && radioVal("evScope") === "one");
+    $("evRepeatField").classList.toggle("disabled", !!locked);
+    $("evRepeat").disabled = !!locked;
+    const freq = $("evRepeat").value;
+    $("evRepeatWeekly").hidden = freq !== "weekly";
+    $("evRepeatEnd").hidden = freq === "none";
+    $("evRepeatUntil").hidden = freq === "none" || $("evRepeatEnd").value !== "until";
+    const r = readRepeat();
+    $("evRepeatSummary").textContent = unscheduled && freq !== "none" ? "Pick a start time to make it repeat."
+      : locked && series ? "To change how it repeats, choose “This and following events”."
+      : r ? describeRule({ ...r.rule, startDate: $("evDate").value }, r.until, Number($("evStart").value)) : "";
+  }
+  ["evRepeat", "evRepeatEnd", "evRepeatUntil", "evRepeatEvery", "evStart", "evDate"].forEach((id) => $(id).addEventListener("change", syncRepeatUI));
+  $("evRepeatWeekly").addEventListener("change", syncRepeatUI);
+  document.querySelectorAll('input[name="evScope"]').forEach((r) => r.addEventListener("change", syncRepeatUI));
+
+  function seriesNote(res) {
+    if (!res) return "";
+    const parts = [];
+    if (res.moved.length) parts.push(`${res.moved.length} moved to a free time`);
+    if (res.skipped.length) parts.push(`${res.skipped.length} skipped (no room that day)`);
+    return parts.length ? ` (${parts.join(", ")})` : "";
+  }
+  function createSeries(fields, rep) {
+    const s = {
+      id: uid(), title: fields.title, notes: fields.notes, minutes: fields.minutes, start: fields.start,
+      category: fields.category, priority: fields.priority, rule: rep.rule, startDate: fields.date, until: rep.until, generatedUntil: null,
+    };
+    state.series.push(s);
+    const res = extendSeries(addDays(todayStr(), SERIES_HORIZON_DAYS) > fields.date ? addDays(todayStr(), SERIES_HORIZON_DAYS) : addDays(fields.date, 28));
+    return { s, res };
+  }
+  // "This and following": end the old series the day before, drop its upcoming occurrences, start a new one.
+  function applyToFollowing(t, fields, rep) {
+    const old = state.series.find((x) => x.id === t.seriesId);
+    const cut = t.date;
+    if (old) {
+      if (cut <= old.startDate) state.series = state.series.filter((x) => x !== old);
+      else old.until = addDays(cut, -1);
+      state.tasks = state.tasks.filter((x) => !(x.seriesId === old.id && x.date && x.date >= cut && !x.done) && x.id !== t.id);
+    } else state.tasks = state.tasks.filter((x) => x.id !== t.id);
+    if (rep) return createSeries(fields, rep);
+    const single = { id: uid(), done: t.done, ...fields };
+    state.tasks.push(single);
+    return { single };
+  }
+
   function saveEvent(e) {
     e.preventDefault();
     const title = $("evTitle").value.trim();
@@ -1611,20 +1964,80 @@ Reply with only JSON like {"title":"Write launch email","minutes":60,"category":
       date: startV === "" ? null : date
     };
     let t = evEditing ? state.tasks.find((x) => x.id === evEditing) : null;
+    const rep = readRepeat();
+    const wasNew = !evEditing;
+
+    if (t && t.seriesId && radioVal("evScope") === "following") {
+      // Change every occurrence from this one on.
+      const r = applyToFollowing(t, fields, rep);
+      closeEventDialog(); save(); render();
+      toast(r.single ? `Saved “${fields.title}”. It no longer repeats from ${prettyDate(fields.date).split(",").slice(0, 2).join(",")}.` : `Updated “${fields.title}” and every following occurrence${seriesNote(r.res)}.`);
+      return;
+    }
+    if (rep && (!t || !t.seriesId)) {
+      // A new repeating event, or a one-off event turned into a repeating one.
+      if (t) state.tasks = state.tasks.filter((x) => x.id !== t.id);
+      const { s: series, res } = createSeries(fields, rep);
+      closeEventDialog(); save(); render();
+      toast(`${wasNew ? "Created" : "Saved"} “${series.title}”: ${describeRule({ ...series.rule, startDate: series.startDate }, series.until, series.start).replace(/^Repeats/, "repeats")}${seriesNote(res)}.`);
+      return;
+    }
     if (t) Object.assign(t, fields);
     else { t = { id: uid(), done: false, ...fields }; state.tasks.push(t); }
-    const wasNew = !evEditing;
     closeEventDialog();
     save(); render();
     const where = t.start == null ? "the backlog" : t.date === state.date ? fmt(t.start) : `${prettyDate(t.date)}, ${fmt(t.start)}`;
-    toast(`${wasNew ? "Created" : "Saved"} “${t.title}” · ${where}`);
+    toast(`${wasNew ? "Created" : "Saved"} “${t.title}” · ${where}${t.seriesId ? " (this occurrence only)" : ""}`);
   }
 
   $("evDelete").addEventListener("click", () => {
     const id = evEditing;
     closeEventDialog();
-    deleteTask(id);
+    requestDelete(id);
   });
+
+  // Ask whether to delete one occurrence or the rest of the series.
+  function askScope() {
+    return new Promise((resolve) => {
+      const dlg = $("scopeDialog");
+      const done = (v) => { dlg.close(); resolve(v); };
+      $("scopeOne").onclick = () => done("one");
+      $("scopeAll").onclick = () => done("following");
+      $("scopeCancel").onclick = () => done("cancel");
+      dlg.oncancel = (e) => { e.preventDefault(); done("cancel"); };
+      dlg.showModal();
+      requestAnimationFrame(() => $("scopeOne").focus());
+    });
+  }
+  async function requestDelete(id) {
+    const t = state.tasks.find((x) => x.id === id);
+    if (!t) return;
+    if (!t.seriesId || !t.date || !state.series.some((x) => x.id === t.seriesId)) { deleteTask(id); return; }
+    const choice = await askScope();
+    if (choice === "one") deleteTask(id);
+    else if (choice === "following") deleteFollowing(t);
+  }
+  function deleteFollowing(t) {
+    const s = state.series.find((x) => x.id === t.seriesId);
+    const before = { tasks: JSON.stringify(state.tasks), series: JSON.stringify(state.series) };
+    const cut = t.date;
+    if (cut <= s.startDate) state.series = state.series.filter((x) => x !== s);
+    else s.until = addDays(cut, -1);
+    const removed = state.tasks.filter((x) => x.seriesId === s.id && x.date && x.date >= cut).length;
+    state.tasks = state.tasks.filter((x) => !(x.seriesId === s.id && x.date && x.date >= cut));
+    save(); render();
+    const token = uid(), after = JSON.stringify(state.tasks);
+    lastDeleted = { token };
+    toast(`Deleted “${s.title}” from ${prettyDate(cut).split(",").slice(0, 2).join(",")} on (${removed} occurrence${removed === 1 ? "" : "s"})`, {
+      label: "Undo",
+      run: () => {
+        if (!lastDeleted || lastDeleted.token !== token) return;
+        if (JSON.stringify(state.tasks) !== after) { toast("Can't undo: the plan has changed since."); return; }
+        state.tasks = JSON.parse(before.tasks); state.series = JSON.parse(before.series); lastDeleted = null;
+        save(); render(); toast(`Restored “${s.title}”.`);
+      },
+    });
+  }
   $("evForm").addEventListener("submit", saveEvent);
   $("evSuggest").addEventListener("click", suggestForEvent);
   $("evTitle").addEventListener("input", (e) => e.target.removeAttribute("aria-invalid"));
@@ -1683,7 +2096,7 @@ Reviewing:
     const hi = [addDays(state.date, 7), addDays(today, 7)].sort()[1];
     const events = state.tasks.filter((t) => t.start != null && t.date >= lo && t.date <= hi)
       .sort((a, b) => (a.date === b.date ? a.start - b.start : a.date < b.date ? -1 : 1)).slice(0, 400);
-    const ev = events.map((t) => `[${t.id}] ${t.date} ${weekday(t.date).slice(0, 3)} ${hhmm(t.start)}-${hhmm(t.start + t.minutes)} ${t.title} | ${t.category} | ${t.priority}${t.done ? " | done" : ""}${t.notes ? ` | notes: ${t.notes.replace(/\s+/g, " ").slice(0, 100)}` : ""}`);
+    const ev = events.map((t) => `[${t.id}] ${t.date} ${weekday(t.date).slice(0, 3)} ${hhmm(t.start)}-${hhmm(t.start + t.minutes)} ${t.title} | ${t.category} | ${t.priority}${t.done ? " | done" : ""}${t.seriesId ? " | repeating" : ""}${t.notes ? ` | notes: ${t.notes.replace(/\s+/g, " ").slice(0, 100)}` : ""}`);
     const bl = backlog().slice(0, 150).map((t) => `[${t.id}] ${t.title} | ${dur(t.minutes)} | ${t.category} | ${t.priority}`);
     return `Today is ${weekday(today)} ${today}, and the time is ${hhmm(nowMin())}. The planner is currently showing ${weekday(state.date)} ${state.date}.
 Working hours are 08:00-20:00; events can be placed anywhere from 00:00 to 24:00.
@@ -1937,10 +2350,16 @@ ${bl.join("\n") || "(empty)"}`;
   const isPhoneLayout = () => matchMedia("(max-width: 900px)").matches;
 
   /* ---------- Top bar & sidebar wiring ---------- */
-  const setDate = (d) => { state.date = d; $("advice").hidden = true; render(); scrollTimelineTo(); };
+  const setDate = (d) => {
+    state.date = d; $("advice").hidden = true;
+    ensureSeriesThrough(calView === "week" ? addDays(weekStartOf(d), 6) : d);
+    render(); scrollTimelineTo();
+  };
   $("datePicker").addEventListener("change", (e) => { if (/^\d{4}-\d{2}-\d{2}$/.test(e.target.value)) setDate(e.target.value); });
-  $("prevDay").addEventListener("click", () => setDate(addDays(state.date, -1)));
-  $("nextDay").addEventListener("click", () => setDate(addDays(state.date, 1)));
+  $("prevDay").addEventListener("click", () => setDate(addDays(state.date, calView === "week" ? -7 : -1)));
+  $("nextDay").addEventListener("click", () => setDate(addDays(state.date, calView === "week" ? 7 : 1)));
+  $("viewDay").addEventListener("click", () => setCalView("day"));
+  $("viewWeek").addEventListener("click", () => setCalView("week"));
   $("todayBtn").addEventListener("click", () => setDate(todayStr()));
   $("focusToggle").addEventListener("change", (e) => { state.focus = e.target.checked; save(); render(); });
   $("autoSchedule").addEventListener("click", autoSchedule);
@@ -1991,6 +2410,7 @@ ${bl.join("\n") || "(empty)"}`;
         const data = await r.json();
         accountMode = true;
         state.tasks = (Array.isArray(data.tasks) ? data.tasks : []).filter((t) => t && t.id && t.title);
+        state.series = Array.isArray(data.series) ? data.series : [];
         state.focus = !!data.focus;
         state.dump = typeof data.dump === "string" ? data.dump : "";
         $("dump").value = state.dump;
@@ -2015,6 +2435,7 @@ ${bl.join("\n") || "(empty)"}`;
   const stored = load();
   if (stored) {
     state.tasks = stored.tasks.filter((t) => t && t.id && t.title);
+    state.series = Array.isArray(stored.series) ? stored.series : [];
     state.focus = !!stored.focus;
     state.dump = typeof stored.dump === "string" ? stored.dump : "";
     $("dump").value = state.dump;
@@ -2032,6 +2453,7 @@ ${bl.join("\n") || "(empty)"}`;
   })();
 
   function afterBoot() {
+  { const r = ensureSeriesThrough(calView === "week" ? addDays(weekStartOf(state.date), 6) : state.date); if (r && r.created) render(); }
   scrollTimelineTo();
   setInterval(() => { if (!drag) { if (state.focus) render(); else { updateNowLine(); } } }, 30000);
   }

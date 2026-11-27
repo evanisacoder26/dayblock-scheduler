@@ -310,9 +310,38 @@ function sanitizeUserData(body) {
         category: CATS_SET.has(t.category) ? t.category : "Deep Work",
         date: date, start: date ? start : null,
         done: Boolean(t.done),
+        ...(typeof t.seriesId === "string" && t.seriesId ? { seriesId: t.seriesId.slice(0, 40) } : {}),
       };
     }),
+    series: sanitizeSeries(body?.series),
   };
+}
+
+// Repeating-event templates: each one generates normal tasks (with seriesId) on matching days.
+const FREQS = new Set(["daily", "weekdays", "weekly", "monthly"]);
+const isDay = (d) => typeof d === "string" && /^\d{4}-\d{2}-\d{2}$/.test(d);
+function sanitizeSeries(list) {
+  if (!Array.isArray(list)) return [];
+  return list.slice(0, 200).filter((s) => s && typeof s.id === "string" && typeof s.title === "string" && isDay(s.startDate) && s.rule && FREQS.has(s.rule.freq)).map((s) => {
+    const start = Number.isInteger(s.start) && s.start >= 0 && s.start < 1440 ? s.start : 540;
+    return {
+      id: s.id.slice(0, 40),
+      title: s.title.slice(0, 120),
+      notes: typeof s.notes === "string" ? s.notes.slice(0, 1000) : "",
+      start,
+      minutes: Math.min(480, 1440 - start, Math.max(15, Math.round((Number(s.minutes) || 30) / 15) * 15)),
+      priority: PRI_SET.has(s.priority) ? s.priority : "Medium",
+      category: CATS_SET.has(s.category) ? s.category : "Deep Work",
+      startDate: s.startDate,
+      until: isDay(s.until) ? s.until : null,
+      generatedUntil: isDay(s.generatedUntil) ? s.generatedUntil : null,
+      rule: {
+        freq: s.rule.freq,
+        days: [...new Set((Array.isArray(s.rule.days) ? s.rule.days : []).filter((d) => Number.isInteger(d) && d >= 0 && d <= 6))],
+        interval: Math.min(4, Math.max(1, Number.parseInt(s.rule.interval, 10) || 1)),
+      },
+    };
+  });
 }
 
 function apiErrorResponse(err) {

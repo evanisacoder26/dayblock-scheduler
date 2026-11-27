@@ -264,6 +264,8 @@ tr:last-child td { border-bottom: 0; }
     <div class="chips" aria-label="Popular topics">
       <button type="button" data-q="brain dump">Brain dump</button>
       <button type="button" data-q="assistant">AI assistant</button>
+      <button type="button" data-q="repeat">Repeating events</button>
+      <button type="button" data-q="week">Week view</button>
       <button type="button" data-q="undo">Undo</button>
       <button type="button" data-q="dark mode">Dark mode</button>
       <button type="button" data-q="code">Sign-in code</button>
@@ -344,7 +346,7 @@ maybe clean up the Jira board</textarea>
           <tr><td>Move an event</td><td>Drag the block</td><td>Press and hold, then drag</td></tr>
           <tr><td>Change its length</td><td>Drag the bottom edge</td><td>Drag the bottom edge</td></tr>
           <tr><td>Mark it done</td><td>Click the block</td><td>Tap the block</td></tr>
-          <tr><td>Edit it</td><td>Pencil icon</td><td>Press and hold without moving</td></tr>
+          <tr><td>Edit it</td><td>Pencil icon, or select it and press <kbd>E</kbd></td><td>Press and hold without moving</td></tr>
           <tr><td>Add an event at a time</td><td>Click an empty spot</td><td>Tap an empty spot</td></tr>
           <tr><td>Unschedule it</td><td colspan="2">Drag it onto the backlog, or open it and set Start to “Unscheduled”</td></tr>
         </tbody>
@@ -357,6 +359,35 @@ maybe clean up the Jira board</textarea>
         <span><i style="background:var(--personal-bar)"></i>Personal</span>
       </div>
       <p>Events can never overlap. If you drop one on a taken slot, it snaps to the nearest free time.</p>
+    </section>
+
+    <section class="doc-section" id="week-view" data-group="Planning" data-title="Week view">
+      <h2><span class="icon" aria-hidden="true">📅</span>Week view<a class="anchor" href="#week-view" aria-label="Link to this section">#</a></h2>
+      <p class="lead">See Monday to Sunday side by side. Switch with the <b>Day / Week</b> buttons above the timeline.</p>
+      <ul>
+        <li><b>Drag events between days</b> and times, or stretch them to change their length, just like in day view.</li>
+        <li><b>Click an empty spot</b> in a day's column to add an event on that day.</li>
+        <li><b>Click a day's name</b> at the top to open that day in day view. Each day shows its planned hours under the date.</li>
+        <li>The arrows move a whole week at a time, and the progress bar shows the week's totals.</li>
+      </ul>
+      <div class="callout tip"><span class="ci" aria-hidden="true">💡</span><div><p>In week view, hover over an event to see its edit and delete buttons, or select it and press <kbd>E</kbd> to edit. Dayblock remembers which view you used last.</p></div></div>
+    </section>
+
+    <section class="doc-section" id="repeating" data-group="Planning" data-title="Repeating events">
+      <h2><span class="icon" aria-hidden="true">↻</span>Repeating events<a class="anchor" href="#repeating" aria-label="Link to this section">#</a></h2>
+      <p class="lead">For anything that happens on a schedule: a daily standup, gym three times a week, a monthly review.</p>
+      <ol>
+        <li>Create or edit an event and give it a start time.</li>
+        <li>Under <b>Repeat</b>, choose <b>Every day</b>, <b>Every weekday</b>, <b>Weekly on…</b> (pick the days, every 1 to 4 weeks) or <b>Monthly</b>.</li>
+        <li>Optionally set an end date. A summary like “Repeats every Monday and Wednesday at 6:00 PM” confirms your choice.</li>
+      </ol>
+      <p>Repeating events show a <b>↻</b> before their title. Each occurrence is a normal event: drag it, tick it off or change it on its own.</p>
+      <h3>Changing or deleting one vs. all</h3>
+      <ul>
+        <li>When you edit an occurrence, choose <b>This event only</b> or <b>This and following events</b>. To change how it repeats, choose the second.</li>
+        <li>When you delete one, Dayblock asks the same question. Both can be undone right after.</li>
+      </ul>
+      <div class="callout"><span class="ci" aria-hidden="true">ℹ️</span><div><p>Events never overlap, so if a repeat lands on a time that's already taken, that occurrence moves to the nearest free time that day.</p></div></div>
     </section>
 
     <section class="doc-section" id="events" data-group="Planning" data-title="Creating & editing events">
@@ -480,6 +511,7 @@ maybe clean up the Jira board</textarea>
           <tr><td><kbd>Ctrl</kbd> + <kbd>Enter</kbd></td><td>Suggest with AI</td><td>Event title</td></tr>
           <tr><td><kbd>Enter</kbd> or <kbd>Space</kbd></td><td>Mark the selected block done</td><td>Timeline</td></tr>
           <tr><td><kbd>Delete</kbd></td><td>Delete the selected block (with Undo)</td><td>Timeline</td></tr>
+          <tr><td><kbd>E</kbd></td><td>Edit the selected block</td><td>Timeline</td></tr>
           <tr><td><kbd>Enter</kbd> / <kbd>Shift</kbd> + <kbd>Enter</kbd></td><td>Send / new line</td><td>Assistant chat</td></tr>
           <tr><td><kbd>Esc</kbd></td><td>Close the assistant or a dialog</td><td>Anywhere</td></tr>
           <tr><td><kbd>/</kbd></td><td>Search this guide</td><td>This page</td></tr>
